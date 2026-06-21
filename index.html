@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Prep — Full Stack Java · Angular · K8s</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html">
+          <i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot
+          <span class="nav-badge">35</span>
+        </a>
+        <a class="nav-link" href="angular.html">
+          <i class="fa-brands fa-angular icon-fw"></i> Angular
+          <span class="nav-badge">28</span>
+        </a>
+        <a class="nav-link" href="kubernetes-devops.html">
+          <i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps
+          <span class="nav-badge">30</span>
+        </a>
+        <a class="nav-link" href="system-design.html">
+          <i class="fa-solid fa-diagram-project icon-fw"></i> System Design
+          <span class="nav-badge">20</span>
+        </a>
+        <a class="nav-link" href="kafka.html">
+          <i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive
+          <span class="nav-badge">30</span>
+        </a>
+        <a class="nav-link" href="microservices.html">
+          <i class="fa-solid fa-link icon-fw"></i> Microservices
+          <span class="nav-badge">28</span>
+        </a>
+        <a class="nav-link" href="big-tech.html">
+          <i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google
+          <span class="nav-badge">40</span>
+        </a>
+        <a class="nav-link" href="general.html">
+          <i class="fa-solid fa-brain icon-fw"></i> General &amp; Soft Skills
+          <span class="nav-badge">32</span>
+        </a>
+        <a class="nav-link" href="java-refresher.html">
+          <i class="fa-solid fa-book-open icon-fw"></i> Java 8–16 Refresher
+        </a>
+        <a class="nav-link" href="patterns.html">
+          <i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">32</span>
+        </a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#"><span class="icon" style="color:#10b981">●</span> Easy</a>
+        <a class="nav-link" href="#"><span class="icon" style="color:#f59e0b">●</span> Medium</a>
+        <a class="nav-link" href="#"><span class="icon" style="color:#ef4444">●</span> Hard</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="text-muted">113 questions across 4 topics</p>
+    </div>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────────── -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title">Dashboard <span>Interview Preparation Course</span></div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input id="searchInput" type="text" placeholder="Search questions…">
+      </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-badge">🚀 Interview Ready</div>
+        <h1>Full Stack Developer<br>Interview Playbook</h1>
+        <p>Comprehensive Q&amp;A, code examples, and insider tips for Java Spring Boot, Angular, Kubernetes, and System Design interviews. Click any topic to start.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">113</div><div class="lbl">Questions</div></div>
+          <div class="hero-stat"><div class="num">4</div><div class="lbl">Topic Areas</div></div>
+          <div class="hero-stat"><div class="num">50+</div><div class="lbl">Code Examples</div></div>
+          <div class="hero-stat"><div class="num">3</div><div class="lbl">Difficulty Levels</div></div>
+        </div>
+      </div>
+
+      <!-- Topic Cards -->
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(99,102,241,.15)"><i class="fa-solid fa-book-open"></i></div>
+        <div>
+          <h2>Study Topics</h2>
+          <p>Click a card to open the full question set</p>
+        </div>
+      </div>
+
+      <div class="topic-grid">
+
+        <a class="topic-card java" href="java-spring.html">
+          <div class="topic-card-icon"><i class="fa-solid fa-mug-hot"></i></div>
+          <h3>Java &amp; Spring Boot</h3>
+          <p>Core Java 17–21, Spring IoC/DI, REST APIs, Security, JPA/Hibernate, transactions, and microservices patterns.</p>
+          <div class="topic-card-meta">
+            <span class="tag java">Java 21</span>
+            <span class="tag java">Spring Boot 3</span>
+            <span class="tag java">35 Q</span>
+            <span class="topic-card-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="topic-card angular" href="angular.html">
+          <div class="topic-card-icon"><i class="fa-brands fa-angular"></i></div>
+          <h3>Angular</h3>
+          <p>Components, lifecycle hooks, RxJS, change detection, lazy loading, standalone components, signals, and testing.</p>
+          <div class="topic-card-meta">
+            <span class="tag angular">Angular 17+</span>
+            <span class="tag angular">RxJS</span>
+            <span class="tag angular">28 Q</span>
+            <span class="topic-card-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="topic-card k8s" href="kubernetes-devops.html">
+          <div class="topic-card-icon"><i class="fa-solid fa-dharmachakra"></i></div>
+          <h3>Kubernetes &amp; DevOps</h3>
+          <p>Pods, deployments, services, Helm, HPA, probes, resource management, CI/CD pipelines, Docker, and GitOps.</p>
+          <div class="topic-card-meta">
+            <span class="tag k8s">K8s</span>
+            <span class="tag k8s">Docker</span>
+            <span class="tag k8s">30 Q</span>
+            <span class="topic-card-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="topic-card system" href="system-design.html">
+          <div class="topic-card-icon"><i class="fa-solid fa-diagram-project"></i></div>
+          <h3>System Design</h3>
+          <p>Scalability, caching, load balancing, database sharding, event-driven architecture, CAP theorem, microservices vs monolith.</p>
+          <div class="topic-card-meta">
+            <span class="tag">Distributed</span>
+            <span class="tag">Microservices</span>
+            <span class="tag">20 Q</span>
+            <span class="topic-card-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="topic-card" style="background:linear-gradient(135deg,rgba(0,188,212,.1),rgba(0,188,212,.04));border-color:rgba(0,188,212,.3)" href="kafka.html">
+          <div class="topic-card-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+          <h3>Kafka Deep Dive</h3>
+          <p>Brokers, partitions, producers, consumers, Kafka Streams, Schema Registry, Debezium CDC, Spring Kafka, testing patterns.</p>
+          <div class="topic-card-meta">
+            <span class="tag" class="chip-cyan">Kafka</span>
+            <span class="tag" class="chip-cyan">Streams</span>
+            <span class="tag" class="chip-cyan">30 Q</span>
+            <span class="topic-card-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="topic-card" style="background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.04));border-color:rgba(16,185,129,.3)" href="microservices.html">
+          <div class="topic-card-icon"><i class="fa-solid fa-link"></i></div>
+          <h3>Microservices</h3>
+          <p>DDD, Bounded Contexts, Saga pattern, CQRS, Event Sourcing, Circuit Breaker, Strangler Fig migration, observability, security.</p>
+          <div class="topic-card-meta">
+            <span class="tag" class="chip-success">DDD</span>
+            <span class="tag" class="chip-success">Resilience4j</span>
+            <span class="tag" class="chip-success">28 Q</span>
+            <span class="topic-card-arrow">→</span>
+          </div>
+        </a>
+
+        <a class="topic-card" style="background:linear-gradient(135deg,rgba(255,153,0,.1),rgba(66,133,244,.06));border-color:rgba(255,153,0,.3)" href="big-tech.html">
+          <div class="topic-card-icon"><i class="fa-solid fa-building"></i></div>
+          <h3>Amazon &amp; Google</h3>
+          <p>All 16 Amazon Leadership Principles with STAR frameworks. Google Googleyness, cognitive ability, behavioral and technical questions.</p>
+          <div class="topic-card-meta">
+            <span class="tag" class="chip-aws">Amazon LPs</span>
+            <span class="tag" class="chip-gcp">Google</span>
+            <span class="tag">40 Q</span>
+            <span class="topic-card-arrow">→</span>
+          </div>
+        </a>
+
+      </div>
+
+      <hr class="divider">
+
+      <!-- Interview Tips -->
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(16,185,129,.15)"><i class="fa-solid fa-lightbulb"></i></div>
+        <div>
+          <h2>Interview Strategy</h2>
+          <p>Tactics that separate seniors from juniors</p>
+        </div>
+      </div>
+
+      <div class="topic-grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))">
+
+        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
+          <div style="font-size:28px;margin-bottom:10px">🎯</div>
+          <h3 style="font-size:15px;margin-bottom:8px">STAR Method</h3>
+          <p style="font-size:13px;color:var(--text-secondary)"><strong>Situation</strong> → <strong>Task</strong> → <strong>Action</strong> → <strong>Result</strong>. Use this structure for every behavioural question to sound concrete and credible.</p>
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
+          <div style="font-size:28px;margin-bottom:10px">🤔</div>
+          <h3 style="font-size:15px;margin-bottom:8px">Think Aloud</h3>
+          <p style="font-size:13px;color:var(--text-secondary)">Verbalise your reasoning before and during coding. Interviewers hire for thinking process, not just final answer.</p>
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
+          <div style="font-size:28px;margin-bottom:10px">⚖️</div>
+          <h3 style="font-size:15px;margin-bottom:8px">Trade-offs First</h3>
+          <p style="font-size:13px;color:var(--text-secondary)">Senior engineers don't say "use X". They say "X solves A but costs B; given your constraints I'd choose X because…"</p>
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
+          <div style="font-size:28px;margin-bottom:10px">❓</div>
+          <h3 style="font-size:15px;margin-bottom:8px">Ask Clarifying Qs</h3>
+          <p style="font-size:13px;color:var(--text-secondary)">For any system design prompt, spend 2 min asking about scale, SLAs, read/write ratio before proposing anything.</p>
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
+          <div style="font-size:28px;margin-bottom:10px">🔄</div>
+          <h3 style="font-size:15px;margin-bottom:8px">Iterate Visibly</h3>
+          <p style="font-size:13px;color:var(--text-secondary)">Start with brute force or naive solution, acknowledge limitations, then refine. Shows intellectual honesty.</p>
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
+          <div style="font-size:28px;margin-bottom:10px">📝</div>
+          <h3 style="font-size:15px;margin-bottom:8px">Prepare Questions</h3>
+          <p style="font-size:13px;color:var(--text-secondary)">Always have 3 smart questions for the interviewer: team tech debt approach, deployment cadence, on-call culture.</p>
+        </div>
+
+      </div>
+
+      <hr class="divider">
+
+      <!-- Quick Reference -->
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(245,158,11,.15)"><i class="fa-solid fa-bolt"></i></div>
+        <div>
+          <h2>Quick Reference Cheat Sheet</h2>
+          <p>Concepts interviewers love to ask about</p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:200px">Concept</th>
+              <th>Explanation — what it means, why it matters, what to say in an interview</th>
+              <th style="width:80px">Topic</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>@Transactional propagation</strong></td>
+              <td>Controls what happens when one <code>@Transactional</code> method calls another. <strong>REQUIRED</strong> (default): if a transaction already exists, join it — if not, create one. <strong>REQUIRES_NEW</strong>: always suspend the current transaction and open a brand new one, even if one is already running — useful when you want to commit something independently (e.g. an audit log entry) even if the outer transaction rolls back. Common interview trap: calling a <code>@Transactional</code> method on <em>the same class</em> bypasses the proxy → propagation doesn't apply.</td>
+              <td><span class="tag java">Spring</span></td>
+            </tr>
+            <tr>
+              <td><strong>N+1 Problem</strong></td>
+              <td>A performance bug caused by lazy loading in JPA/Hibernate. If you load 100 orders and each order lazily loads its items, Hibernate runs 1 query for the orders + 100 separate queries for items = 101 queries total. Fix: use <code>JOIN FETCH</code> in JPQL (<code>SELECT o FROM Order o JOIN FETCH o.items</code>) or add <code>@EntityGraph</code> to the repository method. This merges it into a single SQL JOIN. If you're not sure it's happening: enable SQL logging (<code>spring.jpa.show-sql=true</code>) and count the queries.</td>
+              <td><span class="tag java">JPA</span></td>
+            </tr>
+            <tr>
+              <td><strong>Change Detection (Angular)</strong></td>
+              <td>Angular's mechanism for updating the DOM when data changes. <strong>Default strategy</strong>: Angular checks every component in the entire tree on every async event (click, HTTP response, timer). <strong>OnPush strategy</strong>: Angular only checks a component when its <code>@Input</code> reference changes or an Observable it subscribes to emits — much faster for large apps. <strong>Signals</strong> (Angular 17+) make change detection even more precise: only the specific DOM node that reads a signal is updated when the signal changes.</td>
+              <td><span class="tag angular">Angular</span></td>
+            </tr>
+            <tr>
+              <td><strong>Subject vs BehaviorSubject</strong></td>
+              <td>Both are RxJS Observables that you can push values into manually (<code>.next(value)</code>). The difference is what a <em>new subscriber</em> sees. <strong>Subject</strong>: new subscriber gets nothing — it only sees future values, not the current state. <strong>BehaviorSubject</strong>: requires an initial value; new subscriber immediately gets the <em>last emitted value</em> as soon as they subscribe. Use BehaviorSubject for application state (e.g. current user, cart contents) so any component that subscribes can immediately read the current state.</td>
+              <td><span class="tag angular">RxJS</span></td>
+            </tr>
+            <tr>
+              <td><strong>Pod vs Container</strong></td>
+              <td>In Kubernetes, a <strong>Pod</strong> is the smallest deployable unit — it's a wrapper around one or more containers that share the same network namespace (they can reach each other via localhost) and the same storage volumes. You almost always have one container per pod. The pod gets one IP address; Kubernetes handles scheduling the pod onto a node. A <strong>container</strong> is just the Docker image running inside the pod. If the container crashes, Kubernetes restarts it; if the node dies, Kubernetes reschedules the pod on a different node.</td>
+              <td><span class="tag k8s">K8s</span></td>
+            </tr>
+            <tr>
+              <td><strong>Liveness vs Readiness probe</strong></td>
+              <td>Two separate health checks Kubernetes uses. <strong>Liveness</strong>: "Is this pod still alive?" — if it fails, K8s kills and restarts the pod. Keep this simple (just check the process is responding). <strong>Readiness</strong>: "Is this pod ready to receive traffic?" — if it fails, K8s removes the pod from the Service's load balancer but does NOT restart it. Use readiness to check external dependencies (DB, Kafka). This way, if your database goes down, pods are taken out of rotation without being restarted (which wouldn't help anyway).</td>
+              <td><span class="tag k8s">K8s</span></td>
+            </tr>
+            <tr>
+              <td><strong>CAP Theorem</strong></td>
+              <td>In a distributed system (multiple servers), network partitions (servers losing connection to each other) will always happen. When that occurs, you can only guarantee one of: <strong>Consistency</strong> (every read gets the most recent write — all nodes agree) or <strong>Availability</strong> (the system always responds, even if the response might be stale). Example: PostgreSQL/ZooKeeper choose CP — they refuse writes if they can't reach a quorum. Cassandra/DynamoDB choose AP — they accept writes and reads even when partitioned, and sync up later.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr>
+              <td><strong>Eventual Consistency</strong></td>
+              <td>A consistency model used by AP databases (Cassandra, DynamoDB, Redis Cluster): after a write, different replicas may temporarily return different values, but they are guaranteed to converge to the same value eventually (usually within milliseconds to seconds). The trade-off: you get high availability and low latency, but a user might briefly read stale data after a write. Acceptable for: social media feeds, product catalogue, recommendations. Not acceptable for: bank balance, inventory counts, payment status.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr>
+              <td><strong>CQRS</strong></td>
+              <td>Command Query Responsibility Segregation. Instead of one data model that handles both writes and reads, you split them: <strong>Commands</strong> (create order, cancel order) write to a normalised, consistent database (PostgreSQL). <strong>Queries</strong> (search orders, get dashboard stats) read from a separate, denormalised read model (Elasticsearch, Redis, a materialised view) that's optimised purely for reading. The read model is updated asynchronously from the write model via events (Kafka). Use it when your read requirements are too complex or performance-demanding to be served efficiently by the write database.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr>
+              <td><strong>Saga Pattern</strong></td>
+              <td>A way to manage multi-step business processes across multiple microservices without a distributed transaction (which doesn't scale). Each service does its own local database transaction and publishes an event. If a later step fails, each previous service runs a <strong>compensating transaction</strong> to undo its work (e.g. refund the payment, release the inventory reservation). Two styles: <strong>Choreography</strong> — services react to each other's events directly (simple, no single point of failure, hard to see the whole flow). <strong>Orchestration</strong> — a central Saga coordinator calls each service in sequence and handles compensation (easier to debug, but the coordinator is a bottleneck).</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Abbreviations Glossary -->
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(99,102,241,.15)"><i class="fa-solid fa-font"></i></div>
+        <div>
+          <h2>Abbreviations &amp; Glossary</h2>
+          <p>Every acronym used in this course — explained in plain language</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div class="search-box" style="max-width:360px">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input id="glossarySearch" type="text" placeholder="Search abbreviation or term…" oninput="filterGlossary(this.value)">
+        </div>
+      </div>
+
+      <div class="table-wrap" id="glossaryTable">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:120px">Abbreviation</th>
+              <th>Full name</th>
+              <th>Plain-language explanation</th>
+              <th style="width:90px">Topic</th>
+            </tr>
+          </thead>
+          <tbody id="glossaryBody">
+            <!-- ── GENERAL / INTERVIEW ── -->
+            <tr data-g="SLA Service Level Agreement">
+              <td><strong>SLA</strong></td>
+              <td>Service Level Agreement</td>
+              <td>A contract between a service provider and a customer that defines the minimum acceptable performance — for example "99.9% uptime" or "response time under 200ms". If the SLA is breached, there are usually financial penalties (credits, refunds). For an API this might mean: "our API will respond within 500ms for 99% of requests."</td>
+              <td><span class="tag">General</span></td>
+            </tr>
+            <tr data-g="SLO Service Level Objective">
+              <td><strong>SLO</strong></td>
+              <td>Service Level Objective</td>
+              <td>An internal target your engineering team sets — slightly stricter than the SLA. If the SLA is 99.9% uptime, your SLO might be 99.95% so you have a safety margin before the SLA is breached. SLOs drive the alerting and on-call decisions.</td>
+              <td><span class="tag">General</span></td>
+            </tr>
+            <tr data-g="SLI Service Level Indicator">
+              <td><strong>SLI</strong></td>
+              <td>Service Level Indicator</td>
+              <td>The actual measured metric used to track your SLO — e.g., "percentage of HTTP requests that returned 2xx within 300ms over the last 30 days." SLI is the measurement; SLO is the target; SLA is the contract.</td>
+              <td><span class="tag">General</span></td>
+            </tr>
+            <tr data-g="STAR Situation Task Action Result">
+              <td><strong>STAR</strong></td>
+              <td>Situation, Task, Action, Result</td>
+              <td>A structured interview storytelling framework. <strong>S</strong>ituation: set the scene. <strong>T</strong>ask: what was your responsibility. <strong>A</strong>ction: what YOU specifically did (use "I", not "we"). <strong>R</strong>esult: the concrete outcome with numbers. Amazon and Google require STAR stories for behavioral questions.</td>
+              <td><span class="tag">Interview</span></td>
+            </tr>
+            <tr data-g="LP Leadership Principle">
+              <td><strong>LP</strong></td>
+              <td>Leadership Principle</td>
+              <td>Amazon's 16 core values (Customer Obsession, Ownership, Dive Deep…). Every Amazon behavioral interview question maps to one or more of these. Interviewers are assigned specific LPs to probe in each round.</td>
+              <td><span class="tag">Interview</span></td>
+            </tr>
+            <tr data-g="PR Pull Request">
+              <td><strong>PR</strong></td>
+              <td>Pull Request</td>
+              <td>A request to merge a feature branch into the main branch. The PR is reviewed by teammates before merging. Also called MR (Merge Request) in GitLab.</td>
+              <td><span class="tag">General</span></td>
+            </tr>
+
+            <!-- ── JAVA / SPRING ── -->
+            <tr data-g="JVM Java Virtual Machine">
+              <td><strong>JVM</strong></td>
+              <td>Java Virtual Machine</td>
+              <td>The runtime that executes compiled Java bytecode. It handles memory management (GC), JIT compilation (converting bytecode to native CPU instructions at runtime), and platform abstraction. When you see "tune the JVM", it means adjusting heap size, GC algorithm, thread counts, etc.</td>
+              <td><span class="tag java">Java</span></td>
+            </tr>
+            <tr data-g="GC Garbage Collector Garbage Collection">
+              <td><strong>GC</strong></td>
+              <td>Garbage Collector / Garbage Collection</td>
+              <td>The JVM process that automatically frees memory occupied by objects no longer in use. "GC pause" means the app stops briefly while GC runs. Modern collectors (G1, ZGC) minimise pauses. OOMKilled means the app ran out of memory before GC could free enough.</td>
+              <td><span class="tag java">Java</span></td>
+            </tr>
+            <tr data-g="IoC Inversion of Control">
+              <td><strong>IoC</strong></td>
+              <td>Inversion of Control</td>
+              <td>Instead of your code creating its own dependencies (new DatabaseService()), a container (Spring) creates and injects them for you. You declare what you need; the framework decides when and how to provide it. This makes code easier to test and change.</td>
+              <td><span class="tag java">Spring</span></td>
+            </tr>
+            <tr data-g="DI Dependency Injection">
+              <td><strong>DI</strong></td>
+              <td>Dependency Injection</td>
+              <td>The most common implementation of IoC — dependencies are "injected" (passed in) via constructor, setter, or field. Spring does this automatically based on @Autowired / constructor scanning. Constructor injection is preferred because it makes dependencies explicit and classes testable without a Spring context.</td>
+              <td><span class="tag java">Spring</span></td>
+            </tr>
+            <tr data-g="AOP Aspect-Oriented Programming">
+              <td><strong>AOP</strong></td>
+              <td>Aspect-Oriented Programming</td>
+              <td>A way to add cross-cutting behaviour (logging, security checks, transaction management) to methods without changing the method's own code. Spring's @Transactional uses AOP: it wraps your method with begin/commit/rollback logic transparently.</td>
+              <td><span class="tag java">Spring</span></td>
+            </tr>
+            <tr data-g="JPA Java Persistence API">
+              <td><strong>JPA</strong></td>
+              <td>Java Persistence API</td>
+              <td>A Java specification for ORM — it defines how Java objects map to database tables. Spring Data JPA uses Hibernate as its JPA implementation. You write @Entity classes and Repository interfaces; JPA + Hibernate generate the SQL.</td>
+              <td><span class="tag java">JPA</span></td>
+            </tr>
+            <tr data-g="ORM Object-Relational Mapping">
+              <td><strong>ORM</strong></td>
+              <td>Object-Relational Mapping</td>
+              <td>A technique that lets you work with database records as Java objects instead of writing raw SQL. Hibernate is the most popular Java ORM. It maps a "User" class to a "users" table and handles INSERT/UPDATE/SELECT automatically.</td>
+              <td><span class="tag java">JPA</span></td>
+            </tr>
+            <tr data-g="DTO Data Transfer Object">
+              <td><strong>DTO</strong></td>
+              <td>Data Transfer Object</td>
+              <td>A simple object used to carry data between layers (controller → service → client) without exposing your full database entity. A UserDTO might have only {id, email, name} while the User entity also has {passwordHash, auditLog, internalFlags}.</td>
+              <td><span class="tag java">Spring</span></td>
+            </tr>
+            <tr data-g="JWT JSON Web Token">
+              <td><strong>JWT</strong></td>
+              <td>JSON Web Token</td>
+              <td>A compact, self-contained token for transmitting identity information. Structured as three Base64-encoded parts: header.payload.signature. The server signs the payload with a secret key; anyone with the public key can verify it hasn't been tampered with — so services don't need to query a database to validate the user.</td>
+              <td><span class="tag java">Security</span></td>
+            </tr>
+            <tr data-g="OAuth Open Authorization">
+              <td><strong>OAuth</strong></td>
+              <td>Open Authorization</td>
+              <td>A protocol for delegated access — "log in with Google" is OAuth. An app gets an access token on behalf of a user without ever seeing their password. OAuth 2.0 is the current standard; JWTs are commonly used as the access token format.</td>
+              <td><span class="tag java">Security</span></td>
+            </tr>
+            <tr data-g="OIDC OpenID Connect">
+              <td><strong>OIDC</strong></td>
+              <td>OpenID Connect</td>
+              <td>An identity layer on top of OAuth 2.0 that adds user authentication (who you are) on top of OAuth's authorisation (what you can do). When you "sign in with Google", OIDC gives you an ID Token (a JWT with user info like email, name).</td>
+              <td><span class="tag java">Security</span></td>
+            </tr>
+            <tr data-g="SQL Structured Query Language">
+              <td><strong>SQL</strong></td>
+              <td>Structured Query Language</td>
+              <td>The standard language for relational databases (PostgreSQL, MySQL). SELECT, INSERT, UPDATE, DELETE. Parameterised queries (PreparedStatement) prevent SQL injection by separating the query structure from the user-supplied values.</td>
+              <td><span class="tag">Database</span></td>
+            </tr>
+            <tr data-g="OOM Out of Memory">
+              <td><strong>OOM</strong></td>
+              <td>Out of Memory</td>
+              <td>The JVM ran out of heap space and threw OutOfMemoryError. In Kubernetes, "OOMKilled" means the container exceeded its memory limit and was killed by the OS. Fix: increase memory limit, reduce object retention, fix memory leaks, or tune GC.</td>
+              <td><span class="tag java">Java</span></td>
+            </tr>
+            <tr data-g="SOLID Single Responsibility Open Closed Liskov Substitution Interface Segregation Dependency Inversion">
+              <td><strong>SOLID</strong></td>
+              <td>5 OOP design principles</td>
+              <td><strong>S</strong>ingle Responsibility — one class, one reason to change. <strong>O</strong>pen/Closed — open for extension, closed for modification. <strong>L</strong>iskov Substitution — subclasses must be usable wherever base class is expected. <strong>I</strong>nterface Segregation — small focused interfaces over one big one. <strong>D</strong>ependency Inversion — depend on abstractions, not concrete classes.</td>
+              <td><span class="tag java">Design</span></td>
+            </tr>
+            <tr data-g="ACID Atomicity Consistency Isolation Durability">
+              <td><strong>ACID</strong></td>
+              <td>Atomicity, Consistency, Isolation, Durability</td>
+              <td>The four properties that guarantee reliable database transactions. <strong>A</strong>tomicity: all-or-nothing (no partial commits). <strong>C</strong>onsistency: only valid data is written. <strong>I</strong>solation: concurrent transactions don't see each other's in-progress changes. <strong>D</strong>urability: committed data survives crashes.</td>
+              <td><span class="tag">Database</span></td>
+            </tr>
+
+            <!-- ── ARCHITECTURE / DESIGN ── -->
+            <tr data-g="API Application Programming Interface">
+              <td><strong>API</strong></td>
+              <td>Application Programming Interface</td>
+              <td>A defined contract for how software components talk to each other. A REST API is one where you make HTTP requests (GET, POST…) and get back JSON. "API design" means deciding which endpoints exist, what parameters they take, and what they return.</td>
+              <td><span class="tag">General</span></td>
+            </tr>
+            <tr data-g="REST Representational State Transfer">
+              <td><strong>REST</strong></td>
+              <td>Representational State Transfer</td>
+              <td>An architectural style for APIs: resources are identified by URLs (/users/42), state is transferred via HTTP methods (GET=read, POST=create, PUT=replace, PATCH=partial update, DELETE=remove), and responses are stateless (server doesn't remember the client between calls).</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="gRPC Google Remote Procedure Call">
+              <td><strong>gRPC</strong></td>
+              <td>Google Remote Procedure Call</td>
+              <td>A high-performance framework for service-to-service communication. Uses Protocol Buffers (binary format, much smaller than JSON) over HTTP/2 (faster than HTTP/1.1). Common for internal microservice calls where performance matters. Requires .proto schema files; generates client and server code automatically.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="CQRS Command Query Responsibility Segregation">
+              <td><strong>CQRS</strong></td>
+              <td>Command Query Responsibility Segregation</td>
+              <td>Separating write operations (Commands: create order, update address) from read operations (Queries: list orders, search products) into separate models or even separate databases. Reads can be optimised projections (denormalised, fast); writes enforce business rules on normalised data.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="DDD Domain-Driven Design">
+              <td><strong>DDD</strong></td>
+              <td>Domain-Driven Design</td>
+              <td>A software design approach where the structure of code mirrors the structure of the real-world business domain. Key concepts: Bounded Context (a boundary within which a term has one precise meaning), Aggregate (a cluster of objects treated as one unit), Entity (has identity), Value Object (defined by its value, no identity).</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="CAP Consistency Availability Partition Tolerance">
+              <td><strong>CAP</strong></td>
+              <td>Consistency, Availability, Partition Tolerance</td>
+              <td>A theorem: a distributed system can guarantee at most 2 of these 3 properties simultaneously. In practice, network partitions always happen, so you choose between CP (consistent but may be unavailable during a partition — e.g., ZooKeeper) or AP (available but may return stale data — e.g., Cassandra).</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="BASE Basically Available Soft State Eventually Consistent">
+              <td><strong>BASE</strong></td>
+              <td>Basically Available, Soft state, Eventually consistent</td>
+              <td>The alternative to ACID for distributed/NoSQL systems. <strong>B</strong>asically Available: the system responds even if some nodes are down. <strong>S</strong>oft state: state may change over time even without new input (due to replication). <strong>E</strong>ventually consistent: all nodes will agree eventually, but not necessarily right now. DynamoDB, Cassandra are BASE systems.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="ACL Anti-Corruption Layer">
+              <td><strong>ACL</strong></td>
+              <td>Anti-Corruption Layer</td>
+              <td>A translation layer between two systems with incompatible models. Prevents the poor design of a legacy system from "leaking" into your clean new service. Your new code works with its own clean types; the ACL translates to/from the legacy model at the boundary.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="BFF Backend For Frontend">
+              <td><strong>BFF</strong></td>
+              <td>Backend For Frontend</td>
+              <td>A separate API gateway (or aggregation layer) built specifically for one type of client — mobile BFF, web BFF, partner API BFF. Each BFF aggregates data from microservices in the shape the client actually needs, instead of one generic API trying to serve all clients equally badly.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="CDC Change Data Capture">
+              <td><strong>CDC</strong></td>
+              <td>Change Data Capture</td>
+              <td>Reading the database's internal write log (WAL — Write-Ahead Log) to stream every INSERT/UPDATE/DELETE to a message broker in real time. Debezium is the most popular CDC tool. Used to implement the Outbox pattern and to sync data between services without polling.</td>
+              <td><span class="tag">Design</span></td>
+            </tr>
+            <tr data-g="WAL Write-Ahead Log">
+              <td><strong>WAL</strong></td>
+              <td>Write-Ahead Log</td>
+              <td>PostgreSQL's internal sequential log of every data change before it's applied to the data files. Used for crash recovery. Debezium reads this log to implement CDC — it sees every row change the moment it's committed, without any application code changes needed.</td>
+              <td><span class="tag">Database</span></td>
+            </tr>
+            <tr data-g="mTLS mutual TLS Transport Layer Security">
+              <td><strong>mTLS</strong></td>
+              <td>Mutual Transport Layer Security</td>
+              <td>Normal TLS (HTTPS) verifies only the server's certificate. mTLS adds mutual verification — the client also presents a certificate. Used between microservices to prove identity at the network level: only services with a valid certificate (issued by your internal CA) can call other services.</td>
+              <td><span class="tag">Security</span></td>
+            </tr>
+
+            <!-- ── KUBERNETES ── -->
+            <tr data-g="K8s Kubernetes">
+              <td><strong>K8s</strong></td>
+              <td>Kubernetes</td>
+              <td>An open-source container orchestration platform. It runs your Docker containers, handles scheduling (which container runs on which server), restarts crashed containers, scales them up/down, and routes network traffic. The name comes from Greek for "helmsman"; k-8letters-s = K8s.</td>
+              <td><span class="tag k8s">K8s</span></td>
+            </tr>
+            <tr data-g="HPA Horizontal Pod Autoscaler">
+              <td><strong>HPA</strong></td>
+              <td>Horizontal Pod Autoscaler</td>
+              <td>A Kubernetes controller that automatically adds or removes pod replicas based on CPU, memory, or custom metrics (e.g., Kafka consumer lag). "Horizontal" means more instances of the same pod, as opposed to VPA which gives each pod more CPU/memory.</td>
+              <td><span class="tag k8s">K8s</span></td>
+            </tr>
+            <tr data-g="VPA Vertical Pod Autoscaler">
+              <td><strong>VPA</strong></td>
+              <td>Vertical Pod Autoscaler</td>
+              <td>Automatically adjusts the CPU and memory requests/limits for individual pods based on their actual usage history. Useful for workloads that can't scale horizontally (e.g., stateful singletons). Can be disruptive because it restarts pods to apply new limits.</td>
+              <td><span class="tag k8s">K8s</span></td>
+            </tr>
+            <tr data-g="CI/CD Continuous Integration Continuous Delivery Deployment">
+              <td><strong>CI/CD</strong></td>
+              <td>Continuous Integration / Continuous Delivery (or Deployment)</td>
+              <td>CI: every code commit triggers automated tests — you always know the codebase is in a working state. CD: after tests pass, the code is automatically deployed to staging (Continuous Delivery) or all the way to production (Continuous Deployment). Tools: GitHub Actions, Jenkins, GitLab CI, ArgoCD.</td>
+              <td><span class="tag k8s">DevOps</span></td>
+            </tr>
+            <tr data-g="YAML Yet Another Markup Language">
+              <td><strong>YAML</strong></td>
+              <td>YAML Ain't Markup Language (recursive acronym)</td>
+              <td>A human-readable data serialisation format used for Kubernetes manifests, Docker Compose files, Spring Boot configuration (application.yml), and GitHub Actions pipelines. Indentation is significant (like Python) — a missing space breaks the file.</td>
+              <td><span class="tag k8s">DevOps</span></td>
+            </tr>
+
+            <!-- ── KAFKA ── -->
+            <tr data-g="ISR In-Sync Replicas">
+              <td><strong>ISR</strong></td>
+              <td>In-Sync Replicas</td>
+              <td>The set of Kafka broker replicas that are fully caught up with the partition leader. When a producer writes with acks=all, Kafka waits until all ISR replicas acknowledge the message — guaranteeing no message loss even if the leader crashes immediately after.</td>
+              <td><span class="tag" class="chip-cyan">Kafka</span></td>
+            </tr>
+            <tr data-g="DLT Dead Letter Topic">
+              <td><strong>DLT</strong></td>
+              <td>Dead Letter Topic</td>
+              <td>A Kafka topic where messages that failed processing (after all retries) are sent instead of being discarded. Allows you to inspect, fix, and replay failed messages later without losing them or blocking the main topic.</td>
+              <td><span class="tag" class="chip-cyan">Kafka</span></td>
+            </tr>
+            <tr data-g="CDC Change Data Capture Debezium">
+              <td><strong>Avro</strong></td>
+              <td>Apache Avro</td>
+              <td>A binary data serialisation format used with Kafka. Schema is defined in a JSON file and compiled to Java classes. Much smaller and faster than JSON. Used with Confluent Schema Registry to enforce schema compatibility — you can't publish a message that would break existing consumers.</td>
+              <td><span class="tag" class="chip-cyan">Kafka</span></td>
+            </tr>
+
+            <!-- ── OBSERVABILITY ── -->
+            <tr data-g="PII Personally Identifiable Information">
+              <td><strong>PII</strong></td>
+              <td>Personally Identifiable Information</td>
+              <td>Data that can identify a specific person: name, email address, phone number, IP address, passport number. GDPR regulates how PII must be stored, processed, and deleted. Never log PII (passwords, full credit card numbers, SSNs). Mask or hash PII in logs.</td>
+              <td><span class="tag">Security</span></td>
+            </tr>
+            <tr data-g="GDPR General Data Protection Regulation">
+              <td><strong>GDPR</strong></td>
+              <td>General Data Protection Regulation</td>
+              <td>EU regulation governing how personal data is collected, stored, and processed. Requires explicit consent, the right to be forgotten, data minimisation, and breach notification within 72 hours. Violations can result in fines of up to €20M or 4% of global revenue.</td>
+              <td><span class="tag">Security</span></td>
+            </tr>
+            <tr data-g="OWASP Open Worldwide Application Security Project">
+              <td><strong>OWASP</strong></td>
+              <td>Open Worldwide Application Security Project</td>
+              <td>A non-profit that publishes the "OWASP Top 10" — the ten most critical web application security risks (SQL injection, XSS, broken authentication, etc.). Interviewers frequently ask "how do you prevent the OWASP Top 10?" It's the industry-standard security checklist.</td>
+              <td><span class="tag">Security</span></td>
+            </tr>
+            <tr data-g="XSS Cross-Site Scripting">
+              <td><strong>XSS</strong></td>
+              <td>Cross-Site Scripting</td>
+              <td>An attack where an attacker injects malicious JavaScript into a web page that gets executed in other users' browsers. Prevention: never use innerHTML with user-supplied content; use textContent or a sanitiser; set Content-Security-Policy headers.</td>
+              <td><span class="tag">Security</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <script>
+        function filterGlossary(q) {
+          const lower = q.toLowerCase();
+          document.querySelectorAll('#glossaryBody tr').forEach(row => {
+            const text = (row.dataset.g || '') + row.textContent;
+            row.style.display = text.toLowerCase().includes(lower) ? '' : 'none';
+          });
+        }
+      </script>
+
+    <div class="related-pages">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="java-spring.html">Java &amp; Spring Boot</a>
+      <a href="patterns.html">Design Patterns</a>
+      <a href="system-design.html">System Design</a>
+    </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script src="js/app.js?v=9"></script>
+</body>
+</html>

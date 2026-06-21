@@ -1,0 +1,2253 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design &amp; Architecture Patterns — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    .qa-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
+    .qa-header { padding: 18px 22px; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; }
+    .qa-header:hover { background: var(--bg-card-hover); }
+    .qa-num { font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(99,102,241,.12); padding: 3px 9px; border-radius: 12px; white-space: nowrap; margin-top: 2px; }
+    .qa-q { font-size: 15px; font-weight: 600; flex: 1; }
+    .qa-difficulty { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 12px; white-space: nowrap; margin-top: 2px; }
+    .qa-difficulty.easy   { background: rgba(16,185,129,.15); color: #10b981; }
+    .qa-difficulty.medium { background: rgba(245,158,11,.15);  color: #f59e0b; }
+    .qa-difficulty.hard   { background: rgba(239,68,68,.15);   color: #ef4444; }
+    .qa-arrow { color: var(--text-muted); font-size: 20px; margin-top: -2px; transition: transform .2s; }
+    .qa-card.open .qa-arrow { transform: rotate(90deg); }
+    .qa-body { display: none; padding: 0 22px 22px; border-top: 1px solid var(--border-subtle); }
+    .qa-card.open .qa-body { display: block; }
+    .qa-answer { padding-top: 16px; font-size: 14px; color: var(--text-secondary); line-height: 1.75; }
+    .qa-answer strong { color: var(--text-primary); }
+    .qa-answer code { background: var(--bg-code); padding: 1px 6px; border-radius: 4px; font-size: 12.5px; font-family: 'JetBrains Mono', monospace; color: #93c5fd; }
+    pre.code-block { background: var(--bg-code); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px 18px; font-family: 'JetBrains Mono',monospace; font-size: 12.5px; line-height: 1.7; overflow-x: auto; margin: 12px 0; color: #e2e8f0; }
+    pre.code-block .kw  { color: #c792ea; }
+    pre.code-block .cls { color: #82aaff; }
+    pre.code-block .str { color: #c3e88d; }
+    pre.code-block .cmt { color: #546e7a; font-style: italic; }
+    pre.code-block .ann { color: #ffcb6b; }
+    .callout { margin: 12px 0; padding: 12px 16px; border-radius: 8px; font-size: 13.5px; }
+    .callout.tip  { background: rgba(16,185,129,.1); border-left: 3px solid #10b981; }
+    .callout.warn { background: rgba(245,158,11,.1);  border-left: 3px solid #f59e0b; }
+    .callout.info { background: rgba(99,102,241,.1);  border-left: 3px solid #6366f1; }
+    .callout.danger { background: rgba(239,68,68,.1); border-left: 3px solid #ef4444; }
+    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .ptag { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; background: rgba(99,102,241,.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,.2); }
+    .ptag.creational { background: rgba(16,185,129,.12); color: #34d399; border-color: rgba(16,185,129,.2); }
+    .ptag.structural  { background: rgba(59,130,246,.12); color: #93c5fd; border-color: rgba(59,130,246,.2); }
+    .ptag.behavioral  { background: rgba(245,158,11,.12); color: #fcd34d; border-color: rgba(245,158,11,.2); }
+    .ptag.arch        { background: rgba(139,92,246,.12); color: #c4b5fd; border-color: rgba(139,92,246,.2); }
+    .ptag.solid       { background: rgba(239,68,68,.12);  color: #fca5a5; border-color: rgba(239,68,68,.2); }
+
+    /* Pattern diagram SVG */
+    .pat-svg { display: block; width: 100%; overflow-x: auto; margin: 12px 0; }
+    .pat-svg svg { min-width: 420px; display: block; }
+
+    /* Section headers */
+    .section-header { display: flex; align-items: center; gap: 16px; padding: 28px 32px 0; }
+    .section-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .section-header h2 { font-size: 20px; font-weight: 800; }
+    .section-header p  { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Pillar filter */
+    .pillar-bar { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 32px 0; }
+    .pillar-chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary); transition: all .15s; }
+    .pillar-chip.active, .pillar-chip:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Content area */
+    .content-area { padding: 0 32px; margin-top: 16px; }
+
+    /* Hero */
+    .page-hero { padding: 32px 32px 24px; background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(139,92,246,.08)); border-bottom: 1px solid var(--border-subtle); }
+    .page-hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+    .page-hero p  { color: var(--text-secondary); max-width: 660px; font-size: 14px; }
+    .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .hero-chip { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); }
+
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+    @media(max-width:700px){ .compare-grid { grid-template-columns: 1fr; } }
+    .compare-block { border-radius: 10px; overflow: hidden; }
+    .compare-label { padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+    .compare-label.before { background: rgba(239,68,68,.2); color: #fca5a5; }
+    .compare-label.after  { background: rgba(16,185,129,.2); color: #6ee7b7; }
+    .compare-block pre { margin: 0; border-radius: 0; }
+
+    .use-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+    .use-table th { text-align: left; padding: 7px 12px; background: rgba(99,102,241,.12); font-size: 11px; font-weight: 600; color: var(--accent); border-bottom: 1px solid var(--border); }
+    .use-table td { padding: 7px 12px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; color: var(--text-secondary); }
+    .use-table tr:last-child td { border-bottom: none; }
+    .use-table td:first-child { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+
+    .page-end { height: 80px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
+        <a class="nav-link" href="java-refresher.html"><i class="fa-solid fa-book-open icon-fw"></i> Java 8–16 Refresher</a>
+        <a class="nav-link active" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
+        <a class="nav-link" href="general.html"><i class="fa-solid fa-brain icon-fw"></i> General &amp; Soft Skills<span class="nav-badge">32</span></a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#solid"><i class="fa-solid fa-s icon-fw"></i> SOLID Principles</a>
+        <a class="nav-link" href="#creational"><i class="fa-solid fa-circle-plus icon-fw"></i> Creational</a>
+        <a class="nav-link" href="#structural"><i class="fa-solid fa-layer-group icon-fw"></i> Structural</a>
+        <a class="nav-link" href="#behavioral"><i class="fa-solid fa-arrows-split-up-and-left icon-fw"></i> Behavioral</a>
+        <a class="nav-link" href="#arch"><i class="fa-solid fa-sitemap icon-fw"></i> Architecture Patterns</a>
+        <a class="nav-link" href="#lb"><i class="fa-solid fa-server icon-fw"></i> Load Balancing</a>
+        <a class="nav-link" href="#algo"><i class="fa-solid fa-code icon-fw"></i> Algorithms</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="text-muted">31 questions · click to reveal</p>
+    </div>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────────── -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-shapes"></i> Design &amp; Architecture Patterns <span>31 Questions</span></div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input id="searchInput" type="text" placeholder="Search questions…">
+      </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <!-- Hero -->
+    <div class="page-hero">
+      <h1><i class="fa-solid fa-shapes"></i> Design &amp; Architecture Patterns</h1>
+      <p>GoF patterns, enterprise architecture patterns, and modern microservice blueprints — each shown with a real Java/Spring example and a clear "when to use vs when NOT to use" guide.</p>
+      <div class="hero-chips">
+        <span class="hero-chip">SOLID</span>
+        <span class="hero-chip">Creational</span>
+        <span class="hero-chip">Structural</span>
+        <span class="hero-chip">Behavioral</span>
+        <span class="hero-chip">Hexagonal</span>
+        <span class="hero-chip">CQRS</span>
+        <span class="hero-chip">Event Sourcing</span>
+        <span class="hero-chip">Saga</span>
+        <span class="hero-chip">Clean Architecture</span>
+      </div>
+    </div>
+
+    <!-- Pillar filter -->
+    <div class="pillar-bar">
+      <button class="pillar-chip active" data-pillar="all">All</button>
+      <button class="pillar-chip" data-pillar="solid">SOLID</button>
+      <button class="pillar-chip" data-pillar="creational">Creational</button>
+      <button class="pillar-chip" data-pillar="structural">Structural</button>
+      <button class="pillar-chip" data-pillar="behavioral">Behavioral</button>
+      <button class="pillar-chip" data-pillar="arch">Architecture</button>
+      <button class="pillar-chip" data-pillar="lb">Load Balancing</button>
+      <button class="pillar-chip" data-pillar="algo">Algorithms</button>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- SOLID                                               -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <div id="solid"></div>
+    <div class="section-header">
+      <div class="section-icon" class="chip-danger"><i class="fa-solid fa-s"></i></div>
+      <div><h2>SOLID Principles</h2><p>The 5 object-oriented design rules that make code maintainable, testable, and extensible</p></div>
+    </div>
+    <div class="content-area">
+
+      <!-- Q1 -->
+      <div class="qa-card open" data-pillar="solid" id="q1">
+        <div class="qa-header" onclick="toggleQA('q1')">
+          <span class="qa-num">Q1</span>
+          <span class="qa-q">Explain all 5 SOLID principles with a real Java example each</span>
+          <span class="qa-difficulty hard">Hard</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <div class="pat-svg">
+              <svg viewBox="0 0 720 215" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#6366f1"/></marker></defs>
+                <!-- 5 circles connected -->
+                <circle cx="72" cy="105" r="65" fill="#1a1535" stroke="#8b5cf6" stroke-width="2"/>
+                <text x="72" y="92" text-anchor="middle" fill="#c4b5fd" font-size="24" font-weight="800">S</text>
+                <text x="72" y="113" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Single</text>
+                <text x="72" y="131" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Responsibility</text>
+                <circle cx="216" cy="105" r="65" fill="#101528" stroke="#6366f1" stroke-width="2"/>
+                <text x="216" y="92" text-anchor="middle" fill="#a5b4fc" font-size="24" font-weight="800">O</text>
+                <text x="216" y="113" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Open /</text>
+                <text x="216" y="131" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Closed</text>
+                <circle cx="360" cy="105" r="65" fill="#0d2618" stroke="#10b981" stroke-width="2"/>
+                <text x="360" y="92" text-anchor="middle" fill="#34d399" font-size="24" font-weight="800">L</text>
+                <text x="360" y="113" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Liskov</text>
+                <text x="360" y="131" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Substitution</text>
+                <circle cx="504" cy="105" r="65" fill="#1a1508" stroke="#f59e0b" stroke-width="2"/>
+                <text x="504" y="92" text-anchor="middle" fill="#fcd34d" font-size="24" font-weight="800">I</text>
+                <text x="504" y="113" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Interface</text>
+                <text x="504" y="131" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Segregation</text>
+                <circle cx="648" cy="105" r="65" fill="#1a0808" stroke="#ef4444" stroke-width="2"/>
+                <text x="648" y="92" text-anchor="middle" fill="#fca5a5" font-size="24" font-weight="800">D</text>
+                <text x="648" y="113" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Dependency</text>
+                <text x="648" y="131" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Inversion</text>
+              </svg>
+            </div>
+
+            <p><strong>S — Single Responsibility Principle</strong><br>A class should have only one reason to change. If your <code>OrderService</code> validates, persists, and sends emails — three teams can break it independently.</p>
+            <pre class="code-block"><span class="cmt">// ❌ Too many responsibilities</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="kw">void</span> placeOrder(Order o) {
+        validate(o);          <span class="cmt">// validation logic</span>
+        orderRepo.save(o);    <span class="cmt">// persistence logic</span>
+        emailService.send(o); <span class="cmt">// notification logic</span>
+    }
+}
+
+<span class="cmt">// ✅ Each class owns one concern</span>
+<span class="kw">class</span> <span class="cls">OrderValidator</span>   { <span class="kw">void</span> validate(Order o) { ... } }
+<span class="kw">class</span> <span class="cls">OrderRepository</span>  { <span class="kw">void</span> save(Order o)     { ... } }
+<span class="kw">class</span> <span class="cls">OrderNotifier</span>    { <span class="kw">void</span> notify(Order o)   { ... } }
+<span class="kw">class</span> <span class="cls">OrderService</span>     { <span class="cmt">// orchestrates only</span>
+    <span class="kw">void</span> placeOrder(Order o) {
+        validator.validate(o);
+        repo.save(o);
+        notifier.notify(o);
+    }
+}</pre>
+
+            <p class="mt-14"><strong>O — Open/Closed Principle</strong><br>Open for extension, closed for modification. Add behaviour by adding code, not changing existing code. Strategy and Decorator patterns are the primary tools.</p>
+            <pre class="code-block"><span class="cmt">// ❌ Adding a new discount requires editing this class</span>
+<span class="kw">class</span> <span class="cls">DiscountCalculator</span> {
+    <span class="kw">double</span> calculate(Order o, String type) {
+        <span class="kw">if</span> (type.equals("SUMMER")) <span class="kw">return</span> o.total() * 0.9;
+        <span class="kw">if</span> (type.equals("VIP"))    <span class="kw">return</span> o.total() * 0.8;
+        <span class="kw">return</span> o.total();
+    }
+}
+
+<span class="cmt">// ✅ Add new discounts without touching existing code</span>
+<span class="kw">interface</span> <span class="cls">DiscountStrategy</span> { <span class="kw">double</span> apply(<span class="kw">double</span> total); }
+<span class="kw">class</span> <span class="cls">SummerDiscount</span> <span class="kw">implements</span> DiscountStrategy { <span class="kw">public double</span> apply(<span class="kw">double</span> t) { <span class="kw">return</span> t * 0.9; } }
+<span class="kw">class</span> <span class="cls">VipDiscount</span>    <span class="kw">implements</span> DiscountStrategy { <span class="kw">public double</span> apply(<span class="kw">double</span> t) { <span class="kw">return</span> t * 0.8; } }
+<span class="kw">class</span> <span class="cls">BlackFridayDiscount</span> <span class="kw">implements</span> DiscountStrategy { ... } <span class="cmt">// NEW — zero edits to existing</span></pre>
+
+            <p class="mt-14"><strong>L — Liskov Substitution Principle</strong><br>A subtype must be usable wherever the parent is used, without surprising the caller. Violated when overriding a method weakens its contract (throws unexpected exceptions, ignores params).</p>
+            <pre class="code-block"><span class="cmt">// ❌ Violates LSP — Square constrains Rectangle's contract</span>
+<span class="kw">class</span> <span class="cls">Rectangle</span> { <span class="kw">void</span> setWidth(int w); <span class="kw">void</span> setHeight(int h); }
+<span class="kw">class</span> <span class="cls">Square</span> <span class="kw">extends</span> Rectangle {
+    <span class="kw">void</span> setWidth(int w)  { width = height = w; }  <span class="cmt">// breaks caller's assumption</span>
+    <span class="kw">void</span> setHeight(int h) { width = height = h; }  <span class="cmt">// that w and h are independent</span>
+}
+
+<span class="cmt">// ✅ Fix: prefer composition or separate type hierarchy</span>
+<span class="kw">interface</span> <span class="cls">Shape</span> { <span class="kw">int</span> area(); }
+<span class="kw">record</span> <span class="cls">Rectangle</span>(<span class="kw">int</span> w, <span class="kw">int</span> h) <span class="kw">implements</span> Shape { <span class="kw">public int</span> area() { <span class="kw">return</span> w * h; } }
+<span class="kw">record</span> <span class="cls">Square</span>(<span class="kw">int</span> side)        <span class="kw">implements</span> Shape { <span class="kw">public int</span> area() { <span class="kw">return</span> side * side; } }</pre>
+
+            <p class="mt-14"><strong>I — Interface Segregation Principle</strong><br>Clients should not depend on methods they don't use. Fat interfaces force implementors to add stub/throw methods.</p>
+            <pre class="code-block"><span class="cmt">// ❌ Fat interface — ReadOnlyRepo is forced to throw on write methods</span>
+<span class="kw">interface</span> <span class="cls">OrderRepository</span> {
+    Order findById(Long id);
+    <span class="kw">void</span> save(Order o);
+    <span class="kw">void</span> delete(Long id);
+}
+<span class="kw">class</span> <span class="cls">ReadOnlyOrderRepo</span> <span class="kw">implements</span> OrderRepository {
+    <span class="kw">public void</span> save(Order o)   { <span class="kw">throw new</span> UnsupportedOperationException(); } <span class="cmt">// ❌</span>
+    <span class="kw">public void</span> delete(Long id) { <span class="kw">throw new</span> UnsupportedOperationException(); } <span class="cmt">// ❌</span>
+}
+
+<span class="cmt">// ✅ Segregated — each client depends only on what it needs</span>
+<span class="kw">interface</span> <span class="cls">OrderReader</span>  { Order findById(Long id); }
+<span class="kw">interface</span> <span class="cls">OrderWriter</span>  { <span class="kw">void</span> save(Order o); <span class="kw">void</span> delete(Long id); }
+<span class="kw">interface</span> <span class="cls">OrderRepository</span> <span class="kw">extends</span> OrderReader, OrderWriter {}</pre>
+
+            <p class="mt-14"><strong>D — Dependency Inversion Principle</strong><br>High-level modules should depend on abstractions, not concretions. This is the foundation of Spring's IoC container — you inject interfaces, not concrete classes.</p>
+            <pre class="code-block"><span class="cmt">// ❌ OrderService hard-codes its dependency on a concrete class</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="kw">private final</span> MySqlOrderRepository repo = <span class="kw">new</span> MySqlOrderRepository(); <span class="cmt">// ❌</span>
+}
+
+<span class="cmt">// ✅ Depend on abstraction — Spring injects the concrete implementation</span>
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="kw">private final</span> OrderRepository repo;  <span class="cmt">// interface, not concrete class</span>
+    OrderService(OrderRepository repo) { this.repo = repo; }
+}
+<span class="cmt">// Spring wires MySqlOrderRepository (or InMemoryOrderRepository in tests)</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="qa-card" data-pillar="solid" id="q2">
+        <div class="qa-header" onclick="toggleQA('q2')">
+          <span class="qa-num">Q2</span>
+          <span class="qa-q">What are DRY, KISS, and YAGNI — and when does following them conflict with each other?</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p><strong>DRY — Don't Repeat Yourself:</strong> every piece of knowledge should have a single, authoritative representation. Violations create divergence bugs when one copy is updated and another isn't.</p>
+            <p class="mt-8"><strong>KISS — Keep It Simple, Stupid:</strong> prefer the simplest solution that works. Complexity is a cost — it slows reading, testing, and debugging. If a <code>HashMap</code> solves it, don't write a trie.</p>
+            <p class="mt-8"><strong>YAGNI — You Aren't Gonna Need It:</strong> don't build features until they're actually required. The cost of unused abstractions compounds as the codebase grows.</p>
+
+            <div class="callout warn" class="mt-12">
+              <strong>The conflict:</strong> DRY pushes you to extract shared abstractions (anti-KISS, anti-YAGNI). Classic trap: two methods look similar → you extract a shared base class → they diverge later → the abstraction fights you.<br><br>
+              <strong>Rule of three:</strong> wait until the third duplication before extracting. Two similar things might just be coincidence.
+            </div>
+            <pre class="code-block"><span class="cmt">// DRY violation — same validation logic in 3 controllers</span>
+<span class="kw">if</span> (email == <span class="kw">null</span> || !email.contains(<span class="str">"@"</span>)) <span class="kw">throw</span> ...
+<span class="cmt">// Fix: @Email annotation on DTO + @Valid on @RequestBody — one source of truth</span>
+
+<span class="cmt">// YAGNI violation — adding a plugin system "just in case"</span>
+<span class="kw">interface</span> <span class="cls">PaymentProviderPlugin</span> { ... }       <span class="cmt">// nobody will write plugins</span>
+<span class="kw">class</span> <span class="cls">PluginRegistry</span> { ... }                  <span class="cmt">// you're maintaining this forever</span>
+<span class="cmt">// Fix: use a concrete StripePaymentService until a second provider appears</span></pre>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area solid -->
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- CREATIONAL                                          -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <div id="creational"></div>
+    <div class="section-header">
+      <div class="section-icon" class="chip-success"><i class="fa-solid fa-circle-plus"></i></div>
+      <div><h2>Creational Patterns</h2><p>Control how objects are created — decouple creation from use</p></div>
+    </div>
+    <div class="content-area">
+
+      <!-- Q3 Singleton -->
+      <div class="qa-card" data-pillar="creational" id="q3">
+        <div class="qa-header" onclick="toggleQA('q3')">
+          <span class="qa-num">Q3</span>
+          <span class="qa-q">Singleton — implementation, thread safety, and why Spring beans are NOT the same thing</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Singleton ensures <strong>exactly one instance</strong> of a class exists in the JVM, with a global access point.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="sm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+                <rect x="200" y="10" width="200" height="100" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <rect x="200" y="10" width="200" height="32" rx="5" fill="#243252"/>
+                <text x="300" y="32" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">ConfigService</text>
+                <line x1="200" y1="42" x2="400" y2="42" stroke="#2d3f6b"/>
+                <text x="210" y="60" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">- instance: ConfigService</text>
+                <line x1="200" y1="70" x2="400" y2="70" stroke="#2d3f6b" stroke-dasharray="3,3"/>
+                <text x="210" y="88" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">+ getInstance(): ConfigService</text>
+                <!-- Callers -->
+                <rect x="10" y="40" width="100" height="30" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1"/>
+                <text x="60" y="60" text-anchor="middle" fill="#e2e8f0" font-size="11">OrderService</text>
+                <line x1="110" y1="55" x2="200" y2="55" stroke="#475569" stroke-width="1.5" marker-end="url(#sm)"/>
+                <rect x="490" y="40" width="100" height="30" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1"/>
+                <text x="540" y="60" text-anchor="middle" fill="#e2e8f0" font-size="11">PaymentService</text>
+                <line x1="490" y1="55" x2="400" y2="55" stroke="#475569" stroke-width="1.5" marker-end="url(#sm)"/>
+                <text x="300" y="115" text-anchor="middle" fill="#64748b" font-size="10">both callers get the same instance</text>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Thread-safe — initialization-on-demand holder (best practice)</span>
+<span class="kw">public class</span> <span class="cls">ConfigService</span> {
+    <span class="kw">private</span> ConfigService() {}   <span class="cmt">// private constructor</span>
+
+    <span class="kw">private static class</span> <span class="cls">Holder</span> {
+        <span class="kw">static final</span> ConfigService INSTANCE = <span class="kw">new</span> ConfigService();
+    }
+
+    <span class="kw">public static</span> ConfigService getInstance() {
+        <span class="kw">return</span> Holder.INSTANCE;  <span class="cmt">// JVM class loading guarantees thread-safety</span>
+    }
+}</pre>
+            <div class="callout warn">
+              <strong>Spring beans vs Singleton pattern:</strong> Spring's default scope is "singleton per ApplicationContext" — one instance per container, not per JVM. If you create two contexts (e.g. in tests), you get two instances. The classic Singleton pattern enforces <em>one per JVM classloader</em>. In Spring, prefer injecting beans over calling <code>getInstance()</code>.
+            </div>
+            <div class="callout danger">
+              <strong>When NOT to use:</strong> Singletons with mutable state are a concurrency bug waiting to happen. If the class holds state that changes per-request (e.g. current user), use request-scoped beans or ThreadLocal instead.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4 Factory / Factory Method -->
+      <div class="qa-card" data-pillar="creational" id="q4">
+        <div class="qa-header" onclick="toggleQA('q4')">
+          <span class="qa-num">Q4</span>
+          <span class="qa-q">Factory Method vs Abstract Factory — difference and when to use each</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p><strong>Factory Method</strong> defines an interface for creating an object but lets subclasses decide which class to instantiate. One product, one factory method.</p>
+            <p><strong>Abstract Factory</strong> creates <em>families</em> of related objects without specifying concrete classes. Multiple products, one factory interface.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="fm" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="8" markerHeight="8" orient="auto"><polygon points="0,0 12,6 0,12" fill="none" stroke="#6366f1" stroke-width="1.5"/></marker></defs>
+                <!-- Factory Method side -->
+                <text x="165" y="18" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">Factory Method</text>
+                <rect x="95" y="28" width="140" height="52" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="165" y="48" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">«interface»</text>
+                <text x="165" y="64" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">PaymentFactory</text>
+                <text x="165" y="78" text-anchor="middle" fill="#93c5fd" font-size="10.5" font-family="JetBrains Mono,monospace">create(): Payment</text>
+                <rect x="30" y="130" width="120" height="35" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="90" y="153" text-anchor="middle" fill="#e2e8f0" font-size="11">StripeFactory</text>
+                <rect x="175" y="130" width="120" height="35" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="235" y="153" text-anchor="middle" fill="#e2e8f0" font-size="11">PayPalFactory</text>
+                <line x1="165" y1="80" x2="90" y2="130" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#fm)"/>
+                <line x1="165" y1="80" x2="235" y2="130" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#fm)"/>
+                <text x="90" y="185" text-anchor="middle" fill="#64748b" font-size="10">creates StripePayment</text>
+                <text x="235" y="185" text-anchor="middle" fill="#64748b" font-size="10">creates PayPalPayment</text>
+                <!-- Divider -->
+                <line x1="360" y1="10" x2="360" y2="205" stroke="#334155" stroke-dasharray="4,4"/>
+                <!-- Abstract Factory side -->
+                <text x="530" y="18" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">Abstract Factory</text>
+                <rect x="400" y="28" width="260" height="68" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="530" y="48" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">«interface» UiFactory</text>
+                <text x="530" y="64" text-anchor="middle" fill="#93c5fd" font-size="10.5" font-family="JetBrains Mono,monospace">createButton(): Button</text>
+                <text x="530" y="80" text-anchor="middle" fill="#93c5fd" font-size="10.5" font-family="JetBrains Mono,monospace">createDialog(): Dialog</text>
+                <rect x="395" y="130" width="120" height="50" rx="4" fill="#1e2d45" stroke="#10b981" stroke-width="1.5"/>
+                <text x="455" y="152" text-anchor="middle" fill="#e2e8f0" font-size="11">MacUiFactory</text>
+                <text x="455" y="170" text-anchor="middle" fill="#64748b" font-size="10">Mac-styled family</text>
+                <rect x="545" y="130" width="120" height="50" rx="4" fill="#1e2d45" stroke="#10b981" stroke-width="1.5"/>
+                <text x="605" y="152" text-anchor="middle" fill="#e2e8f0" font-size="11">WinUiFactory</text>
+                <text x="605" y="170" text-anchor="middle" fill="#64748b" font-size="10">Win-styled family</text>
+                <line x1="530" y1="96" x2="455" y2="130" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#fm)"/>
+                <line x1="530" y1="96" x2="605" y2="130" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#fm)"/>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Factory Method — Spring @Bean methods are factory methods</span>
+<span class="ann">@Bean</span>
+<span class="kw">public</span> PaymentGateway paymentGateway(<span class="ann">@Value</span>(<span class="str">"${payment.provider}"</span>) String provider) {
+    <span class="kw">return switch</span> (provider) {
+        <span class="kw">case</span> <span class="str">"stripe"</span>  -> <span class="kw">new</span> StripeGateway();
+        <span class="kw">case</span> <span class="str">"paypal"</span>  -> <span class="kw">new</span> PayPalGateway();
+        <span class="kw">default</span>       -> <span class="kw">throw new</span> IllegalArgumentException("Unknown: " + provider);
+    };
+}
+
+<span class="cmt">// Abstract Factory — creates a family of UI components for a theme</span>
+<span class="kw">interface</span> <span class="cls">UiFactory</span> {
+    Button createButton();
+    Dialog createDialog();
+    TextField createTextField();
+}
+<span class="kw">class</span> <span class="cls">MaterialUiFactory</span> <span class="kw">implements</span> UiFactory { ... }
+<span class="kw">class</span> <span class="cls">FluenceUiFactory</span>  <span class="kw">implements</span> UiFactory { ... }</pre>
+            <div class="callout tip"><strong>Interview tip:</strong> Factory Method = one product type, subclasses choose the concrete type. Abstract Factory = multiple product types that must be consistent (a "family"). If someone asks "which do you use more?", say Factory Method — it's everywhere in Spring (<code>@Bean</code>, <code>BeanFactory</code>, <code>FactoryBean</code>).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q5 Builder -->
+      <div class="qa-card" data-pillar="creational" id="q5">
+        <div class="qa-header" onclick="toggleQA('q5')">
+          <span class="qa-num">Q5</span>
+          <span class="qa-q">Builder pattern — why use it and how Lombok @Builder works under the hood</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Builder separates construction of a complex object from its representation. Solves the <strong>telescoping constructor antipattern</strong> — constructors with many parameters become unreadable and error-prone.</p>
+            <pre class="code-block"><span class="cmt">// ❌ Telescoping constructor — which arg is which?</span>
+<span class="kw">new</span> Order(1L, "PAID", <span class="kw">null</span>, <span class="kw">true</span>, 99.99, <span class="str">"EUR"</span>, LocalDate.now(), <span class="kw">null</span>);
+
+<span class="cmt">// ✅ Builder — readable, optional fields are obvious</span>
+Order order = Order.builder()
+    .customerId(1L)
+    .status(PAID)
+    .amount(BigDecimal.valueOf(99.99))
+    .currency(<span class="str">"EUR"</span>)
+    .build();
+
+<span class="cmt">// Lombok @Builder generates this at compile time:</span>
+<span class="ann">@Builder</span>
+<span class="ann">@Data</span>
+<span class="kw">class</span> <span class="cls">Order</span> {
+    <span class="kw">private</span> Long customerId;
+    <span class="kw">private</span> OrderStatus status;
+    <span class="kw">private</span> BigDecimal amount;
+    <span class="kw">private</span> String currency;
+    <span class="cmt">// Lombok generates: static OrderBuilder builder(), all withX() methods, build()</span>
+}
+
+<span class="cmt">// Validation in build() — use @Builder with compact validation</span>
+Order order = Order.builder()
+    .amount(amount)
+    .build();  <span class="cmt">// add @NonNull on fields → Lombok checks at build() time</span></pre>
+            <div class="callout tip"><strong>In Spring:</strong> <code>ResponseEntity.ok().header(...).body(dto)</code> is the Builder pattern. <code>UriComponentsBuilder</code>, <code>MockMvcRequestBuilders</code> — all Builders. Know it cold.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area creational -->
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- STRUCTURAL                                          -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <div id="structural"></div>
+    <div class="section-header">
+      <div class="section-icon" class="chip-info"><i class="fa-solid fa-layer-group"></i></div>
+      <div><h2>Structural Patterns</h2><p>How classes and objects are composed to form larger structures</p></div>
+    </div>
+    <div class="content-area">
+
+      <!-- Q6 Adapter -->
+      <div class="qa-card" data-pillar="structural" id="q6">
+        <div class="qa-header" onclick="toggleQA('q6')">
+          <span class="qa-num">Q6</span>
+          <span class="qa-q">Adapter pattern — real example integrating a third-party payment SDK</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Adapter converts the interface of a class into one the client expects. It lets incompatible interfaces work together — like a power adapter for different socket types.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+                <!-- Client -->
+                <rect x="4" y="45" width="130" height="40" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="69" y="70" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">OrderService</text>
+                <text x="69" y="105" text-anchor="middle" fill="#64748b" font-size="10">uses</text>
+                <!-- Target interface -->
+                <rect x="184" y="30" width="140" height="70" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="254" y="52" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">«interface»</text>
+                <text x="254" y="68" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">PaymentGateway</text>
+                <text x="254" y="90" text-anchor="middle" fill="#93c5fd" font-size="10" font-family="JetBrains Mono,monospace">charge(amount, currency)</text>
+                <line x1="134" y1="65" x2="184" y2="65" stroke="#475569" stroke-width="1.5" marker-end="url(#am)"/>
+                <!-- Adapter -->
+                <rect x="374" y="10" width="150" height="110" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="449" y="30" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">StripeAdapter</text>
+                <text x="449" y="48" text-anchor="middle" fill="#64748b" font-size="10">implements PaymentGateway</text>
+                <line x1="374" y1="58" x2="524" y2="58" stroke="#103020" stroke-dasharray="3,3"/>
+                <text x="449" y="76" text-anchor="middle" fill="#93c5fd" font-size="10.5" font-family="JetBrains Mono,monospace">charge(amount, currency) {</text>
+                <text x="449" y="91" text-anchor="middle" fill="#64748b" font-size="10">  stripe.createCharge(</text>
+                <text x="449" y="105" text-anchor="middle" fill="#64748b" font-size="10">    amount*100, currency)</text>
+                <line x1="324" y1="65" x2="374" y2="65" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#am)"/>
+                <!-- Adaptee -->
+                <rect x="544" y="35" width="130" height="60" rx="4" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+                <text x="609" y="58" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600">Stripe SDK</text>
+                <text x="609" y="74" text-anchor="middle" fill="#64748b" font-size="10">createCharge(cents, curr)</text>
+                <text x="609" y="88" text-anchor="middle" fill="#64748b" font-size="10">(incompatible interface)</text>
+                <line x1="524" y1="65" x2="544" y2="65" stroke="#475569" stroke-width="1.5" marker-end="url(#am)"/>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Target interface — what our code expects</span>
+<span class="kw">interface</span> <span class="cls">PaymentGateway</span> {
+    PaymentResult charge(BigDecimal amount, String currency);
+}
+
+<span class="cmt">// Adaptee — third-party Stripe SDK with different interface</span>
+<span class="kw">class</span> <span class="cls">StripeClient</span> {                          <span class="cmt">// we can't modify this</span>
+    StripeCharge createCharge(<span class="kw">long</span> amountCents, String currency, String desc) { ... }
+}
+
+<span class="cmt">// Adapter — wraps Stripe, speaks our PaymentGateway language</span>
+<span class="ann">@Component</span>
+<span class="kw">class</span> <span class="cls">StripePaymentAdapter</span> <span class="kw">implements</span> PaymentGateway {
+    <span class="kw">private final</span> StripeClient stripe;
+
+    <span class="kw">public</span> PaymentResult charge(BigDecimal amount, String currency) {
+        <span class="kw">long</span> cents = amount.multiply(BigDecimal.valueOf(100)).longValue();
+        StripeCharge charge = stripe.createCharge(cents, currency, <span class="str">"Order payment"</span>);
+        <span class="kw">return new</span> PaymentResult(charge.getId(), charge.getStatus());
+    }
+}
+
+<span class="cmt">// OrderService never knows it's talking to Stripe</span>
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="kw">private final</span> PaymentGateway gateway;  <span class="cmt">// injected — Spring wires StripePaymentAdapter</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q7 Decorator -->
+      <div class="qa-card" data-pillar="structural" id="q7">
+        <div class="qa-header" onclick="toggleQA('q7')">
+          <span class="qa-num">Q7</span>
+          <span class="qa-q">Decorator pattern — how Spring AOP, caching, and security filters all use it</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Decorator wraps an object to add behaviour without subclassing. It's structurally the same as the wrapped object (implements same interface), so it's transparent to the caller. Decorators can be <strong>stacked</strong> — each adds one concern.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 660 95" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <rect x="4" y="28" width="120" height="38" rx="4" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+                <text x="64" y="52" text-anchor="middle" fill="#e2e8f0" font-size="11">OrderService</text>
+                <text x="64" y="88" text-anchor="middle" fill="#64748b" font-size="10">real impl</text>
+                <path d="M124,47 L148,47" stroke="#475569" stroke-width="1.5" marker-end="url(#am)"/>
+                <rect x="148" y="18" width="140" height="58" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="218" y="38" text-anchor="middle" fill="#10b981" font-size="11" font-weight="600">CachingDecorator</text>
+                <text x="218" y="54" text-anchor="middle" fill="#64748b" font-size="10">checks cache first</text>
+                <text x="218" y="70" text-anchor="middle" fill="#64748b" font-size="10">then delegates</text>
+                <path d="M288,47 L312,47" stroke="#475569" stroke-width="1.5" marker-end="url(#am)"/>
+                <rect x="312" y="18" width="160" height="58" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="392" y="38" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">SecurityDecorator</text>
+                <text x="392" y="54" text-anchor="middle" fill="#64748b" font-size="10">checks permissions</text>
+                <text x="392" y="70" text-anchor="middle" fill="#64748b" font-size="10">then delegates</text>
+                <path d="M472,47 L496,47" stroke="#475569" stroke-width="1.5" marker-end="url(#am)"/>
+                <rect x="496" y="18" width="160" height="58" rx="4" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="576" y="38" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="600">LoggingDecorator</text>
+                <text x="576" y="54" text-anchor="middle" fill="#64748b" font-size="10">logs before/after</text>
+                <text x="576" y="70" text-anchor="middle" fill="#64748b" font-size="10">then delegates</text>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Spring @Cacheable IS a decorator — it wraps your method at runtime</span>
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="ann">@Cacheable</span>(<span class="str">"orders"</span>)           <span class="cmt">// Spring generates a CachingDecorator proxy</span>
+    <span class="ann">@PreAuthorize</span>(<span class="str">"hasRole('ADMIN')"</span>) <span class="cmt">// SecurityDecorator proxy wraps it</span>
+    <span class="kw">public</span> Order findById(Long id) { ... }
+}
+
+<span class="cmt">// Manual decorator — wrapping OrderRepository with audit logging</span>
+<span class="kw">class</span> <span class="cls">AuditingOrderRepository</span> <span class="kw">implements</span> OrderRepository {
+    <span class="kw">private final</span> OrderRepository delegate;
+
+    <span class="kw">public</span> Order findById(Long id) {
+        log.info(<span class="str">"findById({})"</span>, id);
+        Order o = delegate.findById(id);     <span class="cmt">// delegate to real impl</span>
+        log.info(<span class="str">"found: {}"</span>, o.getStatus());
+        <span class="kw">return</span> o;
+    }
+}</pre>
+            <div class="callout info"><strong>Decorator vs Inheritance:</strong> Inheritance is static (baked in at compile time). Decorator is dynamic — you compose behaviours at runtime. Java I/O streams are the classic example: <code>new BufferedReader(new InputStreamReader(socket.getInputStream()))</code>.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q8 Proxy -->
+      <div class="qa-card" data-pillar="structural" id="q8">
+        <div class="qa-header" onclick="toggleQA('q8')">
+          <span class="qa-num">Q8</span>
+          <span class="qa-q">Proxy pattern — JDK dynamic proxy vs CGLIB, and how Spring uses both</span>
+          <span class="qa-difficulty hard">Hard</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Proxy controls access to another object. Spring uses proxies for <code>@Transactional</code>, <code>@Cacheable</code>, <code>@Async</code>, and security annotations — all are proxied at runtime.</p>
+            <table class="use-table">
+              <tr><th></th><th>JDK Dynamic Proxy</th><th>CGLIB Proxy</th></tr>
+              <tr><td>Works on</td><td>Interfaces only</td><td>Classes (subclass)</td></tr>
+              <tr><td>How</td><td><code>java.lang.reflect.Proxy</code></td><td>Bytecode generation at runtime</td></tr>
+              <tr><td>Spring uses when</td><td>Bean implements an interface</td><td>Concrete class or <code>proxyTargetClass=true</code></td></tr>
+              <tr><td>Limitation</td><td>Bean must implement interface</td><td>Class cannot be <code>final</code></td></tr>
+            </table>
+            <pre class="code-block"><span class="cmt">// Spring @Transactional works via proxy — the proxy intercepts the call,</span>
+<span class="cmt">// starts a transaction, delegates to your method, commits or rolls back.</span>
+
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="ann">@Transactional</span>
+    <span class="kw">public void</span> placeOrder(Order o) {
+        repo.save(o);
+        inventoryService.reserve(o);  <span class="cmt">// if this throws, transaction rolls back</span>
+    }
+}
+
+<span class="cmt">// ⚠️ Self-invocation bypasses the proxy — common bug!</span>
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="ann">@Transactional</span>
+    <span class="kw">public void</span> placeOrder(Order o) { ... }
+
+    <span class="kw">public void</span> processBatch(List&lt;Order&gt; orders) {
+        orders.forEach(this::placeOrder);  <span class="cmt">// ❌ calls this directly, not the proxy</span>
+        <span class="cmt">// Fix: inject self, or extract to a separate @Service</span>
+    }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q9 Facade -->
+      <div class="qa-card" data-pillar="structural" id="q9">
+        <div class="qa-header" onclick="toggleQA('q9')">
+          <span class="qa-num">Q9</span>
+          <span class="qa-q">Facade pattern — simplifying a subsystem and the BFF (Backend for Frontend) connection</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Facade provides a <strong>simplified interface</strong> to a complex subsystem. It doesn't add new behaviour — it reduces complexity for the caller. A BFF (Backend for Frontend) is a Facade at the network level.</p>
+            <pre class="code-block"><span class="cmt">// Subsystem — 4 services the mobile app would need to orchestrate</span>
+<span class="kw">class</span> <span class="cls">OrderCheckoutFacade</span> {
+    <span class="kw">private final</span> InventoryService inventory;
+    <span class="kw">private final</span> PaymentService payment;
+    <span class="kw">private final</span> NotificationService notification;
+    <span class="kw">private final</span> OrderRepository orderRepo;
+
+    <span class="cmt">// Mobile app calls ONE method instead of orchestrating 4 services</span>
+    <span class="kw">public</span> CheckoutResult checkout(Cart cart, PaymentDetails payment) {
+        inventory.reserve(cart.items());
+        PaymentResult paid = payment.charge(cart.total());
+        Order order = orderRepo.save(Order.from(cart, paid));
+        notification.sendConfirmation(order);
+        <span class="kw">return</span> CheckoutResult.success(order.getId());
+    }
+}
+
+<span class="cmt">// BFF pattern — same idea at REST level (Spring API Gateway / separate service)</span>
+<span class="ann">@RestController</span>
+<span class="kw">class</span> <span class="cls">MobileBffController</span> {
+    <span class="ann">@PostMapping</span>(<span class="str">"/checkout"</span>)
+    CheckoutResult checkout(<span class="ann">@RequestBody</span> CartDto cart) {
+        <span class="kw">return</span> checkoutFacade.checkout(cart);  <span class="cmt">// one call, 4 services behind the scenes</span>
+    }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area structural -->
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- BEHAVIORAL                                          -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <div id="behavioral"></div>
+    <div class="section-header">
+      <div class="section-icon" class="chip-warning"><i class="fa-solid fa-arrows-split-up-and-left"></i></div>
+      <div><h2>Behavioral Patterns</h2><p>How objects communicate and distribute responsibility</p></div>
+    </div>
+    <div class="content-area">
+
+      <!-- Q10 Strategy -->
+      <div class="qa-card open" data-pillar="behavioral" id="q10">
+        <div class="qa-header" onclick="toggleQA('q10')">
+          <span class="qa-num">Q10</span>
+          <span class="qa-q">Strategy pattern — the most important GoF pattern for Spring developers</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Strategy defines a family of algorithms, encapsulates each one, and makes them interchangeable. The client picks which strategy to use at runtime — without changing the code that uses it.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 680 155" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="stm" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="8" markerHeight="8" orient="auto"><polygon points="0,0 12,6 0,12" fill="none" stroke="#6366f1" stroke-width="1.5"/></marker></defs>
+                <!-- Context -->
+                <rect x="4" y="48" width="170" height="60" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="89" y="73" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">OrderService</text>
+                <text x="89" y="92" text-anchor="middle" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">DiscountStrategy strategy</text>
+                <text x="89" y="108" text-anchor="middle" fill="#64748b" font-size="10">uses strategy.apply(total)</text>
+                <!-- Strategy interface -->
+                <rect x="240" y="30" width="175" height="55" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="327" y="50" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">«interface»</text>
+                <text x="327" y="66" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">DiscountStrategy</text>
+                <text x="327" y="81" text-anchor="middle" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">double apply(double total)</text>
+                <line x1="174" y1="78" x2="240" y2="58" stroke="#475569" stroke-width="1.5" marker-end="url(#stm)"/>
+                <!-- Concrete strategies -->
+                <rect x="440" y="4" width="120" height="38" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="500" y="24" text-anchor="middle" fill="#e2e8f0" font-size="11">SummerDiscount</text>
+                <text x="500" y="37" text-anchor="middle" fill="#64748b" font-size="10">total * 0.9</text>
+                <rect x="440" y="55" width="120" height="38" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="500" y="75" text-anchor="middle" fill="#e2e8f0" font-size="11">VipDiscount</text>
+                <text x="500" y="88" text-anchor="middle" fill="#64748b" font-size="10">total * 0.8</text>
+                <rect x="440" y="106" width="120" height="38" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="500" y="126" text-anchor="middle" fill="#e2e8f0" font-size="11">NoDiscount</text>
+                <text x="500" y="139" text-anchor="middle" fill="#64748b" font-size="10">total</text>
+                <line x1="415" y1="57" x2="440" y2="23" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#stm)"/>
+                <line x1="415" y1="57" x2="440" y2="74" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#stm)"/>
+                <line x1="415" y1="57" x2="440" y2="125" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#stm)"/>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Strategy interface — in Java 8+ this is just a functional interface</span>
+<span class="ann">@FunctionalInterface</span>
+<span class="kw">interface</span> <span class="cls">DiscountStrategy</span> { <span class="kw">double</span> apply(<span class="kw">double</span> total); }
+
+<span class="cmt">// Concrete strategies — can also be lambdas</span>
+<span class="kw">class</span> <span class="cls">SummerDiscount</span>     <span class="kw">implements</span> DiscountStrategy { <span class="kw">public double</span> apply(<span class="kw">double</span> t) { <span class="kw">return</span> t * .9; } }
+<span class="kw">class</span> <span class="cls">VipDiscount</span>        <span class="kw">implements</span> DiscountStrategy { <span class="kw">public double</span> apply(<span class="kw">double</span> t) { <span class="kw">return</span> t * .8; } }
+DiscountStrategy noDiscount = total -> total;   <span class="cmt">// lambda IS a strategy</span>
+
+<span class="cmt">// Context — inject strategy, don't hard-code it</span>
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">CheckoutService</span> {
+    <span class="kw">public double</span> calculateTotal(Order order, DiscountStrategy strategy) {
+        <span class="kw">return</span> strategy.apply(order.subtotal());   <span class="cmt">// decoupled from strategy choice</span>
+    }
+}
+
+<span class="cmt">// Spring: select strategy at runtime from a map of beans</span>
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">DiscountRouter</span> {
+    <span class="kw">private final</span> Map&lt;String, DiscountStrategy&gt; strategies;  <span class="cmt">// injected by Spring</span>
+
+    <span class="kw">public</span> DiscountStrategy select(Customer c) {
+        <span class="kw">if</span> (c.isVip()) <span class="kw">return</span> strategies.get(<span class="str">"vipDiscount"</span>);
+        <span class="kw">if</span> (isSummer()) <span class="kw">return</span> strategies.get(<span class="str">"summerDiscount"</span>);
+        <span class="kw">return</span> strategies.get(<span class="str">"noDiscount"</span>);
+    }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q11 Observer -->
+      <div class="qa-card" data-pillar="behavioral" id="q11">
+        <div class="qa-header" onclick="toggleQA('q11')">
+          <span class="qa-num">Q11</span>
+          <span class="qa-q">Observer / Event pattern — Spring ApplicationEvent, Kafka, and when to use each</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Observer lets objects subscribe to events from a publisher without the publisher knowing who's listening. Decouples the event source from event handlers.</p>
+            <pre class="code-block"><span class="cmt">// Spring in-process events — same JVM, synchronous by default</span>
+<span class="kw">record</span> <span class="cls">OrderPlacedEvent</span>(Long orderId, String customerEmail) <span class="kw">extends</span> ApplicationEvent {
+    OrderPlacedEvent(Object src, Long orderId, String customerEmail) {
+        <span class="kw">super</span>(src); this.orderId = orderId; this.customerEmail = customerEmail;
+    }
+}
+
+<span class="cmt">// Publisher — doesn't know who's listening</span>
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">OrderService</span> {
+    <span class="kw">private final</span> ApplicationEventPublisher events;
+
+    <span class="kw">public</span> Order place(Order order) {
+        repo.save(order);
+        events.publishEvent(<span class="kw">new</span> OrderPlacedEvent(<span class="kw">this</span>, order.getId(), order.getEmail()));
+        <span class="kw">return</span> order;
+    }
+}
+
+<span class="cmt">// Subscribers — independently handle the event</span>
+<span class="ann">@EventListener</span>
+<span class="kw">public void</span> sendConfirmation(OrderPlacedEvent e) { emailService.send(e.customerEmail()); }
+
+<span class="ann">@EventListener</span>
+<span class="ann">@Async</span>   <span class="cmt">// run in separate thread pool</span>
+<span class="kw">public void</span> updateInventory(OrderPlacedEvent e) { inventoryService.reserve(e.orderId()); }</pre>
+            <table class="use-table" class="mt-12">
+              <tr><th>When to use</th><th>Spring ApplicationEvent</th><th>Kafka / RabbitMQ</th></tr>
+              <tr><td>Scope</td><td>Same JVM / single service</td><td>Cross-service / microservices</td></tr>
+              <tr><td>Durability</td><td>Lost on restart</td><td>Persisted (configurable retention)</td></tr>
+              <tr><td>Ordering</td><td>Synchronous by default</td><td>Per-partition ordering (Kafka)</td></tr>
+              <tr><td>Setup</td><td>Zero infra</td><td>Broker required</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q12 Template Method -->
+      <div class="qa-card" data-pillar="behavioral" id="q12">
+        <div class="qa-header" onclick="toggleQA('q12')">
+          <span class="qa-num">Q12</span>
+          <span class="qa-q">Template Method — how Spring's JdbcTemplate, RestTemplate, and AbstractController use it</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Template Method defines the <strong>skeleton of an algorithm</strong> in a base class, letting subclasses override specific steps without changing the overall structure. The base class calls the hook methods — subclasses fill them in.</p>
+            <pre class="code-block"><span class="cmt">// Base class defines the algorithm skeleton</span>
+<span class="kw">abstract class</span> <span class="cls">DataExporter</span> {
+    <span class="cmt">// Template method — the algorithm skeleton</span>
+    <span class="kw">public final void</span> export(List&lt;Order&gt; orders) {
+        List&lt;String&gt; rows = formatRows(orders);   <span class="cmt">// hook — subclass defines</span>
+        String header    = buildHeader();           <span class="cmt">// hook — subclass defines</span>
+        writeOutput(header, rows);                  <span class="cmt">// hook — subclass defines</span>
+    }
+
+    <span class="kw">protected abstract</span> List&lt;String&gt; formatRows(List&lt;Order&gt; orders);
+    <span class="kw">protected abstract</span> String buildHeader();
+    <span class="kw">protected abstract void</span> writeOutput(String header, List&lt;String&gt; rows);
+}
+
+<span class="kw">class</span> <span class="cls">CsvExporter</span>  <span class="kw">extends</span> DataExporter { <span class="cmt">// fills in CSV-specific steps</span>
+    <span class="kw">protected</span> List&lt;String&gt; formatRows(List&lt;Order&gt; o) { <span class="kw">return</span> o.stream().map(Order::toCsv).toList(); }
+    <span class="kw">protected</span> String buildHeader() { <span class="kw">return</span> <span class="str">"id,status,total"</span>; }
+    <span class="kw">protected void</span> writeOutput(String h, List&lt;String&gt; rows) { Files.writeString(csvPath, h + <span class="str">"\n"</span> + String.join(<span class="str">"\n"</span>, rows)); }
+}
+
+<span class="cmt">// Spring JdbcTemplate is a Template Method — you supply only the SQL and RowMapper</span>
+List&lt;Order&gt; orders = jdbcTemplate.query(
+    <span class="str">"SELECT * FROM orders WHERE status = ?"</span>,
+    (rs, i) -> new Order(rs.getLong("id"), rs.getString("status")),  <span class="cmt">// hook</span>
+    <span class="str">"PAID"</span>
+);
+<span class="cmt">// JdbcTemplate handles: connection, statement, result iteration, exception translation</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q13 Chain of Responsibility -->
+      <div class="qa-card" data-pillar="behavioral" id="q13">
+        <div class="qa-header" onclick="toggleQA('q13')">
+          <span class="qa-num">Q13</span>
+          <span class="qa-q">Chain of Responsibility — Spring Security filter chain and request validation pipelines</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Chain of Responsibility passes a request along a chain of handlers. Each handler decides to process it, pass it on, or stop the chain. Spring Security's filter chain is the prime real-world example.</p>
+            <pre class="code-block"><span class="cmt">// Generic handler interface</span>
+<span class="kw">interface</span> <span class="cls">OrderHandler</span> {
+    <span class="kw">void</span> setNext(OrderHandler next);
+    <span class="kw">void</span> handle(Order order);
+}
+
+<span class="kw">abstract class</span> <span class="cls">BaseOrderHandler</span> <span class="kw">implements</span> OrderHandler {
+    <span class="kw">private</span> OrderHandler next;
+    <span class="kw">public void</span> setNext(OrderHandler h) { this.next = h; }
+    <span class="kw">protected void</span> passToNext(Order o) { <span class="kw">if</span> (next != <span class="kw">null</span>) next.handle(o); }
+}
+
+<span class="kw">class</span> <span class="cls">StockCheckHandler</span> <span class="kw">extends</span> BaseOrderHandler {
+    <span class="kw">public void</span> handle(Order o) {
+        <span class="kw">if</span> (!stock.available(o)) <span class="kw">throw new</span> OutOfStockException();
+        passToNext(o);  <span class="cmt">// all good — pass along the chain</span>
+    }
+}
+
+<span class="kw">class</span> <span class="cls">FraudCheckHandler</span> <span class="kw">extends</span> BaseOrderHandler {
+    <span class="kw">public void</span> handle(Order o) {
+        <span class="kw">if</span> (fraud.isRisky(o)) <span class="kw">throw new</span> FraudSuspectedException();
+        passToNext(o);
+    }
+}
+
+<span class="cmt">// Build the chain</span>
+StockCheckHandler stock = <span class="kw">new</span> StockCheckHandler();
+FraudCheckHandler fraud = <span class="kw">new</span> FraudCheckHandler();
+stock.setNext(fraud);
+stock.handle(order);  <span class="cmt">// enters at head, flows through</span>
+
+<span class="cmt">// Spring Security: filters are Chain of Responsibility — each calls chain.doFilter()</span>
+<span class="ann">@Component</span>
+<span class="kw">class</span> <span class="cls">JwtAuthFilter</span> <span class="kw">extends</span> OncePerRequestFilter {
+    <span class="kw">protected void</span> doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+            <span class="kw">throws</span> IOException, ServletException {
+        String token = extractToken(req);
+        <span class="kw">if</span> (tokenValidator.isValid(token)) {
+            SecurityContextHolder.getContext().setAuthentication(buildAuth(token));
+        }
+        chain.doFilter(req, res);  <span class="cmt">// pass to next filter in chain</span>
+    }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q14 Command -->
+      <div class="qa-card" data-pillar="behavioral" id="q14">
+        <div class="qa-header" onclick="toggleQA('q14')">
+          <span class="qa-num">Q14</span>
+          <span class="qa-q">Command pattern — undo/redo, queueing operations, and CQRS connection</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Command encapsulates an action as an object. Benefits: decouple sender from receiver, queue/log commands, implement undo/redo, retry failed operations.</p>
+            <pre class="code-block"><span class="kw">interface</span> <span class="cls">Command</span> { <span class="kw">void</span> execute(); <span class="kw">void</span> undo(); }
+
+<span class="kw">record</span> <span class="cls">PlaceOrderCommand</span>(Order order, OrderRepository repo) <span class="kw">implements</span> Command {
+    <span class="kw">public void</span> execute() { repo.save(order); }
+    <span class="kw">public void</span> undo()    { repo.delete(order.getId()); }
+}
+
+<span class="cmt">// Command queue — process asynchronously, supports retry</span>
+<span class="kw">class</span> <span class="cls">CommandBus</span> {
+    <span class="kw">private final</span> Queue&lt;Command&gt; queue = <span class="kw">new</span> LinkedList&lt;&gt;();
+    <span class="kw">private final</span> Deque&lt;Command&gt; history = <span class="kw">new</span> ArrayDeque&lt;&gt;();
+
+    <span class="kw">public void</span> dispatch(Command cmd) {
+        cmd.execute();
+        history.push(cmd);
+    }
+
+    <span class="kw">public void</span> undoLast() {
+        <span class="kw">if</span> (!history.isEmpty()) history.pop().undo();
+    }
+}
+
+<span class="cmt">// CQRS: write side commands are the Command pattern at architecture scale</span>
+<span class="cmt">// PlaceOrderCommand → CommandHandler → aggregate root → domain events</span></pre>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area behavioral -->
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- ARCHITECTURE PATTERNS                               -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <div id="arch"></div>
+    <div class="section-header">
+      <div class="section-icon" class="chip-purple"><i class="fa-solid fa-sitemap"></i></div>
+      <div><h2>Architecture Patterns</h2><p>High-level blueprints for organising entire systems or services</p></div>
+    </div>
+    <div class="content-area">
+
+      <!-- Q15 Layered -->
+      <div class="qa-card" data-pillar="arch" id="q15">
+        <div class="qa-header" onclick="toggleQA('q15')">
+          <span class="qa-num">Q15</span>
+          <span class="qa-q">Layered Architecture — the N-tier model and its problems at scale</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <div class="pat-svg">
+              <svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="la" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+                <rect x="100" y="4" width="400" height="44" rx="5" fill="#1e2d45" stroke="#3b82f6" stroke-width="2"/>
+                <text x="300" y="20" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">Presentation Layer (Controller)</text>
+                <text x="300" y="38" text-anchor="middle" fill="#64748b" font-size="10.5">@RestController — HTTP in, DTO out — no business logic</text>
+                <line x1="300" y1="48" x2="300" y2="62" stroke="#475569" stroke-width="1.5" marker-end="url(#la)"/>
+                <rect x="100" y="62" width="400" height="44" rx="5" fill="#0d2618" stroke="#10b981" stroke-width="2"/>
+                <text x="300" y="78" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">Service Layer (Business Logic)</text>
+                <text x="300" y="96" text-anchor="middle" fill="#64748b" font-size="10.5">@Service — transactions, validation, orchestration</text>
+                <line x1="300" y1="106" x2="300" y2="120" stroke="#475569" stroke-width="1.5" marker-end="url(#la)"/>
+                <rect x="100" y="120" width="400" height="44" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="2"/>
+                <text x="300" y="136" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">Repository Layer (Data Access)</text>
+                <text x="300" y="154" text-anchor="middle" fill="#64748b" font-size="10.5">@Repository — JPA, JDBC, external API calls</text>
+                <line x1="300" y1="164" x2="300" y2="178" stroke="#475569" stroke-width="1.5" marker-end="url(#la)"/>
+                <rect x="100" y="178" width="400" height="38" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="2"/>
+                <text x="300" y="194" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600">Infrastructure (Database / External APIs)</text>
+                <text x="300" y="210" text-anchor="middle" fill="#64748b" font-size="10.5">PostgreSQL, Redis, Kafka, S3 …</text>
+              </svg>
+            </div>
+            <p><strong>Rule:</strong> each layer only depends on the layer directly below it. A Controller must not call a Repository directly.</p>
+            <div class="callout warn">
+              <strong>Problems at scale:</strong> Layered architecture becomes a <em>distributed monolith</em> in microservices if teams share the same database layer. Also, "anemic domain model" — all logic ends up in the service layer, entities are just data bags. Fix with Domain-Driven Design and Hexagonal Architecture.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q16 Hexagonal -->
+      <div class="qa-card open" data-pillar="arch" id="q16">
+        <div class="qa-header" onclick="toggleQA('q16')">
+          <span class="qa-num">Q16</span>
+          <span class="qa-q">Hexagonal Architecture (Ports &amp; Adapters) — the cleanest separation for testable services</span>
+          <span class="qa-difficulty hard">Hard</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>The application core (domain + use cases) is completely isolated from infrastructure. It exposes <strong>ports</strong> (interfaces) and the outside world connects via <strong>adapters</strong>. Inverting dependencies means your core never imports Spring, JPA, or any framework.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 660 260" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <!-- Hexagon approximation — center box -->
+                <rect x="190" y="60" width="280" height="140" rx="12" fill="#0d2618" stroke="#10b981" stroke-width="2.5"/>
+                <text x="330" y="92" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">Application Core</text>
+                <line x1="190" y1="102" x2="470" y2="102" stroke="#103020"/>
+                <text x="330" y="122" text-anchor="middle" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">Domain Entities</text>
+                <text x="330" y="140" text-anchor="middle" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">Use Cases (Services)</text>
+                <text x="330" y="158" text-anchor="middle" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">Ports (Interfaces)</text>
+                <text x="330" y="176" text-anchor="middle" fill="#64748b" font-size="10">No framework imports here</text>
+                <!-- Left adapters (driving) -->
+                <rect x="4" y="30" width="140" height="40" rx="4" fill="#1e2d45" stroke="#3b82f6" stroke-width="1.5"/>
+                <text x="74" y="55" text-anchor="middle" fill="#93c5fd" font-size="11">REST Controller</text>
+                <rect x="4" y="90" width="140" height="40" rx="4" fill="#1e2d45" stroke="#3b82f6" stroke-width="1.5"/>
+                <text x="74" y="115" text-anchor="middle" fill="#93c5fd" font-size="11">Kafka Consumer</text>
+                <rect x="4" y="150" width="140" height="40" rx="4" fill="#1e2d45" stroke="#3b82f6" stroke-width="1.5"/>
+                <text x="74" y="175" text-anchor="middle" fill="#93c5fd" font-size="11">gRPC Endpoint</text>
+                <!-- Left arrows -->
+                <line x1="144" y1="50" x2="190" y2="110" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#la)"/>
+                <line x1="144" y1="110" x2="190" y2="130" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#la)"/>
+                <line x1="144" y1="170" x2="190" y2="150" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#la)"/>
+                <text x="74" y="20" text-anchor="middle" fill="#3b82f6" font-size="10.5" font-weight="600">Driving Adapters</text>
+                <!-- Right adapters (driven) -->
+                <rect x="516" y="30" width="140" height="40" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="586" y="55" text-anchor="middle" fill="#a5b4fc" font-size="11">JPA Repository</text>
+                <rect x="516" y="90" width="140" height="40" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="586" y="115" text-anchor="middle" fill="#a5b4fc" font-size="11">Kafka Producer</text>
+                <rect x="516" y="150" width="140" height="40" rx="4" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="586" y="175" text-anchor="middle" fill="#a5b4fc" font-size="11">Stripe Adapter</text>
+                <!-- Right arrows -->
+                <line x1="470" y1="110" x2="516" y2="50" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#la)"/>
+                <line x1="470" y1="130" x2="516" y2="110" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#la)"/>
+                <line x1="470" y1="150" x2="516" y2="170" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#la)"/>
+                <text x="586" y="20" text-anchor="middle" fill="#8b5cf6" font-size="10.5" font-weight="600">Driven Adapters</text>
+                <!-- Test note -->
+                <rect x="4" y="220" width="652" height="36" rx="4" fill="#0a1525" stroke="#334155"/>
+                <text x="330" y="244" text-anchor="middle" fill="#64748b" font-size="11">Testing: core is tested with fake/in-memory adapters — no Spring context, no database needed</text>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Port — defined in the core, no infrastructure dependency</span>
+<span class="kw">interface</span> <span class="cls">OrderRepository</span> {   <span class="cmt">// lives in domain layer</span>
+    Order save(Order order);
+    Optional&lt;Order&gt; findById(Long id);
+}
+
+<span class="cmt">// Driven adapter — lives in infrastructure layer, implements the port</span>
+<span class="ann">@Repository</span>
+<span class="kw">class</span> <span class="cls">JpaOrderRepository</span> <span class="kw">implements</span> OrderRepository {
+    <span class="kw">private final</span> JpaOrderJpaRepo jpaRepo;  <span class="cmt">// Spring Data JPA — kept in infra only</span>
+    <span class="kw">public</span> Order save(Order o) { <span class="kw">return</span> jpaRepo.save(OrderEntity.from(o)).toDomain(); }
+}
+
+<span class="cmt">// Use case (core service) — depends only on the port, never on JPA</span>
+<span class="kw">class</span> <span class="cls">PlaceOrderUseCase</span> {
+    <span class="kw">private final</span> OrderRepository repo;   <span class="cmt">// interface injection — core unaware of JPA</span>
+    Order execute(PlaceOrderCommand cmd) {
+        Order order = Order.create(cmd);
+        <span class="kw">return</span> repo.save(order);
+    }
+}
+
+<span class="cmt">// In tests — swap the adapter for an in-memory fake</span>
+<span class="kw">var</span> useCase = <span class="kw">new</span> PlaceOrderUseCase(<span class="kw">new</span> InMemoryOrderRepository());  <span class="cmt">// zero Spring context</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q17 CQRS -->
+      <div class="qa-card" data-pillar="arch" id="q17">
+        <div class="qa-header" onclick="toggleQA('q17')">
+          <span class="qa-num">Q17</span>
+          <span class="qa-q">CQRS — Command Query Responsibility Segregation with eventual consistency trade-offs</span>
+          <span class="qa-difficulty hard">Hard</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>CQRS separates read (Query) and write (Command) models. Commands mutate state, Queries read it — from separate models, often separate datastores. Enables independent scaling and optimised read models.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 680 190" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+                <!-- Client -->
+                <rect x="4" y="75" width="100" height="40" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="54" y="100" text-anchor="middle" fill="#e2e8f0" font-size="11.5">API Gateway</text>
+                <!-- Command side -->
+                <rect x="160" y="4" width="150" height="80" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+                <text x="235" y="24" text-anchor="middle" fill="#ef4444" font-size="11.5" font-weight="700">WRITE side</text>
+                <text x="235" y="44" text-anchor="middle" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">CommandHandler</text>
+                <text x="235" y="60" text-anchor="middle" fill="#64748b" font-size="10">validates + saves</text>
+                <text x="235" y="76" text-anchor="middle" fill="#64748b" font-size="10">to Write DB</text>
+                <!-- Query side -->
+                <rect x="160" y="106" width="150" height="80" rx="5" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="235" y="126" text-anchor="middle" fill="#10b981" font-size="11.5" font-weight="700">READ side</text>
+                <text x="235" y="146" text-anchor="middle" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">QueryHandler</text>
+                <text x="235" y="162" text-anchor="middle" fill="#64748b" font-size="10">reads from</text>
+                <text x="235" y="178" text-anchor="middle" fill="#64748b" font-size="10">Read DB (denorm.)</text>
+                <line x1="104" y1="88" x2="160" y2="44" stroke="#ef4444" stroke-width="1.5" marker-end="url(#ca)"/>
+                <line x1="104" y1="105" x2="160" y2="146" stroke="#10b981" stroke-width="1.5" marker-end="url(#ca)"/>
+                <!-- Event sync -->
+                <rect x="364" y="4" width="130" height="55" rx="5" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="429" y="26" text-anchor="middle" fill="#fcd34d" font-size="11.5" font-weight="700">Write DB</text>
+                <text x="429" y="44" text-anchor="middle" fill="#64748b" font-size="10">PostgreSQL / JPA</text>
+                <text x="429" y="58" text-anchor="middle" fill="#64748b" font-size="10">normalised schema</text>
+                <rect x="364" y="130" width="130" height="55" rx="5" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="429" y="152" text-anchor="middle" fill="#fcd34d" font-size="11.5" font-weight="700">Read DB</text>
+                <text x="429" y="170" text-anchor="middle" fill="#64748b" font-size="10">Elasticsearch / Redis</text>
+                <text x="429" y="184" text-anchor="middle" fill="#64748b" font-size="10">denormalised views</text>
+                <line x1="310" y1="44" x2="364" y2="31" stroke="#475569" stroke-width="1.5" marker-end="url(#ca)"/>
+                <line x1="310" y1="146" x2="364" y2="157" stroke="#475569" stroke-width="1.5" marker-end="url(#ca)"/>
+                <!-- Sync arrow -->
+                <rect x="536" y="70" width="140" height="50" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="606" y="90" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">Event / CDC sync</text>
+                <text x="606" y="108" text-anchor="middle" fill="#64748b" font-size="10">Kafka / Debezium</text>
+                <line x1="494" y1="31" x2="536" y2="80" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ca)"/>
+                <line x1="536" y1="110" x2="494" y2="157" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ca)"/>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Write side — Command + Handler</span>
+<span class="kw">record</span> <span class="cls">PlaceOrderCommand</span>(Long customerId, List&lt;CartItem&gt; items) {}
+
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">PlaceOrderHandler</span> {
+    <span class="ann">@Transactional</span>
+    <span class="kw">public</span> Long handle(PlaceOrderCommand cmd) {
+        Order order = Order.create(cmd.customerId(), cmd.items());
+        orderRepo.save(order);
+        eventBus.publish(<span class="kw">new</span> OrderPlacedEvent(order));  <span class="cmt">// triggers read-model update</span>
+        <span class="kw">return</span> order.getId();
+    }
+}
+
+<span class="cmt">// Read side — separate query model, optimised for display</span>
+<span class="kw">record</span> <span class="cls">OrderListView</span>(Long id, String customerName, String status, BigDecimal total) {}
+
+<span class="ann">@Service</span>
+<span class="kw">class</span> <span class="cls">OrderQueryHandler</span> {
+    <span class="kw">public</span> List&lt;OrderListView&gt; findByCustomer(Long customerId) {
+        <span class="kw">return</span> orderViewRepo.findByCustomerId(customerId);  <span class="cmt">// read from denormalised view</span>
+    }
+}</pre>
+            <div class="callout warn"><strong>Trade-off:</strong> eventual consistency. The read model lags behind the write model by milliseconds to seconds. The caller that just placed an order might not see it in the list immediately. Always design the UI for this.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q18 Event Sourcing -->
+      <div class="qa-card" data-pillar="arch" id="q18">
+        <div class="qa-header" onclick="toggleQA('q18')">
+          <span class="qa-num">Q18</span>
+          <span class="qa-q">Event Sourcing — storing events instead of state, and when it's overkill</span>
+          <span class="qa-difficulty hard">Hard</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Instead of storing the <em>current state</em> of an entity, Event Sourcing stores the <em>sequence of events</em> that led to that state. Current state is derived by replaying events.</p>
+            <pre class="code-block"><span class="cmt">// Events — immutable facts that happened</span>
+<span class="kw">sealed interface</span> <span class="cls">OrderEvent</span> <span class="kw">permits</span> OrderPlaced, OrderShipped, OrderCancelled {}
+<span class="kw">record</span> <span class="cls">OrderPlaced</span>(Long orderId, Long customerId, Instant at) <span class="kw">implements</span> OrderEvent {}
+<span class="kw">record</span> <span class="cls">OrderShipped</span>(Long orderId, String trackingCode, Instant at) <span class="kw">implements</span> OrderEvent {}
+<span class="kw">record</span> <span class="cls">OrderCancelled</span>(Long orderId, String reason, Instant at) <span class="kw">implements</span> OrderEvent {}
+
+<span class="cmt">// Event store — append-only table</span>
+<span class="cmt">-- order_events: order_id | event_type | payload (JSONB) | occurred_at</span>
+<span class="cmt">-- 1001 | ORDER_PLACED  | {customerId:1}          | 2025-06-01T10:00</span>
+<span class="cmt">-- 1001 | ORDER_SHIPPED | {tracking:"DHL123"}     | 2025-06-03T08:00</span>
+
+<span class="cmt">// Rebuild current state by replaying events</span>
+<span class="kw">class</span> <span class="cls">Order</span> {
+    OrderStatus status;
+
+    Order apply(OrderEvent event) {
+        <span class="kw">return switch</span> (event) {
+            <span class="kw">case</span> OrderPlaced   e -> { this.status = PENDING;  <span class="kw">yield this</span>; }
+            <span class="kw">case</span> OrderShipped  e -> { this.status = SHIPPED;  <span class="kw">yield this</span>; }
+            <span class="kw">case</span> OrderCancelled e -> { this.status = CANCELLED; <span class="kw">yield this</span>; }
+        };
+    }
+    <span class="kw">static</span> Order rebuild(List&lt;OrderEvent&gt; events) {
+        <span class="kw">return</span> events.stream().reduce(<span class="kw">new</span> Order(), Order::apply, (a,b) -> b);
+    }
+}</pre>
+            <table class="use-table">
+              <tr><th>Use Event Sourcing when</th><th>Avoid it when</th></tr>
+              <tr><td>Complete audit history is required (finance, healthcare)</td><td>You only need current state</td></tr>
+              <tr><td>You need temporal queries ("what was the state on Jan 3?")</td><td>Simple CRUD with no audit needs</td></tr>
+              <tr><td>Multiple read models need different projections</td><td>Team isn't familiar with eventual consistency</td></tr>
+              <tr><td>Used with CQRS + Kafka in event-driven systems</td><td>Schema of events is unstable / changes often</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q19 Saga -->
+      <div class="qa-card" data-pillar="arch" id="q19">
+        <div class="qa-header" onclick="toggleQA('q19')">
+          <span class="qa-num">Q20</span>
+          <span class="qa-q">Saga pattern — Choreography vs Orchestration for distributed transactions</span>
+          <span class="qa-difficulty hard">Hard</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Saga manages long-running distributed transactions without 2-phase commit. Each step publishes an event/command; on failure, compensating transactions undo previous steps.</p>
+            <div class="compare-grid">
+              <div>
+                <p style="font-weight:700;color:#f59e0b;margin-bottom:8px"><i class="fa-solid fa-music"></i> Choreography</p>
+                <pre class="code-block" style="margin:0">OrderService → OrderPlaced event
+    ↓
+PaymentService listens → charges card
+    → PaymentDone event
+    ↓
+InventoryService listens → reserves items
+    → ItemsReserved event
+    ↓
+ShippingService listens → creates shipment
+
+<span class="cmt">// On failure: PaymentFailed event</span>
+<span class="cmt">// InventoryService listens and releases</span></pre>
+                <div class="callout tip" class="mt-8"><strong>Pros:</strong> loose coupling, no central coordinator<br><strong>Cons:</strong> hard to visualise full flow, cyclic dependencies creep in</div>
+              </div>
+              <div>
+                <p style="font-weight:700;color:#a5b4fc;margin-bottom:8px"><i class="fa-solid fa-person-chalkboard"></i> Orchestration</p>
+                <pre class="code-block" style="margin:0">OrderSaga (orchestrator)
+  1. send PayCommand → PaymentService
+  2. on PaymentDone: send ReserveCmd → Inventory
+  3. on ItemsReserved: send ShipCmd → Shipping
+  4. on any failure:
+     send ReleaseItemsCmd → Inventory
+     send RefundCmd → Payment
+
+<span class="cmt">// Camunda / Temporal / Spring State Machine</span>
+<span class="cmt">// handles step tracking and compensation</span></pre>
+                <div class="callout tip" class="mt-8"><strong>Pros:</strong> visible flow, easy rollback, centralised timeout<br><strong>Cons:</strong> orchestrator is a potential bottleneck</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q20 Clean Architecture -->
+      <div class="qa-card" data-pillar="arch" id="q20">
+        <div class="qa-header" onclick="toggleQA('q20')">
+          <span class="qa-num">Q20</span>
+          <span class="qa-q">Clean Architecture — how it relates to Hexagonal and DDD, key differences from Layered</span>
+          <span class="qa-difficulty hard">Hard</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Clean Architecture (Robert Martin) organises code in concentric rings where the <strong>Dependency Rule</strong> states: <em>source code dependencies must point inward</em>. Inner rings know nothing of outer rings.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 440 260" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <!-- Rings -->
+                <circle cx="220" cy="130" r="125" fill="#1a1535" stroke="#6366f1" stroke-width="1.5"/>
+                <circle cx="220" cy="130" r="95"  fill="#101528" stroke="#8b5cf6" stroke-width="1.5"/>
+                <circle cx="220" cy="130" r="65"  fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <circle cx="220" cy="130" r="38"  fill="#1a0808" stroke="#ef4444" stroke-width="2"/>
+                <!-- Labels -->
+                <text x="220" y="125" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="700">Entities</text>
+                <text x="220" y="141" text-anchor="middle" fill="#fca5a5" font-size="10">(Domain)</text>
+                <text x="220" y="88"  text-anchor="middle" fill="#34d399" font-size="10.5" font-weight="600">Use Cases</text>
+                <text x="220" y="210" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-weight="600">Interface Adapters</text>
+                <text x="220" y="247" text-anchor="middle" fill="#818cf8" font-size="10.5">Frameworks &amp; Drivers</text>
+                <!-- Dependency arrow -->
+                <defs><marker id="da" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#ef4444"/></marker></defs>
+                <line x1="380" y1="130" x2="346" y2="130" stroke="#ef4444" stroke-width="2" marker-end="url(#da)"/>
+                <text x="415" y="120" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="700">Dependencies</text>
+                <text x="415" y="134" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="700">point INWARD</text>
+                <text x="415" y="148" text-anchor="middle" fill="#64748b" font-size="10">only →</text>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Entities (innermost) — pure Java, no annotations, no framework</span>
+<span class="kw">class</span> <span class="cls">Order</span> {                           <span class="cmt">// knows nothing of Spring, JPA, HTTP</span>
+    <span class="kw">private</span> OrderStatus status = PENDING;
+    <span class="kw">void</span> confirm() {
+        <span class="kw">if</span> (status != PENDING) <span class="kw">throw new</span> InvalidOrderStateException();
+        status = CONFIRMED;
+    }
+}
+
+<span class="cmt">// Use Cases — orchestrate entities, define port interfaces</span>
+<span class="kw">class</span> <span class="cls">ConfirmOrderUseCase</span> {
+    <span class="kw">private final</span> OrderRepository repo;  <span class="cmt">// port (interface) — defined here, implemented in adapters</span>
+    <span class="kw">void</span> execute(Long orderId) {
+        Order o = repo.findById(orderId).orElseThrow();
+        o.confirm();
+        repo.save(o);
+    }
+}
+
+<span class="cmt">// Interface Adapters — Spring controllers, JPA repositories</span>
+<span class="ann">@RestController</span> <span class="kw">class</span> <span class="cls">OrderController</span> { <span class="cmt">// converts HTTP ↔ use-case DTOs</span>
+    <span class="ann">@PutMapping</span>(<span class="str">"/orders/{id}/confirm"</span>)
+    ResponseEntity&lt;Void&gt; confirm(<span class="ann">@PathVariable</span> Long id) {
+        confirmOrderUseCase.execute(id);
+        <span class="kw">return</span> ResponseEntity.ok().build();
+    }
+}</pre>
+            <table class="use-table">
+              <tr><th></th><th>Layered</th><th>Hexagonal</th><th>Clean Architecture</th></tr>
+              <tr><td>Dependency direction</td><td>Top → down</td><td>Inward (core isolated)</td><td>Inward (strict)</td></tr>
+              <tr><td>Domain isolation</td><td>Partial</td><td>Full</td><td>Full</td></tr>
+              <tr><td>Testability</td><td>Medium (Spring context needed)</td><td>High (fake adapters)</td><td>High (POJO core)</td></tr>
+              <tr><td>Complexity</td><td>Low</td><td>Medium</td><td>High (more layers)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area arch — end here; LB questions follow in their own section below -->
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- LOAD BALANCING                                      -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <div id="lb"></div>
+    <div class="section-header">
+      <div class="section-icon" class="chip-warning"><i class="fa-solid fa-server"></i></div>
+      <div><h2>Load Balancing</h2><p>Algorithms, L4 vs L7, health checks, connection draining, and Circuit Breaker pattern</p></div>
+    </div>
+    <div class="content-area">
+
+      <!-- Q21 Load Balancer Algorithms -->
+      <div class="qa-card" data-pillar="lb" id="q21">
+        <div class="qa-header" onclick="toggleQA('q21')">
+          <span class="qa-num">Q21</span>
+          <span class="qa-q">Load Balancer algorithms — Round Robin, Least Connections, IP Hash, Weighted and when to pick each</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <div class="pat-svg">
+              <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="lba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+                <!-- Client -->
+                <rect x="4" y="85" width="90" height="30" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="49" y="105" text-anchor="middle" fill="#e2e8f0" font-size="11">Clients</text>
+                <line x1="94" y1="100" x2="140" y2="100" stroke="#475569" stroke-width="1.5" marker-end="url(#lba)"/>
+                <!-- LB -->
+                <rect x="140" y="60" width="150" height="80" rx="6" fill="#1a1508" stroke="#f59e0b" stroke-width="2"/>
+                <text x="215" y="88" text-anchor="middle" fill="#fcd34d" font-size="13" font-weight="700">Load Balancer</text>
+                <text x="215" y="108" text-anchor="middle" fill="#64748b" font-size="10.5">Algorithm selects</text>
+                <text x="215" y="124" text-anchor="middle" fill="#64748b" font-size="10.5">target server</text>
+                <!-- Servers -->
+                <rect x="360" y="10" width="140" height="40" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="430" y="28" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">Server A</text>
+                <text x="430" y="44" text-anchor="middle" fill="#64748b" font-size="10">3 active conns</text>
+                <rect x="360" y="68" width="140" height="40" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="430" y="86" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">Server B</text>
+                <text x="430" y="102" text-anchor="middle" fill="#64748b" font-size="10">1 active conn ← pick this</text>
+                <rect x="360" y="126" width="140" height="40" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+                <text x="430" y="144" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">Server C</text>
+                <text x="430" y="160" text-anchor="middle" fill="#64748b" font-size="10">5 active conns</text>
+                <line x1="290" y1="90" x2="360" y2="30" stroke="#475569" stroke-width="1.5" marker-end="url(#lba)"/>
+                <line x1="290" y1="100" x2="360" y2="88" stroke="#f59e0b" stroke-width="2" marker-end="url(#lba)"/>
+                <line x1="290" y1="110" x2="360" y2="146" stroke="#475569" stroke-width="1.5" marker-end="url(#lba)"/>
+                <!-- Health check -->
+                <rect x="540" y="0" width="136" height="200" rx="4" fill="#0a1525" stroke="#334155"/>
+                <text x="608" y="18" text-anchor="middle" fill="#64748b" font-size="10" font-weight="600">Health Checks</text>
+                <text x="608" y="38" text-anchor="middle" fill="#10b981" font-size="11">✓ A: healthy</text>
+                <text x="608" y="58" text-anchor="middle" fill="#10b981" font-size="11">✓ B: healthy</text>
+                <text x="608" y="78" text-anchor="middle" fill="#ef4444" font-size="11">✗ C: unhealthy</text>
+                <text x="608" y="100" text-anchor="middle" fill="#64748b" font-size="10">→ removed from</text>
+                <text x="608" y="114" text-anchor="middle" fill="#64748b" font-size="10">rotation</text>
+                <line x1="500" y1="30" x2="540" y2="38" stroke="#334155" stroke-dasharray="3,3"/>
+                <line x1="500" y1="88" x2="540" y2="58" stroke="#334155" stroke-dasharray="3,3"/>
+                <line x1="500" y1="146" x2="540" y2="78" stroke="#334155" stroke-dasharray="3,3"/>
+              </svg>
+            </div>
+            <table class="use-table">
+              <tr><th>Algorithm</th><th>How it works</th><th>Best for</th></tr>
+              <tr>
+                <td>Round Robin</td>
+                <td>Requests cycle through servers in sequence: A → B → C → A…</td>
+                <td>Homogeneous servers, stateless services, uniform request cost</td>
+              </tr>
+              <tr>
+                <td>Weighted Round Robin</td>
+                <td>Servers get requests proportional to their weight: A(3), B(1) → A gets 3×more</td>
+                <td>Heterogeneous servers (different CPU/RAM), canary deployments (give new version weight=1)</td>
+              </tr>
+              <tr>
+                <td>Least Connections</td>
+                <td>New request goes to the server with fewest active connections</td>
+                <td>Long-lived connections (WebSocket, streaming), variable request duration</td>
+              </tr>
+              <tr>
+                <td>IP Hash (Sticky)</td>
+                <td><code>hash(clientIP) % numServers</code> — same client always hits same server</td>
+                <td>Stateful sessions, caches that must stay warm, WebSocket upgrades</td>
+              </tr>
+              <tr>
+                <td>Random</td>
+                <td>Pick a server at random each request</td>
+                <td>Simple, surprisingly effective when server pool is large and homogeneous</td>
+              </tr>
+            </table>
+            <div class="callout warn" class="mt-12">
+              <strong>Sticky sessions (IP Hash) gotcha:</strong> If one server goes down, all its sticky clients suddenly need redistribution — you get a traffic spike on other servers. Also, IP Hash breaks behind NAT where many clients share one IP. Use a session cookie header (<code>AWSALB</code>, <code>INGRESSCOOKIE</code>) as the sticky key instead of IP when possible.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q22 L4 vs L7 -->
+      <div class="qa-card" data-pillar="lb" id="q22">
+        <div class="qa-header" onclick="toggleQA('q22')">
+          <span class="qa-num">Q22</span>
+          <span class="qa-q">L4 vs L7 Load Balancer — difference, AWS NLB vs ALB, and when to use each</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <div class="pat-svg">
+              <svg viewBox="0 0 660 155" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <!-- L4 side -->
+                <rect x="4" y="4" width="310" height="146" rx="6" fill="#101528" stroke="#3b82f6" stroke-width="1.5"/>
+                <text x="159" y="24" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="700">L4 — Transport Layer</text>
+                <text x="159" y="44" text-anchor="middle" fill="#64748b" font-size="11">Sees: IP + TCP/UDP port only</text>
+                <text x="159" y="62" text-anchor="middle" fill="#64748b" font-size="11">Cannot see: HTTP headers, URL path</text>
+                <text x="159" y="82" text-anchor="middle" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">TCP:443 → backend:8080</text>
+                <line x1="20" y1="96" x2="294" y2="96" stroke="#1e3a5f"/>
+                <text x="159" y="114" text-anchor="middle" fill="#64748b" font-size="11">AWS: Network Load Balancer (NLB)</text>
+                <text x="159" y="132" text-anchor="middle" fill="#64748b" font-size="11">NGINX stream block, HAProxy mode tcp</text>
+                <text x="159" y="148" text-anchor="middle" fill="#34d399" font-size="10">Ultra-low latency · Millions RPS · Static IP</text>
+                <!-- L7 side -->
+                <rect x="346" y="4" width="310" height="146" rx="6" fill="#101528" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="501" y="24" text-anchor="middle" fill="#8b5cf6" font-size="12" font-weight="700">L7 — Application Layer</text>
+                <text x="501" y="44" text-anchor="middle" fill="#64748b" font-size="11">Sees: HTTP method, URL, headers, cookies</text>
+                <text x="501" y="62" text-anchor="middle" fill="#64748b" font-size="11">Can: route by path, terminate TLS, rewrite</text>
+                <text x="501" y="82" text-anchor="middle" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">/api/* → service-A:8080</text>
+                <line x1="362" y1="96" x2="640" y2="96" stroke="#2e1a4f"/>
+                <text x="501" y="114" text-anchor="middle" fill="#64748b" font-size="11">AWS: Application Load Balancer (ALB)</text>
+                <text x="501" y="132" text-anchor="middle" fill="#64748b" font-size="11">NGINX http block, Kubernetes Ingress</text>
+                <text x="501" y="148" text-anchor="middle" fill="#fcd34d" font-size="10">Path routing · Auth · WebSocket · gRPC</text>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// L7 example — NGINX routing by path (common Kubernetes Ingress pattern)</span>
+location /api/ {
+    proxy_pass http://api-service:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+location /admin/ {
+    proxy_pass http://admin-service:9090;
+    <span class="cmt"># Different service — impossible with L4</span>
+}
+
+<span class="cmt">// AWS — use ALB for microservices, NLB for:</span>
+<span class="cmt">// - UDP protocols (DNS, gaming, IoT)</span>
+<span class="cmt">// - Static IP requirements (whitelisting)</span>
+<span class="cmt">// - Extreme performance (< 1ms latency, millions RPS)</span>
+<span class="cmt">// - Database connections, SMTP, raw TCP</span></pre>
+            <table class="use-table">
+              <tr><th></th><th>NLB (L4)</th><th>ALB (L7)</th></tr>
+              <tr><td>Routing by</td><td>IP + port only</td><td>URL path, host, headers, query params</td></tr>
+              <tr><td>TLS termination</td><td>Pass-through only</td><td>Yes — decrypts and re-encrypts</td></tr>
+              <tr><td>WebSocket</td><td>Works (TCP passthrough)</td><td>Works with <code>upgrade</code> header support</td></tr>
+              <tr><td>Health checks</td><td>TCP-level (port open?)</td><td>HTTP response (checks actual /health endpoint)</td></tr>
+              <tr><td>Kubernetes</td><td>Service type=LoadBalancer</td><td>Ingress controller (nginx-ingress, AWS LBC)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q23 Health checks & circuit breaker in LB -->
+      <div class="qa-card" data-pillar="lb" id="q23">
+        <div class="qa-header" onclick="toggleQA('q23')">
+          <span class="qa-num">Q23</span>
+          <span class="qa-q">Health checks, connection draining, and how Circuit Breaker extends the LB pattern</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p><strong>Health Checks</strong> are periodic probes the LB sends to each backend. A backend failing N consecutive checks is removed from rotation (marked <em>unhealthy</em>).</p>
+            <pre class="code-block"><span class="cmt">// Kubernetes — two separate health probes</span>
+livenessProbe:      <span class="cmt"># "Is the process alive?" — fail → restart pod</span>
+  httpGet: { path: /actuator/health/liveness, port: 8080 }
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 3   <span class="cmt"># 3 consecutive failures → kill & restart</span>
+
+readinessProbe:     <span class="cmt"># "Is the pod ready for traffic?" — fail → remove from LB</span>
+  httpGet: { path: /actuator/health/readiness, port: 8080 }
+  periodSeconds: 5
+  failureThreshold: 2   <span class="cmt"># 2 failures → pulled from Service endpoints list</span>
+
+<span class="cmt">// Spring Boot Actuator — auto-exposes these endpoints</span>
+<span class="cmt">// management.endpoint.health.probes.enabled=true</span>
+<span class="cmt">// Readiness checks DB, Kafka, Redis connectivity</span></pre>
+            <p class="mt-12"><strong>Connection Draining (Deregistration Delay)</strong>: When a backend is removed (deployment, scale-down), the LB stops sending new requests but lets in-flight requests complete within a timeout (default 300s on AWS ALB). Prevents 5xx errors during rolling deploys.</p>
+            <p class="mt-12"><strong>Circuit Breaker</strong> is an active pattern that sits on the <em>client side</em> (service-to-service calls) and complements the LB's passive health checks:</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 600 110" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="cba" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+                <!-- States -->
+                <rect x="4" y="30" width="130" height="50" rx="6" fill="#0d2618" stroke="#10b981" stroke-width="2"/>
+                <text x="69" y="53" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">CLOSED</text>
+                <text x="69" y="70" text-anchor="middle" fill="#64748b" font-size="10">normal — requests pass</text>
+                <rect x="230" y="30" width="130" height="50" rx="6" fill="#1a0808" stroke="#ef4444" stroke-width="2"/>
+                <text x="295" y="53" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="700">OPEN</text>
+                <text x="295" y="70" text-anchor="middle" fill="#64748b" font-size="10">failing — reject fast</text>
+                <rect x="456" y="30" width="140" height="50" rx="6" fill="#1a1508" stroke="#f59e0b" stroke-width="2"/>
+                <text x="526" y="53" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">HALF-OPEN</text>
+                <text x="526" y="70" text-anchor="middle" fill="#64748b" font-size="10">probe — 1 test request</text>
+                <!-- Transitions -->
+                <path d="M134,45 Q182,10 230,45" fill="none" stroke="#ef4444" stroke-width="1.5" marker-end="url(#cba)"/>
+                <text x="182" y="15" text-anchor="middle" fill="#ef4444" font-size="10">failure rate ≥ threshold</text>
+                <path d="M386,55 Q421,95 456,55" fill="none" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#cba)"/>
+                <text x="421" y="105" text-anchor="middle" fill="#f59e0b" font-size="10">timeout elapsed</text>
+                <path d="M456,45 Q421,10 386,45" fill="none" stroke="#10b981" stroke-width="1.5" marker-end="url(#cba)"/>
+                <text x="421" y="18" text-anchor="middle" fill="#10b981" font-size="10">probe succeeds → close</text>
+                <path d="M296,80 Q296,95 230,80" fill="none" stroke="#ef4444" stroke-width="1.5" marker-end="url(#cba)"/>
+                <text x="263" y="107" text-anchor="middle" fill="#ef4444" font-size="10">probe fails → reopen</text>
+              </svg>
+            </div>
+            <pre class="code-block"><span class="cmt">// Resilience4j — Circuit Breaker in Spring Boot</span>
+<span class="ann">@CircuitBreaker</span>(name = <span class="str">"paymentService"</span>, fallbackMethod = <span class="str">"paymentFallback"</span>)
+<span class="kw">public</span> PaymentResult charge(Order order) {
+    <span class="kw">return</span> paymentClient.charge(order);
+}
+
+<span class="kw">public</span> PaymentResult paymentFallback(Order order, Exception e) {
+    <span class="kw">return</span> PaymentResult.queued(order.getId());  <span class="cmt">// graceful degradation</span>
+}
+
+<span class="cmt"># application.yml</span>
+resilience4j.circuitbreaker.instances.paymentService:
+  slidingWindowSize: 10
+  failureRateThreshold: 50        <span class="cmt"># open at 50% failure</span>
+  waitDurationInOpenState: 30s    <span class="cmt"># wait 30s before half-open probe</span>
+  permittedNumberOfCallsInHalfOpenState: 3</pre>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area lb -->
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- ALGORITHMS                                          -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <div id="algo"></div>
+    <div class="section-header">
+      <div class="section-icon" class="chip-accent"><i class="fa-solid fa-code"></i></div>
+      <div><h2>Algorithms</h2><p>Most common interview questions — Big O, sorting, arrays, HashMap, binary search, recursion</p></div>
+    </div>
+    <div class="content-area">
+
+      <!-- QA1 Big O -->
+      <div class="qa-card" data-pillar="algo" id="qa1">
+        <div class="qa-header" onclick="toggleQA('qa1')">
+          <span class="qa-num">A1</span>
+          <span class="qa-q">Big O notation — explain O(1), O(log n), O(n), O(n log n), O(n²) with a real example each</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Big O describes how runtime or memory <strong>scales with input size</strong>. It ignores constants and lower-order terms — only the dominant factor matters.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <!-- Axis -->
+                <line x1="40" y1="10" x2="40" y2="140" stroke="#334155" stroke-width="1.5"/>
+                <line x1="40" y1="140" x2="620" y2="140" stroke="#334155" stroke-width="1.5"/>
+                <text x="20" y="78" fill="#64748b" font-size="10" transform="rotate(-90,20,78)">Time</text>
+                <text x="330" y="158" text-anchor="middle" fill="#64748b" font-size="10">Input size (n)</text>
+                <!-- O(1) -->
+                <line x1="40" y1="130" x2="620" y2="130" stroke="#10b981" stroke-width="2"/>
+                <text x="625" y="133" fill="#10b981" font-size="10" font-weight="600">O(1)</text>
+                <!-- O(log n) -->
+                <path d="M40,120 Q200,100 620,90" fill="none" stroke="#34d399" stroke-width="2"/>
+                <text x="625" y="93" fill="#34d399" font-size="10" font-weight="600">O(log n)</text>
+                <!-- O(n) -->
+                <line x1="40" y1="130" x2="620" y2="60" stroke="#3b82f6" stroke-width="2"/>
+                <text x="625" y="63" fill="#3b82f6" font-size="10" font-weight="600">O(n)</text>
+                <!-- O(n log n) -->
+                <path d="M40,130 Q300,80 620,40" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                <text x="625" y="42" fill="#f59e0b" font-size="10" font-weight="600">O(n log n)</text>
+                <!-- O(n²) -->
+                <path d="M40,130 Q200,120 360,60 Q430,30 500,14" fill="none" stroke="#ef4444" stroke-width="2"/>
+                <text x="502" y="12" fill="#ef4444" font-size="10" font-weight="600">O(n²)</text>
+              </svg>
+            </div>
+            <table class="use-table">
+              <tr><th>Complexity</th><th>Name</th><th>Example</th></tr>
+              <tr><td><code>O(1)</code></td><td>Constant</td><td><code>map.get(key)</code>, array index access</td></tr>
+              <tr><td><code>O(log n)</code></td><td>Logarithmic</td><td>Binary search — halves the search space each step</td></tr>
+              <tr><td><code>O(n)</code></td><td>Linear</td><td>Loop through a list once, <code>list.contains(x)</code></td></tr>
+              <tr><td><code>O(n log n)</code></td><td>Linearithmic</td><td>Merge sort, Arrays.sort() (Timsort)</td></tr>
+              <tr><td><code>O(n²)</code></td><td>Quadratic</td><td>Nested loops, bubble sort, naïve duplicate check</td></tr>
+              <tr><td><code>O(2ⁿ)</code></td><td>Exponential</td><td>Recursive Fibonacci without memoization</td></tr>
+            </table>
+            <div class="callout warn">
+              <strong>Interview tip:</strong> Always state BOTH time AND space complexity. A solution that's O(n) time but uses O(n) extra space may not pass in memory-constrained situations. The interviewer wants to see you're aware of the trade-off.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QA2 Two pointers -->
+      <div class="qa-card" data-pillar="algo" id="qa2">
+        <div class="qa-header" onclick="toggleQA('qa2')">
+          <span class="qa-num">A2</span>
+          <span class="qa-q">Two Pointers pattern — when to use it and 3 classic problems it solves</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Two pointers uses two index variables moving through the same array — either toward each other (opposite ends) or in the same direction (fast/slow). Turns O(n²) nested loops into O(n).</p>
+            <pre class="code-block"><span class="cmt">// Pattern 1: Opposite ends — check if a SORTED array has a pair summing to target</span>
+<span class="kw">boolean</span> hasPairSum(<span class="kw">int</span>[] arr, <span class="kw">int</span> target) {
+    <span class="kw">int</span> left = 0, right = arr.length - 1;
+    <span class="kw">while</span> (left &lt; right) {
+        <span class="kw">int</span> sum = arr[left] + arr[right];
+        <span class="kw">if</span> (sum == target) <span class="kw">return true</span>;
+        <span class="kw">if</span> (sum &lt; target) left++;   <span class="cmt">// need bigger sum</span>
+        <span class="kw">else</span>              right--;  <span class="cmt">// need smaller sum</span>
+    }
+    <span class="kw">return false</span>;
+}  <span class="cmt">// O(n) time, O(1) space — vs O(n²) brute force</span>
+
+<span class="cmt">// Pattern 2: Fast/slow — detect a cycle in a linked list (Floyd's algorithm)</span>
+<span class="kw">boolean</span> hasCycle(ListNode head) {
+    ListNode slow = head, fast = head;
+    <span class="kw">while</span> (fast != <span class="kw">null</span> &amp;&amp; fast.next != <span class="kw">null</span>) {
+        slow = slow.next;          <span class="cmt">// moves 1 step</span>
+        fast = fast.next.next;     <span class="cmt">// moves 2 steps</span>
+        <span class="kw">if</span> (slow == fast) <span class="kw">return true</span>;  <span class="cmt">// they meet → cycle</span>
+    }
+    <span class="kw">return false</span>;
+}
+
+<span class="cmt">// Pattern 3: Same direction — remove duplicates from sorted array in-place</span>
+<span class="kw">int</span> removeDuplicates(<span class="kw">int</span>[] arr) {
+    <span class="kw">if</span> (arr.length == 0) <span class="kw">return</span> 0;
+    <span class="kw">int</span> slow = 0;
+    <span class="kw">for</span> (<span class="kw">int</span> fast = 1; fast &lt; arr.length; fast++) {
+        <span class="kw">if</span> (arr[fast] != arr[slow]) arr[++slow] = arr[fast];
+    }
+    <span class="kw">return</span> slow + 1;
+}</pre>
+            <div class="callout tip"><strong>Trigger words:</strong> "sorted array", "pair/triplet sum", "palindrome check", "linked list cycle", "remove duplicates in-place" → reach for two pointers first.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QA3 Sliding Window -->
+      <div class="qa-card" data-pillar="algo" id="qa3">
+        <div class="qa-header" onclick="toggleQA('qa3')">
+          <span class="qa-num">A3</span>
+          <span class="qa-q">Sliding Window pattern — longest substring without repeating characters</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Sliding window maintains a contiguous subarray/substring between a <code>left</code> and <code>right</code> pointer. You expand right to grow the window and shrink left when a constraint is violated. Avoids recalculating the whole window from scratch each step.</p>
+            <pre class="code-block"><span class="cmt">// Longest substring without repeating characters — O(n) time, O(k) space (k = charset size)</span>
+<span class="kw">int</span> lengthOfLongestSubstring(String s) {
+    Map&lt;Character, Integer&gt; lastSeen = <span class="kw">new</span> HashMap&lt;&gt;();
+    <span class="kw">int</span> left = 0, maxLen = 0;
+
+    <span class="kw">for</span> (<span class="kw">int</span> right = 0; right &lt; s.length(); right++) {
+        <span class="kw">char</span> c = s.charAt(right);
+        <span class="kw">if</span> (lastSeen.containsKey(c) &amp;&amp; lastSeen.get(c) &gt;= left) {
+            left = lastSeen.get(c) + 1;  <span class="cmt">// shrink window past the duplicate</span>
+        }
+        lastSeen.put(c, right);
+        maxLen = Math.max(maxLen, right - left + 1);
+    }
+    <span class="kw">return</span> maxLen;
+}
+<span class="cmt">// "abcabcbb" → 3 ("abc")</span>
+<span class="cmt">// "pwwkew"   → 3 ("wke")</span></pre>
+            <div class="callout tip"><strong>Trigger words:</strong> "subarray/substring with condition", "maximum/minimum window", "contains at most K distinct" → sliding window.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QA4 HashMap patterns -->
+      <div class="qa-card" data-pillar="algo" id="qa4">
+        <div class="qa-header" onclick="toggleQA('qa4')">
+          <span class="qa-num">A4</span>
+          <span class="qa-q">HashMap patterns — frequency count, grouping, and two-sum in O(n)</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>HashMap gives O(1) average lookup/insert — the most common tool for trading space for time. Three patterns cover 80% of HashMap interview problems.</p>
+            <pre class="code-block"><span class="cmt">// Pattern 1: Two Sum — find indices of two numbers that add to target</span>
+<span class="kw">int</span>[] twoSum(<span class="kw">int</span>[] nums, <span class="kw">int</span> target) {
+    Map&lt;Integer, Integer&gt; seen = <span class="kw">new</span> HashMap&lt;&gt;();  <span class="cmt">// value → index</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; nums.length; i++) {
+        <span class="kw">int</span> complement = target - nums[i];
+        <span class="kw">if</span> (seen.containsKey(complement)) <span class="kw">return new int</span>[]{seen.get(complement), i};
+        seen.put(nums[i], i);
+    }
+    <span class="kw">throw new</span> IllegalArgumentException(<span class="str">"no solution"</span>);
+}  <span class="cmt">// O(n) vs O(n²) brute force</span>
+
+<span class="cmt">// Pattern 2: Frequency count — is one string an anagram of another?</span>
+<span class="kw">boolean</span> isAnagram(String s, String t) {
+    <span class="kw">if</span> (s.length() != t.length()) <span class="kw">return false</span>;
+    Map&lt;Character, Integer&gt; freq = <span class="kw">new</span> HashMap&lt;&gt;();
+    <span class="kw">for</span> (<span class="kw">char</span> c : s.toCharArray()) freq.merge(c, 1, Integer::sum);
+    <span class="kw">for</span> (<span class="kw">char</span> c : t.toCharArray()) {
+        freq.merge(c, -1, Integer::sum);
+        <span class="kw">if</span> (freq.get(c) &lt; 0) <span class="kw">return false</span>;
+    }
+    <span class="kw">return true</span>;
+}
+
+<span class="cmt">// Pattern 3: Grouping — group anagrams together</span>
+List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] words) {
+    Map&lt;String, List&lt;String&gt;&gt; groups = <span class="kw">new</span> HashMap&lt;&gt;();
+    <span class="kw">for</span> (String w : words) {
+        <span class="kw">char</span>[] ch = w.toCharArray(); Arrays.sort(ch);
+        String key = <span class="kw">new</span> String(ch);            <span class="cmt">// sorted chars = canonical key</span>
+        groups.computeIfAbsent(key, k -> <span class="kw">new</span> ArrayList&lt;&gt;()).add(w);
+    }
+    <span class="kw">return new</span> ArrayList&lt;&gt;(groups.values());
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- QA5 Binary Search -->
+      <div class="qa-card" data-pillar="algo" id="qa5">
+        <div class="qa-header" onclick="toggleQA('qa5')">
+          <span class="qa-num">A5</span>
+          <span class="qa-q">Binary Search — implementation, common bugs, and the "search in rotated array" variant</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Binary search halves the search space each iteration → O(log n). Works on any <strong>monotonic</strong> structure, not just sorted arrays.</p>
+            <pre class="code-block"><span class="cmt">// Classic binary search — returns index or -1</span>
+<span class="kw">int</span> binarySearch(<span class="kw">int</span>[] arr, <span class="kw">int</span> target) {
+    <span class="kw">int</span> lo = 0, hi = arr.length - 1;
+    <span class="kw">while</span> (lo &lt;= hi) {                         <span class="cmt">// ≤ not &lt; — handles single element</span>
+        <span class="kw">int</span> mid = lo + (hi - lo) / 2;           <span class="cmt">// avoids int overflow vs (lo+hi)/2</span>
+        <span class="kw">if</span> (arr[mid] == target) <span class="kw">return</span> mid;
+        <span class="kw">if</span> (arr[mid] &lt; target)  lo = mid + 1;
+        <span class="kw">else</span>                    hi = mid - 1;
+    }
+    <span class="kw">return</span> -1;
+}
+
+<span class="cmt">// Variant: rotated sorted array [4,5,6,7,0,1,2], find target</span>
+<span class="kw">int</span> searchRotated(<span class="kw">int</span>[] arr, <span class="kw">int</span> target) {
+    <span class="kw">int</span> lo = 0, hi = arr.length - 1;
+    <span class="kw">while</span> (lo &lt;= hi) {
+        <span class="kw">int</span> mid = lo + (hi - lo) / 2;
+        <span class="kw">if</span> (arr[mid] == target) <span class="kw">return</span> mid;
+        <span class="cmt">// Determine which half is sorted</span>
+        <span class="kw">if</span> (arr[lo] &lt;= arr[mid]) {             <span class="cmt">// left half sorted</span>
+            <span class="kw">if</span> (target &gt;= arr[lo] &amp;&amp; target &lt; arr[mid]) hi = mid - 1;
+            <span class="kw">else</span> lo = mid + 1;
+        } <span class="kw">else</span> {                               <span class="cmt">// right half sorted</span>
+            <span class="kw">if</span> (target &gt; arr[mid] &amp;&amp; target &lt;= arr[hi]) lo = mid + 1;
+            <span class="kw">else</span> hi = mid - 1;
+        }
+    }
+    <span class="kw">return</span> -1;
+}</pre>
+            <div class="callout danger"><strong>3 classic bugs:</strong> (1) <code>lo &lt; hi</code> instead of <code>lo &lt;= hi</code> → misses single-element case. (2) <code>(lo + hi) / 2</code> → integer overflow when lo+hi &gt; Integer.MAX_VALUE. (3) <code>lo = mid</code> instead of <code>lo = mid + 1</code> → infinite loop when lo==hi-1.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QA6 Sorting -->
+      <div class="qa-card" data-pillar="algo" id="qa6">
+        <div class="qa-header" onclick="toggleQA('qa6')">
+          <span class="qa-num">A6</span>
+          <span class="qa-q">Sorting algorithms — which one does Java use, when is O(n²) acceptable, and merge vs quick sort</span>
+          <span class="qa-difficulty easy">Easy</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <table class="use-table">
+              <tr><th>Algorithm</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable?</th></tr>
+              <tr><td>Bubble / Insertion</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>Yes</td></tr>
+              <tr><td>Merge Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>Yes</td></tr>
+              <tr><td>Quick Sort</td><td>O(n log n)</td><td>O(n²)*</td><td>O(log n)</td><td>No</td></tr>
+              <tr><td>Heap Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>No</td></tr>
+              <tr><td>Java Arrays.sort() (primitives)</td><td colspan="4">Dual-pivot Quicksort — O(n log n) avg, in-place</td></tr>
+              <tr><td>Java Arrays.sort() (objects)</td><td colspan="4">Timsort — O(n log n), stable, O(n) best case on nearly sorted</td></tr>
+            </table>
+            <pre class="code-block"><span class="cmt">// Java custom sort — Comparator lambda</span>
+List&lt;String&gt; words = Arrays.asList(<span class="str">"banana"</span>, <span class="str">"apple"</span>, <span class="str">"cherry"</span>);
+words.sort(Comparator.comparingInt(String::length)           <span class="cmt">// by length</span>
+                     .thenComparing(Comparator.naturalOrder())); <span class="cmt">// then alphabetical</span>
+
+<span class="cmt">// Sort 2D array by first column, then second</span>
+<span class="kw">int</span>[][] intervals = {{1,3},{2,6},{8,10}};
+Arrays.sort(intervals, (a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);</pre>
+            <div class="callout tip"><strong>Insertion sort IS acceptable</strong> for small arrays (&lt;16 elements) — Java's Timsort uses it for small runs. The constant factor is tiny and cache efficiency is high.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QA7 Recursion & stack -->
+      <div class="qa-card" data-pillar="algo" id="qa7">
+        <div class="qa-header" onclick="toggleQA('qa7')">
+          <span class="qa-num">A7</span>
+          <span class="qa-q">Recursion — how to think about it, base cases, and avoiding StackOverflowError</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <p>Every recursive solution needs: (1) a <strong>base case</strong> that stops recursion, (2) a <strong>recursive case</strong> that moves toward it. Think "trust the recursion" — assume the function works for smaller inputs and build on that.</p>
+            <pre class="code-block"><span class="cmt">// Fibonacci — naïve O(2ⁿ) vs memoized O(n)</span>
+<span class="kw">int</span> fibNaive(<span class="kw">int</span> n) {
+    <span class="kw">if</span> (n &lt;= 1) <span class="kw">return</span> n;                           <span class="cmt">// base case</span>
+    <span class="kw">return</span> fibNaive(n - 1) + fibNaive(n - 2);        <span class="cmt">// O(2ⁿ) — recalculates same values</span>
+}
+
+<span class="kw">int</span>[] memo = <span class="kw">new int</span>[101];
+<span class="kw">int</span> fib(<span class="kw">int</span> n) {
+    <span class="kw">if</span> (n &lt;= 1) <span class="kw">return</span> n;
+    <span class="kw">if</span> (memo[n] != 0) <span class="kw">return</span> memo[n];              <span class="cmt">// already computed</span>
+    <span class="kw">return</span> memo[n] = fib(n - 1) + fib(n - 2);       <span class="cmt">// O(n) with memoization</span>
+}
+
+<span class="cmt">// Tree height — trusting the recursion</span>
+<span class="kw">int</span> height(TreeNode node) {
+    <span class="kw">if</span> (node == <span class="kw">null</span>) <span class="kw">return</span> 0;                    <span class="cmt">// base case</span>
+    <span class="kw">return</span> 1 + Math.max(height(node.left), height(node.right));
+}  <span class="cmt">// "assume height(left) works" → just add 1 for current node</span></pre>
+            <div class="callout warn">
+              <strong>StackOverflowError</strong> — Java's default thread stack is ~512KB. Deep recursion on large input (n &gt; ~5000) hits it. Fix: convert to iteration with an explicit <code>Deque</code> stack, or use tail-call optimization manually. In Spring Boot, increase stack size with <code>-Xss2m</code> JVM flag if needed.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QA8 Stack and Queue -->
+      <div class="qa-card" data-pillar="algo" id="qa8">
+        <div class="qa-header" onclick="toggleQA('qa8')">
+          <span class="qa-num">A8</span>
+          <span class="qa-q">Stack &amp; Queue — valid parentheses, monotonic stack, and BFS vs DFS choice</span>
+          <span class="qa-difficulty medium">Medium</span>
+          <span class="qa-arrow">›</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-answer">
+            <pre class="code-block"><span class="cmt">// Classic stack — valid parentheses O(n)</span>
+<span class="kw">boolean</span> isValid(String s) {
+    Deque&lt;Character&gt; stack = <span class="kw">new</span> ArrayDeque&lt;&gt;();
+    <span class="kw">for</span> (<span class="kw">char</span> c : s.toCharArray()) {
+        <span class="kw">if</span> (<span class="str">"({["</span>.indexOf(c) &gt;= 0) { stack.push(c); <span class="kw">continue</span>; }
+        <span class="kw">if</span> (stack.isEmpty()) <span class="kw">return false</span>;
+        <span class="kw">char</span> top = stack.pop();
+        <span class="kw">if</span> (c == <span class="str">')'</span> &amp;&amp; top != <span class="str">'('</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (c == <span class="str">'}'</span> &amp;&amp; top != <span class="str">'{'</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (c == <span class="str">']'</span> &amp;&amp; top != <span class="str">'['</span>) <span class="kw">return false</span>;
+    }
+    <span class="kw">return</span> stack.isEmpty();
+}
+
+<span class="cmt">// BFS with Queue — shortest path in unweighted graph</span>
+<span class="kw">int</span> bfs(int[][] grid, <span class="kw">int</span>[] start, <span class="kw">int</span>[] end) {
+    Queue&lt;<span class="kw">int</span>[]&gt; queue = <span class="kw">new</span> LinkedList&lt;&gt;();
+    queue.add(<span class="kw">new int</span>[]{start[0], start[1], 0});
+    <span class="kw">boolean</span>[][] visited = <span class="kw">new boolean</span>[grid.length][grid[0].length];
+    <span class="kw">int</span>[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
+    <span class="kw">while</span> (!queue.isEmpty()) {
+        <span class="kw">int</span>[] cur = queue.poll();
+        <span class="kw">if</span> (cur[0] == end[0] &amp;&amp; cur[1] == end[1]) <span class="kw">return</span> cur[2];
+        <span class="kw">for</span> (<span class="kw">int</span>[] d : dirs) {
+            <span class="kw">int</span> r = cur[0] + d[0], c = cur[1] + d[1];
+            <span class="kw">if</span> (r &gt;= 0 &amp;&amp; r &lt; grid.length &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; grid[0].length
+                &amp;&amp; grid[r][c] == 0 &amp;&amp; !visited[r][c]) {
+                visited[r][c] = <span class="kw">true</span>;
+                queue.add(<span class="kw">new int</span>[]{r, c, cur[2] + 1});
+            }
+        }
+    }
+    <span class="kw">return</span> -1;
+}</pre>
+            <table class="use-table">
+              <tr><th></th><th>BFS (Queue)</th><th>DFS (Stack / recursion)</th></tr>
+              <tr><td>Use for</td><td>Shortest path in unweighted graph, level-order traversal</td><td>Path existence, connected components, topological sort</td></tr>
+              <tr><td>Space</td><td>O(w) — width of widest level</td><td>O(h) — depth of graph</td></tr>
+              <tr><td>Finds</td><td>Shortest path guaranteed</td><td>Any path (not necessarily shortest)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area algo -->
+
+    <div class="related-pages" style="margin: 32px 32px 16px;">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="java-spring.html">Java &amp; Spring Boot</a>
+      <a href="system-design.html">System Design</a>
+      <a href="microservices.html">Microservices</a>
+    </div>
+
+    <div class="page-end"></div>
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- QUIZ MODAL                                               -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<style>
+  /* Floating quiz button */
+  .quiz-fab { position: fixed; bottom: 28px; right: 28px; z-index: 999; background: linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; border-radius:50px; padding: 12px 22px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(99,102,241,.5); display: flex; align-items: center; gap: 8px; font-family: 'Inter',sans-serif; transition: transform .15s, box-shadow .15s; }
+  .quiz-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(99,102,241,.65); }
+
+  /* Modal overlay */
+  .quiz-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+  .quiz-overlay.active { display: flex; }
+  .quiz-modal { background: var(--bg-card, #1e2d45); border: 1px solid rgba(99,102,241,.3); border-radius: 20px; max-width: 720px; width: 100%; padding: 32px; position: relative; }
+  .quiz-close { position: absolute; top: 16px; right: 18px; background: none; border: none; color: #64748b; font-size: 22px; cursor: pointer; line-height: 1; }
+  .quiz-close:hover { color: #e2e8f0; }
+
+  .quiz-progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,.08); border-radius: 99px; margin-bottom: 24px; overflow: hidden; }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg,#6366f1,#8b5cf6); border-radius: 99px; transition: width .4s ease; }
+
+  .quiz-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .quiz-count { font-size: 12px; color: #64748b; }
+  .quiz-diff-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .quiz-diff-badge.easy   { background: rgba(16,185,129,.15); color: #10b981; }
+  .quiz-diff-badge.medium { background: rgba(245,158,11,.15);  color: #f59e0b; }
+  .quiz-diff-badge.hard   { background: rgba(239,68,68,.15);   color: #ef4444; }
+
+  .quiz-question { font-size: 17px; font-weight: 700; color: #e2e8f0; line-height: 1.5; min-height: 56px; margin-bottom: 20px; }
+  .quiz-answer-box { display: none; background: #0d1117; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 18px; font-size: 13.5px; color: #94a3b8; line-height: 1.75; margin-bottom: 20px; max-height: 260px; overflow-y: auto; }
+  .quiz-answer-box.visible { display: block; }
+  .quiz-answer-box strong { color: #e2e8f0; }
+  .quiz-answer-box code { background: rgba(99,102,241,.15); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #93c5fd; font-family: 'JetBrains Mono',monospace; }
+
+  .quiz-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .quiz-btn { border: none; border-radius: 10px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter',sans-serif; transition: opacity .15s; }
+  .quiz-btn:hover { opacity: .85; }
+  .quiz-btn.reveal { background: rgba(99,102,241,.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,.3); }
+  .quiz-btn.got-it { background: rgba(16,185,129,.2); color: #34d399; border: 1px solid rgba(16,185,129,.3); }
+  .quiz-btn.hard-btn { background: rgba(239,68,68,.2); color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+  .quiz-btn.skip { background: rgba(255,255,255,.06); color: #64748b; }
+  .quiz-btn.primary { background: linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; }
+
+  .quiz-score-panel { text-align: center; padding: 20px 0; }
+  .quiz-score-panel h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: #e2e8f0; }
+  .quiz-score-panel p  { color: #64748b; margin-bottom: 20px; }
+  .quiz-score-row { display: flex; justify-content: center; gap: 24px; margin-bottom: 24px; }
+  .quiz-score-item { text-align: center; }
+  .quiz-score-num { font-size: 32px; font-weight: 800; }
+  .quiz-score-num.green { color: #10b981; }
+  .quiz-score-num.red   { color: #ef4444; }
+  .quiz-score-num.grey  { color: #64748b; }
+  .quiz-score-label { font-size: 11px; color: #64748b; margin-top: 2px; }
+</style>
+
+<!-- Floating button -->
+<button class="quiz-fab" onclick="startQuiz()">
+  <i class="fa-solid fa-bolt"></i> Test Yourself
+</button>
+
+<!-- Quiz modal -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-modal">
+    <button class="quiz-close" onclick="closeQuiz()">×</button>
+    <div id="quizContent">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js?v=9"></script>
+<script>
+  function toggleQA(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  // Pillar filter — hides cards AND their section headers when no cards match
+  function applyPillarFilter(pillar) {
+    document.querySelectorAll('.qa-card').forEach(card => {
+      const match = pillar === 'all' || card.dataset.pillar === pillar;
+      card.style.display = match ? '' : 'none';
+    });
+    // Hide section blocks (header + content-area pair) when all their cards are hidden
+    document.querySelectorAll('.section-header').forEach(header => {
+      const area = header.nextElementSibling && header.nextElementSibling.classList.contains('content-area')
+        ? header.nextElementSibling
+        : header.parentElement.querySelector('.content-area');
+      if (!area) return;
+      const hasVisible = [...area.querySelectorAll('.qa-card')].some(c => c.style.display !== 'none');
+      // also hide the anchor div before the section-header
+      const anchor = header.previousElementSibling;
+      if (anchor && anchor.tagName === 'DIV' && !anchor.className) anchor.style.display = hasVisible ? '' : 'none';
+      header.style.display = hasVisible ? '' : 'none';
+      area.style.display   = hasVisible ? '' : 'none';
+    });
+  }
+
+  document.querySelectorAll('.pillar-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.pillar-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      applyPillarFilter(chip.dataset.pillar);
+    });
+  });
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.qa-card').forEach(card => {
+      card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // ── Quiz engine ──────────────────────────────────────────
+  let quizDeck = [], quizIdx = 0, quizScore = { got: 0, hard: 0, skip: 0 };
+  let quizRevealed = false;
+
+  function extractQuestions() {
+    const cards = [...document.querySelectorAll('.qa-card')];
+    return cards.map(card => {
+      const qEl   = card.querySelector('.qa-q');
+      const diffEl = card.querySelector('.qa-difficulty');
+      // Grab key answer text — strip SVG and pre-formatted code blocks for readability
+      const body  = card.querySelector('.qa-answer');
+      let answerHTML = '';
+      if (body) {
+        // clone to safely manipulate
+        const clone = body.cloneNode(true);
+        clone.querySelectorAll('svg, pre.code-block').forEach(el => {
+          const placeholder = document.createElement('p');
+          placeholder.style.color = '#546e7a';
+          placeholder.style.fontSize = '12px';
+          placeholder.textContent = el.tagName === 'svg' ? '[diagram — see full answer below]' : '[code example — see full answer below]';
+          el.replaceWith(placeholder);
+        });
+        answerHTML = clone.innerHTML;
+      }
+      return {
+        q:    qEl ? qEl.textContent.trim() : '',
+        diff: diffEl ? diffEl.textContent.trim().toLowerCase() : 'medium',
+        ans:  answerHTML,
+        id:   card.id,
+      };
+    }).filter(q => q.q);
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function startQuiz() {
+    quizDeck = shuffle(extractQuestions());
+    quizIdx  = 0;
+    quizScore = { got: 0, hard: 0, skip: 0 };
+    document.getElementById('quizOverlay').classList.add('active');
+    renderQuestion();
+  }
+
+  function closeQuiz() {
+    document.getElementById('quizOverlay').classList.remove('active');
+  }
+
+  function renderQuestion() {
+    if (quizIdx >= quizDeck.length) { renderScore(); return; }
+    const q = quizDeck[quizIdx];
+    quizRevealed = false;
+    const pct = Math.round((quizIdx / quizDeck.length) * 100);
+    document.getElementById('quizContent').innerHTML = `
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+      <div class="quiz-meta">
+        <span class="quiz-count">${quizIdx + 1} / ${quizDeck.length}</span>
+        <span class="quiz-diff-badge ${q.diff}">${q.diff.charAt(0).toUpperCase() + q.diff.slice(1)}</span>
+      </div>
+      <div class="quiz-question">${q.q}</div>
+      <div class="quiz-answer-box" id="quizAnswerBox">${q.ans}</div>
+      <div class="quiz-actions" id="quizActions">
+        <button class="quiz-btn reveal" onclick="revealAnswer()"><i class="fa-solid fa-eye"></i> Show Answer</button>
+        <button class="quiz-btn skip" onclick="nextCard('skip')">Skip</button>
+      </div>
+    `;
+  }
+
+  function revealAnswer() {
+    if (quizRevealed) return;
+    quizRevealed = true;
+    document.getElementById('quizAnswerBox').classList.add('visible');
+    document.getElementById('quizActions').innerHTML = `
+      <button class="quiz-btn got-it" onclick="nextCard('got')"><i class="fa-solid fa-check"></i> Got it</button>
+      <button class="quiz-btn hard-btn" onclick="nextCard('hard')"><i class="fa-solid fa-rotate-right"></i> Need more practice</button>
+      <button class="quiz-btn skip" onclick="nextCard('skip')">Skip</button>
+    `;
+  }
+
+  function nextCard(result) {
+    if (result === 'got') {
+      quizScore.got++;
+      // Mark card mastered in the global mastery system
+      if (quizDeck[quizIdx]) {
+        const domCard = document.getElementById(quizDeck[quizIdx].id);
+        if (domCard && typeof markCardMastered === 'function') markCardMastered(domCard);
+      }
+    }
+    if (result === 'hard') {
+      quizScore.hard++;
+      if (quizDeck[quizIdx]) hardCardIds.add(quizDeck[quizIdx].id);
+    }
+    if (result === 'skip') quizScore.skip++;
+    quizIdx++;
+    renderQuestion();
+  }
+
+  function renderScore() {
+    const total = quizScore.got + quizScore.hard + quizScore.skip;
+    const pct   = total > 0 ? Math.round((quizScore.got / total) * 100) : 0;
+    let emoji = pct >= 80 ? '🎉' : pct >= 50 ? '📈' : '💪';
+    document.getElementById('quizContent').innerHTML = `
+      <div class="quiz-score-panel">
+        <h3>${emoji} Quiz Complete!</h3>
+        <p>${total} questions · ${pct}% confident</p>
+        <div class="quiz-score-row">
+          <div class="quiz-score-item">
+            <div class="quiz-score-num green">${quizScore.got}</div>
+            <div class="quiz-score-label">Got it</div>
+          </div>
+          <div class="quiz-score-item">
+            <div class="quiz-score-num red">${quizScore.hard}</div>
+            <div class="quiz-score-label">Need practice</div>
+          </div>
+          <div class="quiz-score-item">
+            <div class="quiz-score-num grey">${quizScore.skip}</div>
+            <div class="quiz-score-label">Skipped</div>
+          </div>
+        </div>
+        <div class="quiz-actions" style="justify-content:center;gap:12px">
+          <button class="quiz-btn primary" onclick="startQuiz()"><i class="fa-solid fa-rotate"></i> Retry All</button>
+          <button class="quiz-btn hard-btn" onclick="retryHard()"><i class="fa-solid fa-fire"></i> Retry Hard Only (${hardCardIds.size})</button>
+          <button class="quiz-btn skip" onclick="resetProgress()"><i class="fa-solid fa-trash-can"></i> Reset Progress</button>
+          <button class="quiz-btn skip" onclick="closeQuiz()">Close</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Tracks which card IDs were marked "need practice" across a session
+  let hardCardIds = new Set();
+
+  function retryHard() {
+    const hardDeck = quizDeck.filter(q => hardCardIds.has(q.id));
+    quizDeck = shuffle(hardDeck.length > 0 ? hardDeck : extractQuestions());
+    quizIdx  = 0;
+    quizScore = { got: 0, hard: 0, skip: 0 };
+    renderQuestion();
+  }
+
+  function resetProgress() {
+    hardCardIds.clear();
+    quizScore = { got: 0, hard: 0, skip: 0 };
+    quizDeck  = [];
+    closeQuiz();
+    const fab = document.querySelector('.quiz-fab');
+    const orig = fab.innerHTML;
+    fab.innerHTML = '<i class="fa-solid fa-check"></i> Progress reset';
+    setTimeout(() => { fab.innerHTML = orig; }, 1800);
+  }
+
+  // Close on overlay click
+  document.getElementById('quizOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeQuiz();
+  });
+</script>
+</body>
+</html>

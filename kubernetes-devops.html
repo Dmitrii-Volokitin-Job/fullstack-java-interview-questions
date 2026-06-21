@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kubernetes &amp; DevOps — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
+        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
+        <a class="nav-link active" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#k8s-core"><i class="fa-solid fa-dharmachakra icon-fw"></i> K8s Core</a>
+        <a class="nav-link" href="#networking"><i class="fa-solid fa-globe icon-fw"></i> Networking</a>
+        <a class="nav-link" href="#config"><i class="fa-solid fa-gear icon-fw"></i> Config &amp; Secrets</a>
+        <a class="nav-link" href="#scaling"><i class="fa-solid fa-chart-line icon-fw"></i> Scaling &amp; Resources</a>
+        <a class="nav-link" href="#helm"><i class="fa-solid fa-sailboat icon-fw"></i> Helm</a>
+        <a class="nav-link" href="#cicd"><i class="fa-solid fa-repeat icon-fw"></i> CI/CD &amp; Docker</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-dharmachakra"></i> Kubernetes &amp; DevOps <span>30 Interview Questions</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <div class="progress-wrap">
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 30 reviewed</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="pillar-row">
+        <button class="pillar-chip active" data-pillar="">All</button>
+        <button class="pillar-chip" data-pillar="k8s">K8s Core</button>
+        <button class="pillar-chip" data-pillar="networking">Networking</button>
+        <button class="pillar-chip" data-pillar="config">Config</button>
+        <button class="pillar-chip" data-pillar="scaling">Scaling</button>
+        <button class="pillar-chip" data-pillar="helm">Helm</button>
+        <button class="pillar-chip" data-pillar="cicd">CI/CD</button>
+        <button class="pillar-chip" data-pillar="docker">Docker</button>
+      </div>
+
+      <!-- ════ K8s CORE ════ -->
+      <div class="section-header" id="k8s-core">
+        <div class="section-icon" style="background:rgba(50,108,229,.15);color:#326ce5"><i class="fa-solid fa-dharmachakra"></i></div>
+        <div><h2>Kubernetes Core Concepts</h2><p>Pods, deployments, statefulsets, services</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="k8s">
+          <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">What is the difference between a Pod, Deployment, ReplicaSet, and StatefulSet?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Object</th><th>Purpose</th><th>Key property</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Pod</strong></td><td>Smallest schedulable unit; 1+ containers sharing network/storage</td><td>Ephemeral — if a Pod dies, it's not recreated automatically</td></tr>
+                <tr><td><strong>ReplicaSet</strong></td><td>Ensures N copies of a Pod are running</td><td>Managed by Deployment; rarely created directly</td></tr>
+                <tr><td><strong>Deployment</strong></td><td>Manages ReplicaSets; enables rolling updates and rollbacks</td><td>Stateless workloads — use for web apps, APIs</td></tr>
+                <tr><td><strong>StatefulSet</strong></td><td>Like Deployment but Pods get stable identity (pod-0, pod-1)</td><td>Persistent volume per Pod; ordered startup/shutdown; use for DBs, Kafka</td></tr>
+                <tr><td><strong>DaemonSet</strong></td><td>Runs one Pod per Node (or subset of nodes)</td><td>Node-level agents: log collectors, monitoring, network plugins</td></tr>
+                <tr><td><strong>Job/CronJob</strong></td><td>Run-to-completion tasks</td><td>Batch processing, scheduled cleanup</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Deployment — stateless web service</span>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1         <span class="cmt"># allow 1 extra pod during update</span>
+      maxUnavailable: 0   <span class="cmt"># zero downtime</span>
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: myregistry/user-service:1.2.0
+        ports:
+        - containerPort: 8080</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="k8s">
+          <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">What is the difference between Liveness, Readiness, and Startup probes?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Probe</th><th>What happens on failure</th><th>Use for</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Liveness</strong></td><td>Container is <strong>restarted</strong></td><td>Detect deadlock/crash that doesn't exit — "is the app still alive?"</td></tr>
+                <tr><td><strong>Readiness</strong></td><td>Pod is <strong>removed from Service endpoints</strong> (not killed)</td><td>Signal "not ready for traffic yet" — warming up cache, DB migration</td></tr>
+                <tr><td><strong>Startup</strong></td><td>Container is <strong>restarted</strong> if startup takes too long</td><td>Slow-starting apps (JVM warm-up) — disables liveness during startup</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>containers:
+- name: api
+  image: myapp:latest
+  startupProbe:            <span class="cmt"># gives app 5*12=60s to start before liveness kicks in</span>
+    httpGet:
+      path: /actuator/health
+      port: 8080
+    failureThreshold: 5
+    periodSeconds: 12
+
+  livenessProbe:           <span class="cmt"># restart if app crashes/deadlocks</span>
+    httpGet:
+      path: /actuator/health/liveness
+      port: 8080
+    initialDelaySeconds: 0 <span class="cmt"># startup probe protects the early window</span>
+    periodSeconds: 10
+    failureThreshold: 3
+
+  readinessProbe:          <span class="cmt"># remove from LB until ready</span>
+    httpGet:
+      path: /actuator/health/readiness
+      port: 8080
+    periodSeconds: 5
+    failureThreshold: 3</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Spring Boot integration</span><div class="callout-body">Spring Boot Actuator exposes <code>/actuator/health/liveness</code> and <code>/actuator/health/readiness</code> out of the box. Enable with <code>management.endpoint.health.probes.enabled=true</code>.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="k8s">
+          <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">What happens when you run `kubectl apply -f deployment.yaml`? Walk through the Kubernetes API flow.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <ol>
+              <li><code>kubectl</code> sends an HTTP PUT/PATCH to the <strong>API Server</strong></li>
+              <li>API Server authenticates (certificates/tokens), authorizes (RBAC), validates (admission controllers), and persists the desired state in <strong>etcd</strong></li>
+              <li>The <strong>Deployment Controller</strong> (in control plane) detects the change and creates/updates a ReplicaSet</li>
+              <li>The <strong>ReplicaSet Controller</strong> detects that desired Pod count doesn't match and creates Pod objects</li>
+              <li>The <strong>Scheduler</strong> watches for unscheduled Pods and assigns each to a Node based on resources, affinity, taints</li>
+              <li>The <strong>kubelet</strong> on the assigned Node watches for Pods assigned to it, calls the container runtime (containerd) to pull the image and start the container</li>
+              <li>kubelet reports status back; API Server updates Pod status; Readiness probe gates traffic</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key interview insight</span><div class="callout-body">Everything in K8s is a reconciliation loop (controller pattern): watch desired state → compare with actual → take action to converge. This is the fundamental design philosophy of Kubernetes.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="k8s">
+          <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">How do rolling deployments work? How do you do a rollback?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A rolling update gradually replaces old Pods with new ones, controlled by <code>maxSurge</code> (extra Pods allowed during update) and <code>maxUnavailable</code> (how many Pods can be down). With <code>maxUnavailable: 0</code> you get zero-downtime deployments.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Update image — triggers rolling update</span>
+kubectl set image deployment/user-service user-service=myregistry/user-service:1.3.0
+
+<span class="cmt"># Watch rollout progress</span>
+kubectl rollout status deployment/user-service
+
+<span class="cmt"># View rollout history</span>
+kubectl rollout history deployment/user-service
+
+<span class="cmt"># Rollback to previous version</span>
+kubectl rollout undo deployment/user-service
+
+<span class="cmt"># Rollback to specific revision</span>
+kubectl rollout undo deployment/user-service --to-revision=2
+
+<span class="cmt"># Pause a rollout mid-way (canary check)</span>
+kubectl rollout pause deployment/user-service
+kubectl rollout resume deployment/user-service</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ NETWORKING ════ -->
+      <div class="section-header" id="networking">
+        <div class="section-icon" class="chip-info"><i class="fa-solid fa-globe"></i></div>
+        <div><h2>Networking &amp; Services</h2><p>Service types, Ingress, DNS, network policies</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="networking">
+          <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">What are the different Service types in Kubernetes and when do you use each?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Type</th><th>Reachable from</th><th>Use when</th></tr></thead>
+              <tbody>
+                <tr><td><strong>ClusterIP</strong> (default)</td><td>Inside the cluster only</td><td>Internal service-to-service communication; never expose directly</td></tr>
+                <tr><td><strong>NodePort</strong></td><td>Any Node's IP:port</td><td>Development/testing; not for production (firewall exposure, non-standard port)</td></tr>
+                <tr><td><strong>LoadBalancer</strong></td><td>Cloud provider external IP</td><td>Expose a single service externally (costs $$ per service on cloud)</td></tr>
+                <tr><td><strong>ExternalName</strong></td><td>Cluster pods → external DNS name</td><td>Point K8s service to an external database/API by DNS alias</td></tr>
+                <tr><td><strong>Headless</strong> (ClusterIP: None)</td><td>DNS returns Pod IPs directly</td><td>StatefulSets — allows apps to discover individual Pods (Kafka, Cassandra)</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Production pattern</span><div class="callout-body">Use <strong>ClusterIP</strong> for everything internal. Expose externally via a single <strong>Ingress controller</strong> (nginx, Traefik) backed by one <strong>LoadBalancer</strong> Service — routing all traffic through one entry point with URL-based rules.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="networking">
+          <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">How does Kubernetes Ingress work? What is an IngressClass?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Ingress is an API object that defines HTTP routing rules. An Ingress Controller (nginx, Traefik, HAProxy) watches Ingress objects and programs the actual load balancer/reverse proxy.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx        <span class="cmt"># which controller handles this</span>
+  tls:
+  - hosts:
+    - api.example.com
+    secretName: api-tls          <span class="cmt"># cert-manager populates this Secret</span>
+  rules:
+  - host: api.example.com
+    http:
+      paths:
+      - path: /api/users
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port: { number: 80 }
+      - path: /api/orders
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port: { number: 80 }</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="networking">
+          <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">How does Kubernetes DNS work? How do services communicate by name?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>CoreDNS runs as a Deployment in the cluster and serves DNS for all Pods. Every Service gets a DNS entry:</p>
+            <p><code>&lt;service-name&gt;.&lt;namespace&gt;.svc.cluster.local</code></p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Full DNS name (always works across namespaces)</span>
+http://user-service.production.svc.cluster.local:8080/api/users
+
+<span class="cmt"># Short name works within the SAME namespace</span>
+http://user-service:8080/api/users
+
+<span class="cmt"># From order-service in 'staging' namespace calling user-service in 'production'</span>
+http://user-service.production.svc.cluster.local:8080
+
+<span class="cmt"># Verify DNS from inside a pod</span>
+kubectl exec -it &lt;pod&gt; -- nslookup user-service</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="networking">
+          <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">What are Network Policies and how do you implement micro-segmentation?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Network Policies are firewall rules at the Pod level. By default, all Pods can talk to each other. A Network Policy enables a default-deny posture for a namespace, then explicitly allows specific traffic.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Default deny all ingress in a namespace</span>
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: production
+spec:
+  podSelector: {}   <span class="cmt"># selects all pods in namespace</span>
+  policyTypes: [Ingress]
+---
+<span class="cmt"># Allow order-service to talk to user-service only</span>
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-order-to-user
+spec:
+  podSelector:
+    matchLabels:
+      app: user-service
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: order-service
+    ports:
+    - protocol: TCP
+      port: 8080</code></pre></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Requires a CNI plugin</span><div class="callout-body">Network Policies require a CNI plugin that enforces them — Calico, Cilium, or Weave Net. Flannel does NOT enforce NetworkPolicies. Always verify your CNI supports them in interviews about production security.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ CONFIG ════ -->
+      <div class="section-header" id="config">
+        <div class="section-icon" class="chip-success"><i class="fa-solid fa-gear"></i></div>
+        <div><h2>ConfigMaps &amp; Secrets</h2><p>Configuration management, secret rotation</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="config">
+          <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">What is the difference between ConfigMap and Secret? How do you inject them into Pods?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>ConfigMap</strong> — stores non-sensitive config (env vars, config files, feature flags). Stored in plaintext in etcd.</p>
+            <p><strong>Secret</strong> — stores sensitive data (passwords, tokens, certs). Stored <em>base64 encoded</em> (NOT encrypted by default — enable etcd encryption at rest or use external secret manager).</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># ConfigMap</span>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  LOG_LEVEL: INFO
+  DB_URL: jdbc:postgresql://postgres:5432/mydb
+
+---
+<span class="cmt"># Secret (base64-encoded values)</span>
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+data:
+  DB_PASSWORD: cGFzc3dvcmQxMjM=  <span class="cmt"># echo -n 'password123' | base64</span>
+
+---
+<span class="cmt"># Inject into Pod as env vars</span>
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    envFrom:
+    - configMapRef:
+        name: app-config
+    - secretRef:
+        name: app-secrets
+    <span class="cmt"># Or mount Secret as a file (for certs, kubeconfig)</span>
+    volumeMounts:
+    - name: tls-certs
+      mountPath: /etc/ssl/certs
+      readOnly: true
+  volumes:
+  - name: tls-certs
+    secret:
+      secretName: app-tls</code></pre></div>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Security note</span><div class="callout-body">Base64 is encoding, not encryption. For production: enable etcd encryption, use external secret managers (AWS Secrets Manager, HashiCorp Vault) with the Secrets Store CSI Driver or External Secrets Operator. Never commit Secret manifests to Git.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="config">
+          <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">How do you manage secrets at scale in Kubernetes? Explain External Secrets Operator.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>External Secrets Operator (ESO) pulls secrets from external stores (AWS Secrets Manager, Vault, GCP Secret Manager) and creates Kubernetes Secrets automatically. Secrets are never committed to Git.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># ExternalSecret — syncs from AWS Secrets Manager</span>
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: db-credentials
+spec:
+  refreshInterval: 1h          <span class="cmt"># auto-rotate every hour</span>
+  secretStoreRef:
+    name: aws-secret-store
+    kind: ClusterSecretStore
+  target:
+    name: db-credentials       <span class="cmt"># creates this K8s Secret</span>
+    creationPolicy: Owner
+  data:
+  - secretKey: DB_PASSWORD
+    remoteRef:
+      key: /production/myapp/db
+      property: password</code></pre></div>
+            <p><strong>Alternative: Vault Agent Injector</strong> — HashiCorp Vault injects secrets as files into pods via sidecar container annotations.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ SCALING ════ -->
+      <div class="section-header" id="scaling">
+        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-chart-line"></i></div>
+        <div><h2>Scaling &amp; Resource Management</h2><p>HPA, VPA, resource limits, node affinity</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="scaling">
+          <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">What is the difference between HPA, VPA, and KEDA? How do you configure HPA?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Type</th><th>What it scales</th><th>Trigger</th></tr></thead>
+              <tbody>
+                <tr><td><strong>HPA</strong></td><td>Number of Pods (horizontal)</td><td>CPU, memory, custom metrics (Prometheus)</td></tr>
+                <tr><td><strong>VPA</strong></td><td>CPU/memory requests per Pod (vertical)</td><td>Historical usage — recommends or auto-applies resource adjustments</td></tr>
+                <tr><td><strong>KEDA</strong></td><td>Pods (including scale-to-zero)</td><td>Event-driven: Kafka lag, queue depth, HTTP request rate, cron</td></tr>
+                <tr><td><strong>Cluster Autoscaler</strong></td><td>Number of Nodes in the cluster</td><td>Pods that can't be scheduled due to insufficient capacity</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70       <span class="cmt"># scale up if avg CPU > 70%</span>
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  <span class="cmt"># wait 5min before scaling down</span></code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="scaling">
+          <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">What are resource requests and limits? What happens when a Pod exceeds its memory limit?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Requests</strong> — the guaranteed resource amount. Used by the scheduler to decide which node to place the Pod on. Pod is always allocated at least this much.</p>
+            <p><strong>Limits</strong> — the maximum. CPU is throttled (not killed). Memory: if exceeded, the container is <strong>OOMKilled</strong> (Out Of Memory Kill) and restarted.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>resources:
+  requests:
+    memory: "256Mi"    <span class="cmt"># scheduler uses this to find a node</span>
+    cpu: "250m"        <span class="cmt"># 250 millicores = 0.25 CPU</span>
+  limits:
+    memory: "512Mi"    <span class="cmt"># OOMKilled if exceeded</span>
+    cpu: "1000m"       <span class="cmt"># throttled (not killed) if exceeded</span></code></pre></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">JVM tip</span><div class="callout-body">Java doesn't know about container memory limits — it sees the full host RAM and sets heap accordingly. Always set <code>-XX:MaxRAMPercentage=75.0</code> (Java 10+) so the JVM respects the container limit. Without this you'll get OOMKilled.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="k8s">
+          <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">What are Taints, Tolerations, and Node Affinity? When do you use them?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Taints</strong> — applied to <em>Nodes</em>: "repel all Pods unless they tolerate this taint". Prevents pods from being scheduled on specialist nodes (GPU, high-memory).</p>
+            <p><strong>Tolerations</strong> — applied to <em>Pods</em>: "I can run on nodes with this taint".</p>
+            <p><strong>Node Affinity</strong> — <em>attracts</em> pods to nodes matching certain labels (required or preferred).</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Node taint — only GPU-tolerant pods can run here</span>
+kubectl taint nodes gpu-node-1 hardware=gpu:NoSchedule
+
+<span class="cmt"># Pod toleration + affinity to prefer GPU nodes</span>
+spec:
+  tolerations:
+  - key: hardware
+    operator: Equal
+    value: gpu
+    effect: NoSchedule
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: hardware
+            operator: In
+            values: [gpu]
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: zone
+            operator: In
+            values: [eu-west-1a]</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ HELM ════ -->
+      <div class="section-header" id="helm">
+        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-sailboat"></i></div>
+        <div><h2>Helm</h2><p>Charts, values, lifecycle, best practices</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="helm">
+          <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">What is Helm and how does it work? Explain Charts, Releases, and Values.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Helm is the package manager for Kubernetes. A <strong>Chart</strong> is a templated package of K8s manifests. A <strong>Release</strong> is an installed instance of a chart. <strong>Values</strong> are configuration overrides that parameterise the templates.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Install a chart from a repository</span>
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install my-postgres bitnami/postgresql \
+  --set auth.postgresPassword=secret \
+  --set primary.persistence.size=20Gi
+
+<span class="cmt"># Install your own chart with values file</span>
+helm install user-service ./charts/user-service \
+  -f values/production.yaml \
+  --namespace production
+
+<span class="cmt"># Upgrade a release</span>
+helm upgrade user-service ./charts/user-service \
+  --set image.tag=1.4.0 -f values/production.yaml
+
+<span class="cmt"># Rollback to previous version</span>
+helm rollback user-service 1
+
+<span class="cmt"># Dry run — render templates without applying</span>
+helm template user-service ./charts/user-service -f values/production.yaml</code></pre></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># templates/deployment.yaml — Helm template syntax</span>
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.env }}
+        env:
+          {{- range $key, $val := .Values.env }}
+          - name: {{ $key }}
+            value: {{ $val | quote }}
+          {{- end }}
+        {{- end }}</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="helm">
+          <div class="qa-question"><div class="qa-num">15</div><div class="qa-question-text">How do you structure Helm charts for multiple environments (dev/staging/prod)?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Chart structure</span>
+charts/user-service/
+├── Chart.yaml
+├── values.yaml          <span class="cmt"># defaults (dev-safe)</span>
+├── values/
+│   ├── staging.yaml     <span class="cmt"># staging overrides</span>
+│   └── production.yaml  <span class="cmt"># production overrides (more replicas, limits)</span>
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    ├── ingress.yaml
+    ├── hpa.yaml
+    ├── configmap.yaml
+    └── _helpers.tpl     <span class="cmt"># named template functions</span>
+
+<span class="cmt"># values.yaml (defaults)</span>
+replicaCount: 1
+image:
+  repository: myregistry/user-service
+  tag: latest
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+<span class="cmt"># production.yaml (overrides)</span>
+replicaCount: 3
+image:
+  tag: 1.4.0              <span class="cmt"># pinned version, not latest</span>
+resources:
+  limits:
+    cpu: "2"
+    memory: 1Gi</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ CI/CD ════ -->
+      <div class="section-header" id="cicd">
+        <div class="section-icon" class="chip-danger"><i class="fa-solid fa-repeat"></i></div>
+        <div><h2>CI/CD &amp; Docker</h2><p>Pipelines, Docker best practices, GitOps</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="docker">
+          <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">Write a production-ready Dockerfile for a Spring Boot application.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">Dockerfile</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Multi-stage build — builder stage uses full JDK, runtime uses JRE only</span>
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /app
+
+<span class="cmt"># Copy dependency files first (layer cache: only re-runs if pom.xml changes)</span>
+COPY pom.xml .
+COPY .mvn .mvn
+COPY mvnw .
+RUN ./mvnw dependency:go-offline -q
+
+COPY src src
+RUN ./mvnw package -DskipTests -q
+
+<span class="cmt"># Extract layered jar — enables Docker layer caching for dependencies</span>
+RUN java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
+
+<span class="cmt"># ── Runtime stage ────────────────────────────────────────</span>
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+<span class="cmt"># Security: non-root user</span>
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+WORKDIR /app
+
+<span class="cmt"># Layered jar: dependencies, spring-boot-loader, snapshot-dependencies, application</span>
+COPY --from=builder /app/target/extracted/dependencies/ ./
+COPY --from=builder /app/target/extracted/spring-boot-loader/ ./
+COPY --from=builder /app/target/extracted/snapshot-dependencies/ ./
+COPY --from=builder /app/target/extracted/application/ ./
+
+EXPOSE 8080
+
+<span class="cmt"># JVM tuned for containers</span>
+ENTRYPOINT ["java",
+  "-XX:MaxRAMPercentage=75.0",
+  "-XX:+UseContainerSupport",
+  "-Djava.security.egd=file:/dev/./urandom",
+  "org.springframework.boot.loader.launch.JarLauncher"]</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Layer caching tip</span><div class="callout-body">Layered jar + multi-stage build means Docker only rebuilds the <code>application</code> layer when your code changes (a few MB), not the dependencies layer (hundreds of MB). This dramatically speeds up CI builds.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="cicd">
+          <div class="qa-question"><div class="qa-num">17</div><div class="qa-question-text">Describe a complete CI/CD pipeline for a Java microservice deployed to Kubernetes.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A mature pipeline has these stages:</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># GitHub Actions example</span>
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Java 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Run tests             <span class="cmt"># unit + integration</span>
+      run: ./mvnw verify
+
+    - name: SonarQube analysis    <span class="cmt"># code quality gate</span>
+      run: ./mvnw sonar:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+
+    - name: Build Docker image
+      run: |
+        docker build -t $IMAGE:${{ github.sha }} .
+        docker push $IMAGE:${{ github.sha }}
+
+  deploy-staging:
+    needs: build-and-test
+    environment: staging
+    steps:
+    - name: Helm upgrade staging
+      run: |
+        helm upgrade --install user-service ./charts/user-service \
+          --set image.tag=${{ github.sha }} \
+          -f values/staging.yaml \
+          --namespace staging --wait --timeout 5m
+
+    - name: Smoke test
+      run: curl -f https://staging.api.example.com/actuator/health
+
+  deploy-production:
+    needs: deploy-staging
+    environment: production       <span class="cmt"># requires manual approval</span>
+    steps:
+    - name: Helm upgrade production
+      run: |
+        helm upgrade --install user-service ./charts/user-service \
+          --set image.tag=${{ github.sha }} \
+          -f values/production.yaml \
+          --namespace production --wait</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="cicd">
+          <div class="qa-question"><div class="qa-num">18</div><div class="qa-question-text">What is GitOps? How do ArgoCD or Flux implement it?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>GitOps</strong> — Git is the single source of truth for cluster state. Every change goes through a PR; the cluster automatically reconciles toward the Git-declared state. Benefits: audit trail, easy rollback (git revert), self-healing.</p>
+            <p><strong>ArgoCD</strong> watches a Git repo for Kubernetes manifests/Helm charts. When a change is pushed, it applies it to the cluster. If someone manually changes something via <code>kubectl</code>, ArgoCD detects drift and either alerts or auto-syncs back.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># ArgoCD Application CRD</span>
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: user-service
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/myorg/k8s-configs
+    targetRevision: main
+    path: services/user-service/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true     <span class="cmt"># delete resources removed from git</span>
+      selfHeal: true  <span class="cmt"># auto-revert manual kubectl changes</span>
+    syncOptions:
+    - CreateNamespace=true</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="cicd">
+          <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">How do you implement a blue-green or canary deployment in Kubernetes?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Strategy</th><th>How</th><th>Risk</th></tr></thead>
+              <tbody>
+                <tr><td>Rolling (default)</td><td>Gradually replace old pods with new</td><td>Both versions run simultaneously during update</td></tr>
+                <tr><td>Blue-Green</td><td>Run both in parallel; switch Service selector from blue to green instantly</td><td>Double resource cost; instant traffic switch (no gradual)</td></tr>
+                <tr><td>Canary</td><td>Send small % of traffic to new version; monitor errors; gradually increase</td><td>More complex; needs traffic splitting (Istio, Argo Rollouts)</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Blue-Green: two deployments, one Service</span>
+<span class="cmt"># Switch by changing Service selector</span>
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+    version: blue    <span class="cmt"># change to 'green' to cut over instantly</span>
+  ports:
+  - port: 80
+    targetPort: 8080
+
+<span class="cmt"># Canary with Argo Rollouts (weights)</span>
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+spec:
+  strategy:
+    canary:
+      steps:
+      - setWeight: 10    <span class="cmt"># 10% traffic to new version</span>
+      - pause: {duration: 5m}
+      - setWeight: 50
+      - pause: {duration: 10m}
+      - setWeight: 100   <span class="cmt"># full traffic if no errors</span>
+      analysis:
+        templates:
+        - templateName: error-rate-check</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="cicd">
+          <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">How do you monitor a Kubernetes cluster? What is the observability stack?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>The three pillars of observability:</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Pillar</th><th>Tool (OSS)</th><th>What it provides</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Metrics</strong></td><td>Prometheus + Grafana</td><td>CPU, memory, request rate, error rate, latency (RED metrics)</td></tr>
+                <tr><td><strong>Logs</strong></td><td>Loki + Grafana (or ELK)</td><td>Structured log aggregation across all pods</td></tr>
+                <tr><td><strong>Traces</strong></td><td>Jaeger or Tempo + Grafana</td><td>Distributed request tracing across services</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>Key Prometheus metrics for Spring Boot:</strong> <code>jvm_memory_used_bytes</code>, <code>http_server_requests_seconds</code>, <code>hikaricp_connections_active</code>.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># ServiceMonitor — tells Prometheus to scrape this service</span>
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: user-service-monitor
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  endpoints:
+  - port: http
+    path: /actuator/prometheus   <span class="cmt"># Spring Boot Actuator endpoint</span>
+    interval: 15s</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="k8s">
+          <div class="qa-question"><div class="qa-num">21</div><div class="qa-question-text">How do you troubleshoot a Pod that is stuck in CrashLoopBackOff or Pending?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># CrashLoopBackOff — container starts then immediately exits</span>
+<span class="cmt"># Step 1: describe the pod — look at Events section</span>
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+
+<span class="cmt"># Step 2: read logs from crashed container</span>
+kubectl logs &lt;pod-name&gt; --previous     <span class="cmt"># -p = previous container run</span>
+kubectl logs &lt;pod-name&gt; -c &lt;container&gt; --previous
+
+<span class="cmt"># Step 3: exec into running container to investigate</span>
+kubectl exec -it &lt;pod-name&gt; -- /bin/sh
+
+<span class="cmt"># Pending — pod can't be scheduled</span>
+<span class="cmt"># Check events — common causes:</span>
+<span class="cmt">#   Insufficient cpu/memory: nodes don't have enough</span>
+<span class="cmt">#   No nodes match nodeSelector/affinity</span>
+<span class="cmt">#   PersistentVolumeClaim not bound</span>
+<span class="cmt">#   Taint has no matching toleration</span>
+kubectl get events -n &lt;namespace&gt; --sort-by='.lastTimestamp'
+kubectl describe node &lt;node-name&gt; | grep -A5 Conditions
+
+<span class="cmt"># ImagePullBackOff — wrong image name, auth issue</span>
+kubectl describe pod &lt;pod-name&gt; | grep -A10 Events</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="k8s">
+          <div class="qa-question"><div class="qa-num">22</div><div class="qa-question-text">What is a PersistentVolume and PersistentVolumeClaim? Explain the StorageClass.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>PersistentVolume (PV)</strong> — a piece of storage provisioned by an admin or dynamically. Lifecycle independent of any Pod.</p>
+            <p><strong>PersistentVolumeClaim (PVC)</strong> — a request for storage by a user (size, access mode, StorageClass). K8s binds the PVC to a matching PV.</p>
+            <p><strong>StorageClass</strong> — defines how PVs are dynamically provisioned (AWS EBS, GCP PD, NFS, etc.).</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># PVC — request 20Gi SSD storage</span>
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+spec:
+  accessModes:
+  - ReadWriteOnce       <span class="cmt"># RWO: one node; RWX: many nodes (NFS)</span>
+  storageClassName: gp3  <span class="cmt"># AWS EBS gp3 StorageClass</span>
+  resources:
+    requests:
+      storage: 20Gi
+
+<span class="cmt"># Mount in StatefulSet</span>
+volumeClaimTemplates:   <span class="cmt"># each replica gets its own PVC automatically</span>
+- metadata:
+    name: data
+  spec:
+    accessModes: [ReadWriteOnce]
+    storageClassName: gp3
+    resources:
+      requests:
+        storage: 20Gi</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="docker">
+          <div class="qa-question"><div class="qa-num">23</div><div class="qa-question-text">What is the difference between a Docker image layer and a container? Explain image security best practices.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>An <strong>image</strong> is a read-only stack of layers (each <code>RUN</code>/<code>COPY</code>/<code>ADD</code> instruction creates a layer). A <strong>container</strong> is a running image with a writable layer on top.</p>
+            <p><strong>Security best practices:</strong></p>
+            <ul>
+              <li>Use distroless or Alpine base images (smaller attack surface)</li>
+              <li>Run as non-root user (<code>USER appuser</code>)</li>
+              <li>Don't install dev tools in production images (multi-stage)</li>
+              <li>Use <code>.dockerignore</code> to exclude secrets, <code>.git</code>, test data</li>
+              <li>Pin base image versions (<code>alpine:3.19</code> not <code>alpine:latest</code>)</li>
+              <li>Scan images for CVEs: <code>docker scout cves</code>, Trivy, Snyk</li>
+              <li>Never embed secrets — use runtime environment variables</li>
+              <li>Read-only root filesystem: <code>securityContext.readOnlyRootFilesystem: true</code></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    <div class="related-pages">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="microservices.html">Microservices</a>
+      <a href="kafka.html">Kafka</a>
+      <a href="system-design.html">System Design</a>
+    </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>

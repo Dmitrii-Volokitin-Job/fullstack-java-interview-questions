@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Microservices — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    .ms-banner {
+      background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(5,150,105,.06));
+      border: 1px solid rgba(16,185,129,.3);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+    }
+    --ms: #10b981;
+    .pillar-chip[data-pillar="decomp"]  { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.3); color: #10b981; }
+    .pillar-chip[data-pillar="comm"]    { background: rgba(99,102,241,.12);  border-color: rgba(99,102,241,.3);  color: #6366f1; }
+    .pillar-chip[data-pillar="data"]    { background: rgba(245,158,11,.12);  border-color: rgba(245,158,11,.3);  color: #f59e0b; }
+    .pillar-chip[data-pillar="resilience"]{ background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.3);  color: #ef4444; }
+    .pillar-chip[data-pillar="observability"]{ background: rgba(14,165,233,.12); border-color: rgba(14,165,233,.3); color: #0ea5e9; }
+    .pillar-chip[data-pillar="security"]{ background: rgba(168,85,247,.12);  border-color: rgba(168,85,247,.3);  color: #a855f7; }
+    .pillar-chip[data-pillar="migration"]{ background: rgba(244,63,94,.12);  border-color: rgba(244,63,94,.3);  color: #f43f5e; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot</a>
+        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular</a>
+        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps</a>
+        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design</a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive</a>
+        <a class="nav-link active" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#decomposition"><i class="fa-solid fa-scissors icon-fw"></i> Decomposition &amp; DDD</a>
+        <a class="nav-link" href="#communication"><i class="fa-solid fa-satellite-dish icon-fw"></i> Communication</a>
+        <a class="nav-link" href="#data"><i class="fa-solid fa-database icon-fw"></i> Data Patterns</a>
+        <a class="nav-link" href="#resilience"><i class="fa-solid fa-shield-halved icon-fw"></i> Resilience</a>
+        <a class="nav-link" href="#observability"><i class="fa-solid fa-binoculars icon-fw"></i> Observability</a>
+        <a class="nav-link" href="#security"><i class="fa-solid fa-lock icon-fw"></i> Security</a>
+        <a class="nav-link" href="#migration"><i class="fa-solid fa-rocket icon-fw"></i> Migration</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-link"></i> Microservices <span>28 Deep-Dive Interview Questions</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <!-- Hero -->
+      <div class="hero ms-banner" class="mb-28">
+        <h1 style="font-size:26px;margin-bottom:8px">Microservices Interview Guide</h1>
+        <p style="color:var(--text-secondary);margin-bottom:18px">Service decomposition, inter-service communication, distributed data, resilience patterns, and migration strategy — the complete picture for senior engineers.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num" style="color:#10b981">28</div><div class="lbl">Questions</div></div>
+          <div class="hero-stat"><div class="num" style="color:#10b981">7</div><div class="lbl">Topic Areas</div></div>
+          <div class="hero-stat"><div class="num">Spring</div><div class="lbl">+ Resilience4j</div></div>
+          <div class="hero-stat"><div class="num">Kafka</div><div class="lbl">Event-Driven</div></div>
+        </div>
+      </div>
+
+      <!-- Pillar filters -->
+      <div class="pillar-filters">
+        <button class="pillar-chip active" data-pillar="all">All</button>
+        <button class="pillar-chip" data-pillar="decomp">Decomposition</button>
+        <button class="pillar-chip" data-pillar="comm">Communication</button>
+        <button class="pillar-chip" data-pillar="data">Data Patterns</button>
+        <button class="pillar-chip" data-pillar="resilience">Resilience</button>
+        <button class="pillar-chip" data-pillar="observability">Observability</button>
+        <button class="pillar-chip" data-pillar="security">Security</button>
+        <button class="pillar-chip" data-pillar="migration">Migration</button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 28 reviewed</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           1. DECOMPOSITION & DDD
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="decomposition">
+        <div class="section-icon" class="chip-success"><i class="fa-solid fa-scissors"></i></div>
+        <div><h2>Decomposition &amp; Domain-Driven Design</h2><p>How to split a system into services correctly — and the traps when you get it wrong</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="decomp">
+          <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">How do you decide where to draw service boundaries? What is a Bounded Context?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A <strong>Bounded Context</strong> (DDD) is a linguistic boundary: within it, a term like "customer" has one precise, agreed-upon meaning. Across contexts, "customer" in the billing service vs the shipping service may be different data models with different responsibilities. Service boundaries should match bounded context boundaries.</p>
+            <p><strong>Rules for good boundaries:</strong></p>
+            <ul>
+              <li><strong>High cohesion within</strong> — a service owns all data and logic for one business capability</li>
+              <li><strong>Low coupling across</strong> — changing one service doesn't force changes in others</li>
+              <li><strong>Independent deployability</strong> — you can deploy service A without deploying service B</li>
+              <li><strong>Team ownership</strong> — Conway's Law: your service boundaries will mirror your org chart. Design the org and services together</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Decomposition example: e-commerce</span><button class="copy-btn">Copy</button></div><pre><code">Monolith "order"  →  microservices:
+  OrderService     — create order, track status, order history
+  PaymentService   — charge, refund, reconciliation (payment is its OWN domain)
+  InventoryService — stock levels, reservations, warehouse routing
+  NotificationService — email/SMS/push, templates, retry
+  ShippingService  — carriers, tracking numbers, dispatch
+
+What's wrong with splitting too small:
+  "AddressService" — addresses are data, not a domain. Put in CustomerService.
+  "TaxService" — tax calculation is logic inside OrderService unless regulations
+                 are complex enough to warrant a team dedicated to it.</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">DDD heuristic</span><div class="callout-body">Ask: "would a domain expert in department A understand the concepts in department B without translation?" If yes, they're in the same context. If they need a translator, they're in different contexts — and should be different services.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="decomp">
+          <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">What are the signs you've split your microservices too finely (nano-services)?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Nano-service symptoms:</strong></p>
+            <ul>
+              <li>Every feature change requires changes in 3+ services simultaneously</li>
+              <li>Services are chatty — a single user request triggers a cascade of 10+ synchronous HTTP calls</li>
+              <li>No single team owns a coherent capability; ownership is blurry</li>
+              <li>Data consistency problems are everywhere because entities are split across services</li>
+              <li>Deployments are always coordinated ("we must deploy A, B, and C together")</li>
+              <li>Network overhead dominates CPU/IO overhead</li>
+            </ul>
+            <p><strong>Rule of thumb:</strong> a service should be as small as possible but no smaller than a single team's ownership boundary. If two services are always deployed together, they should be one service.</p>
+            <p><strong>Merger strategy:</strong> if two services are co-deployed more than 50% of the time, merge them. The operational complexity of a separate service must be justified by its independent change rate.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="decomp">
+          <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">Explain the API Gateway pattern. What does it do beyond simple routing?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>An API Gateway is the single entry point for all external clients. Beyond routing, it handles cross-cutting concerns that shouldn't live in every service:</p>
+            <ul>
+              <li><strong>Authentication</strong> — validates JWT/OAuth token centrally; services receive a verified identity claim</li>
+              <li><strong>Rate limiting</strong> — token bucket per client/IP before requests hit services</li>
+              <li><strong>SSL termination</strong> — TLS at the edge; internal traffic can use plaintext (or mTLS at service mesh layer)</li>
+              <li><strong>Request aggregation (BFF pattern)</strong> — one gateway call fans out to 3 services and aggregates the response, reducing mobile client round-trips</li>
+              <li><strong>Protocol translation</strong> — external REST → internal gRPC; external HTTP → internal Kafka</li>
+              <li><strong>Logging/tracing injection</strong> — adds correlation IDs to every request</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Spring Cloud Gateway route with rate limiter</span><button class="copy-btn">Copy</button></div><pre><code>spring:
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: lb://order-service          <span class="cmt"># Kubernetes service DNS via LoadBalancer</span>
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 100
+                redis-rate-limiter.burstCapacity: 200
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: orderCB
+                fallbackUri: forward:/fallback/orders</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">BFF pattern</span><div class="callout-body">Backend For Frontend — instead of one generic gateway, you run a separate gateway per client type: mobile BFF aggregates data differently than web BFF or partner API BFF. Avoids the "Swiss army knife" problem where one gateway tries to serve all clients and ends up serving none well.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="decomp">
+          <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">What is a service mesh and when do you actually need one?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A <strong>service mesh</strong> (Istio, Linkerd) is a dedicated infrastructure layer for service-to-service communication. It deploys a sidecar proxy (Envoy) alongside every service pod that intercepts all inbound/outbound traffic.</p>
+            <p><strong>What the mesh gives you:</strong></p>
+            <ul>
+              <li>mTLS between every service pair (zero-trust networking) — without any code changes</li>
+              <li>Circuit breaking, retry policies, timeouts — configured as CRDs, not code</li>
+              <li>Distributed tracing — automatic span propagation</li>
+              <li>Traffic splitting for canary deploys at L7</li>
+              <li>Observability: request rates, error rates, latency per service-pair</li>
+            </ul>
+            <p><strong>When you actually need it:</strong></p>
+            <ul>
+              <li>≥10 services with complex inter-service traffic patterns</li>
+              <li>Compliance requiring mTLS between services</li>
+              <li>You want canary/traffic splitting without changing application code</li>
+            </ul>
+            <p><strong>When you don't need it:</strong></p>
+            <ul>
+              <li>≤5 services — operational overhead (Istio's learning curve is steep) exceeds benefit</li>
+              <li>Services already use Resilience4j for resilience and Micrometer for observability</li>
+              <li>Team is already stretched — a mesh adds a whole new operational domain</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           2. COMMUNICATION
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="communication">
+        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-satellite-dish"></i></div>
+        <div><h2>Inter-Service Communication</h2><p>Synchronous vs async, gRPC, Kafka, service discovery, and the choreography/orchestration trade-off</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="comm">
+          <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">When do you choose synchronous REST/HTTP over asynchronous Kafka messaging between services?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;margin:12px 0">
+              <thead><tr style="background:var(--bg-secondary)"><th style="padding:8px 12px;text-align:left;border:1px solid var(--border)">Criterion</th><th style="padding:8px 12px;text-align:left;border:1px solid var(--border)">Use REST/gRPC (sync)</th><th style="padding:8px 12px;text-align:left;border:1px solid var(--border)">Use Kafka (async)</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:8px 12px;border:1px solid var(--border)">Result needed immediately</td><td style="padding:8px 12px;border:1px solid var(--border)">✅ Validate payment now</td><td style="padding:8px 12px;border:1px solid var(--border)">❌ Can't block caller</td></tr>
+                <tr style="background:var(--bg-secondary)"><td style="padding:8px 12px;border:1px solid var(--border)">Fan-out (1→N consumers)</td><td style="padding:8px 12px;border:1px solid var(--border)">❌ Call each individually</td><td style="padding:8px 12px;border:1px solid var(--border)">✅ Publish once, N consume</td></tr>
+                <tr><td style="padding:8px 12px;border:1px solid var(--border)">Consumer can be slow/offline</td><td style="padding:8px 12px;border:1px solid var(--border)">❌ You'll time out</td><td style="padding:8px 12px;border:1px solid var(--border)">✅ Messages buffer in topic</td></tr>
+                <tr style="background:var(--bg-secondary)"><td style="padding:8px 12px;border:1px solid var(--border)">Simple query (read data)</td><td style="padding:8px 12px;border:1px solid var(--border)">✅ GET /user/42</td><td style="padding:8px 12px;border:1px solid var(--border)">❌ Overkill</td></tr>
+                <tr><td style="padding:8px 12px;border:1px solid var(--border)">Guaranteed processing order</td><td style="padding:8px 12px;border:1px solid var(--border)">❌ No queue, no order</td><td style="padding:8px 12px;border:1px solid var(--border)">✅ Within a partition</td></tr>
+                <tr style="background:var(--bg-secondary)"><td style="padding:8px 12px;border:1px solid var(--border)">Tight coupling acceptable</td><td style="padding:8px 12px;border:1px solid var(--border)">✅ Internal service, same team</td><td style="padding:8px 12px;border:1px solid var(--border)">❌ Prefer loose coupling</td></tr>
+              </tbody>
+            </table>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Golden rule</span><div class="callout-body">Async is the default for cross-domain communication (different bounded contexts). Sync is acceptable within a domain or when the caller genuinely cannot proceed without the response (e.g., real-time fraud check on payment submission).</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="comm">
+          <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">Explain Saga pattern: choreography vs orchestration. When do you choose each?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A <strong>Saga</strong> is a sequence of local transactions coordinated across services — with compensating transactions for rollback. It replaces distributed 2PC (which doesn't scale).</p>
+            <p><strong>Choreography Saga:</strong></p>
+            <ul>
+              <li>Services communicate via events — no central coordinator</li>
+              <li>Each service listens for an event, does its work, publishes the next event</li>
+              <li>✅ No single point of failure; services are more loosely coupled</li>
+              <li>❌ Hard to visualize end-to-end flow; debugging "where did this saga get stuck" is painful; compensating transactions are scattered across services</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Choreography flow: order processing</span><button class="copy-btn">Copy</button></div><pre><code">OrderService publishes → OrderCreated
+  PaymentService consumes → charges card → publishes PaymentCompleted | PaymentFailed
+    InventoryService consumes PaymentCompleted → reserves stock → publishes InventoryReserved
+      ShippingService consumes InventoryReserved → schedules dispatch
+
+On failure: PaymentFailed → OrderService consumes and publishes OrderCancelled
+            InventoryService consumes OrderCancelled → releases reservation</code></pre></div>
+            <p><strong>Orchestration Saga:</strong></p>
+            <ul>
+              <li>A central Saga Orchestrator drives the flow — calls each service and reacts to results</li>
+              <li>✅ Entire flow visible in one place; easy to add new steps; compensation logic is centralized</li>
+              <li>❌ Orchestrator becomes a bottleneck; more coupling; the orchestrator is smart (violates "dumb pipes, smart endpoints")</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Choose by complexity</span><div class="callout-body">≤4 steps with simple compensation → choreography. ≥5 steps, complex conditional logic, or compliance audit trail required → orchestration (use Camunda/Temporal as the orchestrator). Never mix — pick one style per saga.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="comm">
+          <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">What is gRPC and when does it beat REST for internal microservice calls?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>gRPC is a high-performance RPC framework using HTTP/2 + Protocol Buffers (binary serialization). It was designed for internal service-to-service calls where performance matters.</p>
+            <p><strong>gRPC advantages over REST:</strong></p>
+            <ul>
+              <li>Protobuf binary encoding is 3-10x smaller than JSON — less bandwidth, faster serialization</li>
+              <li>HTTP/2 multiplexing — multiple calls on one connection; no head-of-line blocking</li>
+              <li>Bidirectional streaming — server can push data to client continuously</li>
+              <li>Strongly typed contracts — <code>.proto</code> files generate client/server stubs in any language; no swagger drift</li>
+              <li>Built-in deadline propagation — client sets a deadline; it flows through all service hops</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Protobuf — UserService.proto</span><button class="copy-btn">Copy</button></div><pre><code">syntax = "proto3";
+
+service UserService {
+  rpc GetUser (GetUserRequest) returns (UserResponse);
+  rpc StreamActivityFeed (UserRequest) returns (stream ActivityEvent); <span class="cmt">// server streaming</span>
+}
+
+message GetUserRequest { int64 user_id = 1; }
+message UserResponse {
+  int64  id         = 1;
+  string email      = 2;
+  string name       = 3;
+  bool   active     = 4;
+}
+<span class="cmt">// Generated: UserServiceGrpc.UserServiceBlockingStub (Java), userServiceClient (Go/Python/etc.)</span></code></pre></div>
+            <p><strong>When to use REST instead:</strong> public APIs (browsers don't support gRPC natively without grpc-web), team unfamiliar with proto toolchain, simple CRUD with no performance concern.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="comm">
+          <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">How does service discovery work in Kubernetes vs with Eureka/Consul?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Kubernetes DNS service discovery (built-in):</strong></p>
+            <ul>
+              <li>Every Service gets a DNS name: <code>order-service.default.svc.cluster.local</code></li>
+              <li>kube-dns / CoreDNS resolves this to the ClusterIP</li>
+              <li>kube-proxy handles load balancing at the IP level via iptables rules</li>
+              <li>No sidecar or library needed — just call <code>http://order-service:8080</code></li>
+            </ul>
+            <p><strong>Eureka (Spring Cloud Netflix):</strong></p>
+            <ul>
+              <li>Services register themselves on startup with their IP + port + health check URL</li>
+              <li>Clients fetch the registry and do client-side load balancing (Spring Cloud LoadBalancer)</li>
+              <li>Required before Kubernetes was standard; adds operational overhead</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Modern answer</span><div class="callout-body">If you're on Kubernetes, use Kubernetes DNS — it's native and zero-config. Eureka is a Spring-ecosystem holdover from the pre-K8s era. Consul is still valuable in hybrid environments (VMs + containers) where K8s DNS doesn't reach all nodes. Remove Eureka from K8s-native stacks; it duplicates functionality the platform already provides.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           3. DATA PATTERNS
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="data">
+        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-database"></i></div>
+        <div><h2>Data Patterns</h2><p>Database-per-service, CQRS, Event Sourcing, and the distributed data consistency problem</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="data">
+          <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">Why database-per-service? What do you lose and how do you compensate?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A shared database is the death of microservice independence. If two services share a DB schema, any schema change requires coordinating both services — you've lost independent deployability.</p>
+            <p><strong>What you gain:</strong></p>
+            <ul>
+              <li>Services can be deployed, scaled, and replaced independently</li>
+              <li>Each service can choose the right DB technology (PostgreSQL for orders, Redis for sessions, Elasticsearch for search)</li>
+              <li>Schema changes in service A don't affect service B</li>
+            </ul>
+            <p><strong>What you lose:</strong></p>
+            <ul>
+              <li><strong>JOIN queries across services</strong> → use API composition (call both services, join in code) or CQRS read models</li>
+              <li><strong>ACID transactions across services</strong> → use Saga pattern with compensating transactions</li>
+              <li><strong>Cross-service reporting</strong> → build a reporting/analytics service that consumes events from all services and maintains a denormalised read store (Kafka → data warehouse or Elasticsearch)</li>
+            </ul>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Anti-pattern to name</span><div class="callout-body">"Integration database" — multiple services write to the same DB. Teams start adding direct cross-service JOIN queries, then adding schema constraints that span services. Within 6 months you have a distributed monolith: all the operational complexity of microservices with none of the independence benefits.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="data">
+          <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">Explain CQRS. When does it help and when is it over-engineering?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>CQRS (Command Query Responsibility Segregation)</strong> separates the write model (Commands) from the read model (Queries) — usually implemented as separate data stores.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — CQRS with Spring + Kafka</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// WRITE SIDE: normalised PostgreSQL, optimised for writes and consistency</span>
+<span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="typ">OrderCommandService</span> {
+    <span class="kw">public</span> <span class="typ">Order</span> <span class="fn">createOrder</span>(<span class="typ">CreateOrderCmd</span> cmd) {
+        <span class="typ">Order</span> order = orderRepository.save(<span class="kw">new</span> <span class="typ">Order</span>(cmd));
+        eventPublisher.publish(<span class="kw">new</span> <span class="typ">OrderCreatedEvent</span>(order)); <span class="cmt">// → Kafka</span>
+        <span class="kw">return</span> order;
+    }
+}
+
+<span class="cmt">// READ SIDE: denormalised Elasticsearch document, optimised for complex queries</span>
+<span class="ann">@KafkaListener</span>(topics = <span class="str">"order-events"</span>)
+<span class="kw">public void</span> <span class="fn">on</span>(<span class="typ">OrderCreatedEvent</span> e) {
+    <span class="cmt">// Build search document with customer name, product names, etc. — data from multiple services</span>
+    orderSearchIndex.index(<span class="typ">OrderDocument</span>.from(e, customerService.get(e.customerId())));
+}
+
+<span class="cmt">// Read model queries Elasticsearch, not PostgreSQL → no JOINs, no N+1, O(1) search</span>
+<span class="ann">@GetMapping</span>(<span class="str">"/orders/search"</span>)
+<span class="kw">public</span> <span class="typ">List</span>&lt;<span class="typ">OrderSummary</span>&gt; <span class="fn">search</span>(<span class="ann">@RequestParam</span> <span class="typ">String</span> q) {
+    <span class="kw">return</span> orderSearchIndex.search(q);
+}</code></pre></div>
+            <p><strong>When CQRS helps:</strong> complex query requirements that can't be served by the write model efficiently; high read/write ratio with different scaling needs; cross-service read views.</p>
+            <p><strong>When it's over-engineering:</strong> simple CRUD app; read queries are cheap on the write DB; team is small and the eventual consistency complexity will cause bugs.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="data">
+          <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">What is Event Sourcing and when does it provide real value?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Event Sourcing</strong> stores the state of an entity as a sequence of events, not as the current state. To get current state, replay all events.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Event Sourcing concept</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Traditional: single row updated in place — history lost</span>
+UPDATE orders SET status = 'SHIPPED', updated_at = NOW() WHERE id = 42;
+
+<span class="cmt">// Event Sourced: immutable append-only event log</span>
+events table:
+  (42, OrderCreated,  {customerId:7, items:[...], total:99.99}, 2024-01-10)
+  (42, PaymentTaken,  {amount:99.99, transactionId:'tx_abc'},   2024-01-10)
+  (42, ItemPicked,    {warehouseId:3, pickedAt:'2024-01-11'},   2024-01-11)
+  (42, Shipped,       {carrier:'DHL', trackingNo:'1234567'},    2024-01-12)
+
+<span class="cmt">// Current state = replay all events → Order.apply(events)</span></code></pre></div>
+            <p><strong>Real value in:</strong></p>
+            <ul>
+              <li>Audit trail is a hard requirement (banking, healthcare, legal)</li>
+              <li>Temporal queries — "what was the account balance on 2023-06-15?"</li>
+              <li>Debugging — you can replay events to reproduce any production state</li>
+              <li>Event-driven integrations — the event log IS the Kafka topic</li>
+            </ul>
+            <p><strong>Costs:</strong> querying current state requires replaying (use snapshots for large aggregates); eventual consistency in projections; schema evolution for old events is hard.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="data">
+          <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">How does the Transactional Outbox pattern solve the dual-write problem?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Dual-write problem:</strong> you can't atomically write to your database AND publish to Kafka. If the DB write succeeds but Kafka publish fails, your event is lost — the rest of the system never knows the order was created.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java + SQL — Outbox pattern implementation</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Step 1: Write order AND outbox event in the SAME database transaction</span>
+<span class="ann">@Transactional</span>
+<span class="kw">public</span> <span class="typ">Order</span> <span class="fn">createOrder</span>(<span class="typ">CreateOrderRequest</span> req) {
+    <span class="typ">Order</span> order = orderRepo.save(<span class="kw">new</span> <span class="typ">Order</span>(req));
+
+    outboxRepo.save(<span class="typ">OutboxEvent</span>.builder()
+        .aggregateType(<span class="str">"Order"</span>)
+        .aggregateId(order.getId().toString())
+        .eventType(<span class="str">"OrderCreated"</span>)
+        .payload(objectMapper.writeValueAsString(order))
+        .build());
+    <span class="kw">return</span> order; <span class="cmt">// both committed or both rolled back</span>
+}
+
+<span class="cmt">// Step 2: Outbox poller — separate thread/job reads and publishes</span>
+<span class="ann">@Scheduled</span>(fixedDelay = <span class="num">500</span>)
+<span class="kw">public void</span> <span class="fn">pollOutbox</span>() {
+    List&lt;<span class="typ">OutboxEvent</span>&gt; events = outboxRepo.findUnpublished();
+    events.forEach(e -> {
+        kafkaTemplate.send(e.getEventType(), e.getAggregateId(), e.getPayload());
+        e.markPublished();
+    });
+    outboxRepo.saveAll(events);
+}
+<span class="cmt">// Or use Debezium CDC — no polling needed, reads PostgreSQL WAL directly</span></code></pre></div>
+            <p><strong>Debezium is the preferred approach</strong> — it reads the DB WAL (write-ahead log) in real time. Zero polling delay, no missed events, works without modifying application code.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           4. RESILIENCE
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="resilience">
+        <div class="section-icon" class="chip-danger"><i class="fa-solid fa-shield-halved"></i></div>
+        <div><h2>Resilience Patterns</h2><p>Circuit Breaker, Bulkhead, Retry, Timeout — and how to combine them correctly</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="resilience">
+          <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">Explain the Circuit Breaker pattern. What are its states and how does it prevent cascade failures?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A Circuit Breaker wraps a remote call. When the downstream service starts failing, the CB "trips open" and immediately returns an error (or fallback) instead of calling the failing service — preventing thread pool exhaustion and cascade failures.</p>
+            <p><strong>Three states:</strong></p>
+            <ul>
+              <li><strong>CLOSED</strong> — normal operation. Calls pass through; failures counted</li>
+              <li><strong>OPEN</strong> — failure threshold exceeded. All calls fail immediately with <code>CallNotPermittedException</code>; no calls reach downstream</li>
+              <li><strong>HALF_OPEN</strong> — after a wait duration, allows a limited number of probe calls. If they succeed → CLOSED. If they fail → OPEN again</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Circuit Breaker</span><button class="copy-btn">Copy</button></div><pre><code"><span class="ann">@CircuitBreaker</span>(name = <span class="str">"inventoryService"</span>, fallbackMethod = <span class="str">"inventoryFallback"</span>)
+<span class="ann">@TimeLimiter</span>(name = <span class="str">"inventoryService"</span>)
+<span class="ann">@Retry</span>(name = <span class="str">"inventoryService"</span>)
+<span class="kw">public</span> <span class="typ">CompletableFuture</span>&lt;<span class="typ">StockLevel</span>&gt; <span class="fn">getStock</span>(<span class="typ">String</span> productId) {
+    <span class="kw">return</span> inventoryClient.getStock(productId);
+}
+
+<span class="kw">private</span> <span class="typ">CompletableFuture</span>&lt;<span class="typ">StockLevel</span>&gt; <span class="fn">inventoryFallback</span>(<span class="typ">String</span> productId, <span class="typ">Exception</span> ex) {
+    log.warn(<span class="str">"Inventory service unavailable, returning cached/default for {}"</span>, productId);
+    <span class="kw">return</span> <span class="typ">CompletableFuture</span>.completedFuture(stockCache.get(productId)
+        .orElse(<span class="typ">StockLevel</span>.unknown()));
+}</code></pre></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Resilience4j config (application.yml)</span><button class="copy-btn">Copy</button></div><pre><code">resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryService:
+        failureRateThreshold: 50          <span class="cmt"># trip at 50% failure rate</span>
+        slowCallRateThreshold: 80         <span class="cmt"># also trip on 80% slow calls</span>
+        slowCallDurationThreshold: 2000ms
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+        slidingWindowSize: 20
+  timelimiter:
+    instances:
+      inventoryService:
+        timeoutDuration: 1s</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Order matters</span><div class="callout-body">Apply decorators in order: <code>@CircuitBreaker</code> wraps <code>@Retry</code> wraps <code>@TimeLimiter</code>. The CB sees the result of all retries, not individual attempts. Don't retry on <code>CallNotPermittedException</code> — the circuit is open for a reason.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="resilience">
+          <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">What is the Bulkhead pattern and how does it isolate failures?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Named after ship bulkheads that prevent one flooded compartment from sinking the whole ship. In software: each downstream service gets its own thread pool or semaphore, so a slow/unavailable service can't exhaust the shared thread pool and block all other operations.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Bulkhead (thread pool isolation)</span><button class="copy-btn">Copy</button></div><pre><code">resilience4j:
+  thread-pool-bulkhead:
+    instances:
+      paymentService:
+        maxThreadPoolSize: 10       <span class="cmt"># at most 10 threads for payment calls</span>
+        coreThreadPoolSize: 5
+        queueCapacity: 20           <span class="cmt"># buffer 20 more requests</span>
+      inventoryService:
+        maxThreadPoolSize: 5        <span class="cmt"># separate pool — payment slowness can't starve inventory</span>
+        coreThreadPoolSize: 3
+        queueCapacity: 10</code></pre></div>
+            <p><strong>Without Bulkhead:</strong> payment service hangs → 200 threads blocked waiting → no threads left for inventory or order calls → entire application unresponsive, even for services that are healthy.</p>
+            <p><strong>With Bulkhead:</strong> payment thread pool fills → payment calls queue/reject → inventory threads still free → order service still works. Failure blast radius is contained.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="resilience">
+          <div class="qa-question"><div class="qa-num">15</div><div class="qa-question-text">What's the difference between retry with exponential backoff and the circuit breaker? When do you use both?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <ul>
+              <li><strong>Retry</strong> — for transient failures (brief network blip, single 503). Retrying too aggressively worsens a struggling service</li>
+              <li><strong>Exponential backoff + jitter</strong> — spreads retry load; prevents thundering herd (all services retrying simultaneously)</li>
+              <li><strong>Circuit Breaker</strong> — for persistent failures. Once failure rate threshold is reached, stops retrying altogether. Gives the failing service recovery time</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Retry with backoff (Resilience4j)</span><button class="copy-btn">Copy</button></div><pre><code">resilience4j:
+  retry:
+    instances:
+      paymentService:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2.0   <span class="cmt"># 500ms → 1000ms → 2000ms</span>
+        randomizedWaitFactor: 0.5           <span class="cmt"># jitter: ±50% to spread retries</span>
+        retryExceptions:
+          - java.net.SocketTimeoutException
+          - org.springframework.web.client.ResourceAccessException
+        ignoreExceptions:
+          - com.example.PaymentDeclinedException  <span class="cmt"># business error, don't retry</span></code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key rule</span><div class="callout-body">Never retry non-idempotent operations without an idempotency key. Retrying a payment without idempotency can charge the customer twice. Always distinguish between infrastructure errors (retry-safe) and business errors (never retry).</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           5. OBSERVABILITY
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="observability">
+        <div class="section-icon" style="background:rgba(14,165,233,.15);color:#0ea5e9"><i class="fa-solid fa-binoculars"></i></div>
+        <div><h2>Observability — Logs, Metrics, Traces</h2><p>The three pillars of production visibility in a distributed system</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="observability">
+          <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">What are the three pillars of observability and how do you implement them in Spring Boot?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>1. Logs — structured, correlated:</strong></p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Logback JSON with trace correlation</span><button class="copy-btn">Copy</button></div><pre><code">logging.structured.format.console: ecs   <span class="cmt"># Spring Boot 3.4+ ECS structured logging</span>
+<span class="cmt"># Output: {"@timestamp":"...", "traceId":"abc123", "spanId":"def456", "message":"Order created"}</span>
+<span class="cmt"># traceId + spanId injected by Micrometer Tracing automatically</span></code></pre></div>
+            <p><strong>2. Metrics — Micrometer + Prometheus:</strong></p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Custom business metrics</span><button class="copy-btn">Copy</button></div><pre><code"><span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="typ">OrderService</span> {
+    <span class="kw">private final</span> <span class="typ">Counter</span> ordersCreated;
+    <span class="kw">private final</span> <span class="typ">Timer</span> orderProcessingTime;
+
+    <span class="kw">public</span> <span class="typ">OrderService</span>(<span class="typ">MeterRegistry</span> registry) {
+        ordersCreated = registry.counter(<span class="str">"orders.created"</span>, <span class="str">"type"</span>, <span class="str">"standard"</span>);
+        orderProcessingTime = registry.timer(<span class="str">"orders.processing.duration"</span>);
+    }
+
+    <span class="kw">public</span> <span class="typ">Order</span> <span class="fn">createOrder</span>(<span class="typ">CreateOrderRequest</span> req) {
+        <span class="kw">return</span> orderProcessingTime.record(() -> {
+            <span class="typ">Order</span> order = persist(req);
+            ordersCreated.increment();
+            <span class="kw">return</span> order;
+        });
+    }
+}</code></pre></div>
+            <p><strong>3. Traces — Micrometer Tracing + Zipkin/Tempo:</strong></p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Distributed tracing config</span><button class="copy-btn">Copy</button></div><pre><code">management:
+  tracing:
+    sampling:
+      probability: 0.1   <span class="cmt"># trace 10% in prod; 1.0 for debugging</span>
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+<span class="cmt"># Add: micrometer-tracing-bridge-brave + zipkin-reporter-brave</span>
+<span class="cmt"># TraceId/SpanId propagate automatically via HTTP headers (B3/W3C Traceparent)</span></code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Golden signals</span><div class="callout-body">Alert on: Rate (requests/sec), Errors (error rate %), Duration (p99 latency), Saturation (queue depth, CPU%). These four catch 95% of production issues. Don't alert on anything that doesn't require human action.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="observability">
+          <div class="qa-question"><div class="qa-num">17</div><div class="qa-question-text">How do you trace a request across 5 microservices in production when something goes wrong?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Distributed tracing walkthrough:</strong></p>
+            <ol>
+              <li><strong>Get the traceId</strong> from the error log, from the customer support ticket (include it in error responses), or from the API Gateway log</li>
+              <li><strong>Search Zipkin/Jaeger/Grafana Tempo</strong> by traceId — see the complete waterfall of all spans across services</li>
+              <li><strong>Find the problematic span</strong> — look for spans with high duration, error status, or that were never started (service never received the request)</li>
+              <li><strong>Look at the tags on that span</strong> — HTTP method, URL, DB query, exception class</li>
+              <li><strong>Jump to structured logs</strong> — filter by traceId in your log aggregator (Loki/Elasticsearch); all log lines from all services for that request are now correlated</li>
+            </ol>
+            <p><strong>Setup requirement:</strong> every service must propagate the <code>traceparent</code> (W3C) or <code>X-B3-TraceId</code> (B3) header on outbound calls. Micrometer Tracing does this automatically for RestTemplate, WebClient, and Kafka consumers.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="observability">
+          <div class="qa-question"><div class="qa-num">18</div><div class="qa-question-text">What is health checking in microservices? How does Spring Boot Actuator integrate with Kubernetes probes?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Spring Boot Actuator health groups for K8s probes</span><button class="copy-btn">Copy</button></div><pre><code">management:
+  endpoint:
+    health:
+      probes:
+        enabled: true    <span class="cmt"># enables /actuator/health/liveness and /readiness</span>
+      group:
+        readiness:
+          include: db, kafka, redis  <span class="cmt"># pod not ready until dependencies healthy</span>
+        liveness:
+          include: ping              <span class="cmt"># only check app process, not deps</span>
+
+<span class="cmt">// Kubernetes deployment:</span>
+livenessProbe:
+  httpGet: { path: /actuator/health/liveness, port: 8080 }
+  initialDelaySeconds: 30
+  periodSeconds: 10
+readinessProbe:
+  httpGet: { path: /actuator/health/readiness, port: 8080 }
+  initialDelaySeconds: 10
+  periodSeconds: 5</code></pre></div>
+            <p><strong>Why split liveness and readiness:</strong></p>
+            <ul>
+              <li><strong>Liveness</strong> — is the process alive? If no, K8s restarts the pod. Don't include DB here — if DB is down, don't restart all pods</li>
+              <li><strong>Readiness</strong> — is this pod ready to receive traffic? If no, K8s removes it from Service endpoints. Include DB, Kafka here — if dependencies are unhealthy, stop sending traffic but don't restart</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           6. SECURITY
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="security">
+        <div class="section-icon" style="background:rgba(168,85,247,.15);color:#a855f7"><i class="fa-solid fa-lock"></i></div>
+        <div><h2>Microservice Security</h2><p>JWT propagation, mTLS, zero-trust, and service-to-service auth</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="security">
+          <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">How do you handle authentication and authorization across microservices? Explain JWT propagation.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Pattern: JWT validated at API Gateway, propagated to services as a trusted identity claim.</strong></p>
+            <ol>
+              <li>Client authenticates with Auth Service → receives JWT signed by auth service private key</li>
+              <li>Client sends JWT in <code>Authorization: Bearer &lt;token&gt;</code> header</li>
+              <li>API Gateway validates JWT signature (using auth service public key); on failure → 401</li>
+              <li>Gateway passes validated JWT downstream — services trust it without re-validating signature</li>
+              <li>Each service reads claims from JWT: userId, roles, tenantId</li>
+            </ol>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Security Resource Server (validate JWT)</span><button class="copy-btn">Copy</button></div><pre><code"><span class="ann">@Configuration</span>
+<span class="kw">public class</span> <span class="typ">SecurityConfig</span> {
+    <span class="ann">@Bean</span>
+    <span class="kw">public</span> <span class="typ">SecurityFilterChain</span> <span class="fn">filterChain</span>(<span class="typ">HttpSecurity</span> http) <span class="kw">throws</span> <span class="typ">Exception</span> {
+        http
+          .authorizeHttpRequests(auth -> auth
+              .requestMatchers(<span class="str">"/actuator/health/**"</span>).permitAll()
+              .anyRequest().authenticated())
+          .oauth2ResourceServer(oauth2 -> oauth2
+              .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter())));
+        <span class="kw">return</span> http.build();
+    }
+}
+
+<span class="cmt">// spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://auth-service/keys</span>
+<span class="cmt">// Spring fetches public key from Auth Service and validates signatures locally</span></code></pre></div>
+            <p><strong>Service-to-service auth (no user context):</strong> use OAuth2 Client Credentials flow. Service A gets a machine token from Auth Service and sends it to Service B. Prevents internal services from being called without authentication — zero-trust.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="security">
+          <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">What is mTLS and why is it needed even if you have JWT?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>JWT</strong> authenticates the <em>user or service identity at the application layer</em> — it's in the HTTP body/header. It doesn't prove anything about the transport itself.</p>
+            <p><strong>mTLS (mutual TLS)</strong> authenticates both endpoints at the <em>transport layer</em>:</p>
+            <ul>
+              <li>Server presents its certificate → client verifies</li>
+              <li>Client also presents its certificate → server verifies (the "mutual" part)</li>
+              <li>Result: both parties know exactly who they're talking to before any HTTP data is sent</li>
+            </ul>
+            <p><strong>Why you need both:</strong></p>
+            <ul>
+              <li>mTLS prevents a rogue pod inside your cluster from calling a service (it won't have a valid cert)</li>
+              <li>JWT carries user identity + roles/claims; mTLS carries service identity</li>
+              <li>Without mTLS: an attacker who gains internal cluster access can call any service; with mTLS: they also need a valid client cert</li>
+            </ul>
+            <p><strong>Implementation:</strong> a service mesh (Istio/Linkerd) handles mTLS automatically via sidecar proxies. Without a mesh, use a certificate authority (Cert-Manager + Vault) to issue short-lived certificates per service.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           7. MIGRATION
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="migration">
+        <div class="section-icon" style="background:rgba(244,63,94,.15);color:#f43f5e"><i class="fa-solid fa-rocket"></i></div>
+        <div><h2>Monolith to Microservices Migration</h2><p>Strangler Fig, Anti-Corruption Layer, and how to avoid Big Bang rewrites</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">21</div><div class="qa-question-text">Explain the Strangler Fig pattern. How do you migrate a monolith incrementally?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>The Strangler Fig (named after a tropical plant that grows around a host tree until the host dies) is the safe way to migrate a monolith — never a Big Bang rewrite.</p>
+            <p><strong>Steps:</strong></p>
+            <ol>
+              <li><strong>Put a proxy in front</strong> of the monolith — API Gateway or Nginx that all traffic passes through</li>
+              <li><strong>Extract one capability</strong> as a new microservice (pick low-risk, clear boundary first)</li>
+              <li><strong>Route traffic for that capability</strong> to the new service via the proxy</li>
+              <li><strong>Run in parallel</strong> — shadow mode (send to both, compare results) until confident</li>
+              <li><strong>Remove the code</strong> from the monolith</li>
+              <li><strong>Repeat</strong> for the next capability</li>
+            </ol>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Strangler Fig timeline example</span><button class="copy-btn">Copy</button></div><pre><code">Month 1: Extract NotificationService (stateless, low risk, clear boundary)
+  → Proxy: /api/notifications → NotificationService (new)
+  → Monolith: email/SMS code removed
+
+Month 3: Extract InventoryService
+  → Dual-write to old DB + new service during transition
+  → Migrate DB data, verify parity, cut over
+
+Month 6: Extract PaymentService (higher risk, more careful)
+  → Shadow mode for 2 weeks: send to both, compare results
+  → Gradual canary: 5% → 20% → 50% → 100% traffic
+
+Month 9: Monolith now handles only core orders → becomes OrderService</code></pre></div>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Never do this</span><div class="callout-body">Big Bang rewrite: "we'll freeze the monolith and rewrite everything in microservices in 6 months." This almost always fails. The monolith keeps getting feature requests; the rewrite takes 18 months; you launch with missing features and have to maintain both. Strangler Fig is slower but it always ships.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">22</div><div class="qa-question-text">What is an Anti-Corruption Layer (ACL) and when do you need one?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>An <strong>Anti-Corruption Layer</strong> is a translation layer between two bounded contexts with incompatible models. It prevents the poor design of a legacy system from "corrupting" the clean model of a new service.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — ACL translating legacy Customer model</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Legacy monolith's Customer: a god-object with 50 fields, null everywhere</span>
+<span class="kw">class</span> <span class="typ">LegacyCustomer</span> { <span class="typ">String</span> CUST_ID; <span class="typ">String</span> FIRST_NM; <span class="typ">String</span> LAST_NM; <span class="typ">Integer</span> STAT_CD; ... }
+
+<span class="cmt">// New service's domain model: clean, expressive</span>
+<span class="kw">record</span> <span class="typ">Customer</span>(<span class="typ">CustomerId</span> id, <span class="typ">FullName</span> name, <span class="typ">CustomerStatus</span> status) {}
+
+<span class="cmt">// ACL: translate at the boundary — new service never sees LegacyCustomer</span>
+<span class="ann">@Component</span>
+<span class="kw">public class</span> <span class="typ">CustomerAcl</span> {
+    <span class="kw">public</span> <span class="typ">Customer</span> <span class="fn">translate</span>(<span class="typ">LegacyCustomer</span> legacy) {
+        <span class="kw">return new</span> <span class="typ">Customer</span>(
+            <span class="kw">new</span> <span class="typ">CustomerId</span>(legacy.CUST_ID),
+            <span class="kw">new</span> <span class="typ">FullName</span>(legacy.FIRST_NM, legacy.LAST_NM),
+            <span class="typ">CustomerStatus</span>.fromCode(legacy.STAT_CD)
+        );
+    }
+}</code></pre></div>
+            <p><strong>Use an ACL when:</strong></p>
+            <ul>
+              <li>Integrating with a legacy system you don't control</li>
+              <li>A third-party API's model doesn't match your domain language</li>
+              <li>A shared kernel would force you to adopt a design you disagree with</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">23</div><div class="qa-question-text">How do you handle API versioning in a microservice landscape?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Key principle:</strong> internal services should use loose coupling over versioning. External/public APIs need explicit versioning.</p>
+            <p><strong>Three strategies:</strong></p>
+            <ul>
+              <li><strong>URL versioning:</strong> <code>/api/v2/orders</code> — most common, easy to test and log. Drawback: feels "messy", proliferates routes</li>
+              <li><strong>Header versioning:</strong> <code>Accept: application/vnd.company.order.v2+json</code> — cleaner URLs, harder to test in browser</li>
+              <li><strong>Expand-contract (internal)</strong> — add new fields alongside old ones (never remove immediately). Consumers ignore unknown fields. Old field removed only after all consumers migrate. This is the preferred pattern for internal service-to-service communication.</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Expand-contract pattern for Kafka events</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// v1 event: {orderId, customerId, totalAmount}</span>
+<span class="cmt">// v2 event: {orderId, customerId, totalAmount, currency, discountCode}</span>
+<span class="cmt">// Strategy: publish v2 format; consumers that know v1 ignore unknown fields</span>
+<span class="cmt">// Never remove customerId until NO consumer reads it</span>
+
+<span class="ann">@JsonIgnoreProperties</span>(ignoreUnknown = <span class="kw">true</span>)  <span class="cmt">// consumers tolerate extra fields</span>
+<span class="kw">public record</span> <span class="typ">OrderCreatedEvent</span>(<span class="typ">Long</span> orderId, <span class="typ">Long</span> customerId, <span class="typ">BigDecimal</span> totalAmount) {}</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Schema Registry</span><div class="callout-body">For Kafka, use Avro + Schema Registry with a <strong>BACKWARD</strong> compatibility setting — new schema must be readable by old consumers. This enforces expand-contract at the tooling level and fails fast at deploy time if you accidentally break compatibility.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">24</div><div class="qa-question-text">How do you split a shared database during monolith decomposition?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Database decomposition is the hardest part of microservice migration — it's irreversible and has no fallback plan once you've split.</p>
+            <p><strong>Expand-contract database split pattern:</strong></p>
+            <ol>
+              <li><strong>Add dual-write</strong>: monolith writes to both the shared DB and the new service's DB simultaneously</li>
+              <li><strong>Verify consistency</strong>: read from both, compare results; log discrepancies; run for 1-2 weeks</li>
+              <li><strong>Switch reads</strong>: new service reads from its own DB; stop reading from shared DB</li>
+              <li><strong>Remove from shared schema</strong>: once confident, drop the tables from the shared DB</li>
+            </ol>
+            <p><strong>Handling cross-service data needs:</strong></p>
+            <ul>
+              <li>If Service A needs data from Service B's domain: call Service B's API (synchronous) or replicate via events (async read model)</li>
+              <li>Replace DB-level foreign keys with application-level integrity: Service A stores Service B's entity ID as a plain value, and resolves it via API when needed</li>
+              <li>Move cross-service reports to a dedicated analytics pipeline (Kafka → data warehouse → BI tool)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">25</div><div class="qa-question-text">How do you test microservices? What is Consumer-Driven Contract testing?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Testing pyramid for microservices:</strong></p>
+            <ul>
+              <li><strong>Unit tests</strong> — fast, within service, no network</li>
+              <li><strong>Integration tests</strong> — service + real DB (Testcontainers), service + real Kafka (EmbeddedKafka or Testcontainers)</li>
+              <li><strong>Contract tests</strong> — verify inter-service API contracts without running both services</li>
+              <li><strong>E2E tests</strong> — minimal, only critical happy paths (slow and brittle)</li>
+            </ul>
+            <p><strong>Consumer-Driven Contract Testing (Pact):</strong></p>
+            <ol>
+              <li><strong>Consumer</strong> (e.g., OrderService calling InventoryService) writes a Pact contract: "I expect GET /stock/{id} to return {productId, quantity, available}"</li>
+              <li>Contract is published to Pact Broker</li>
+              <li><strong>Provider</strong> (InventoryService) runs provider verification in CI — starts its service and verifies it satisfies all consumer contracts</li>
+              <li>If InventoryService changes its API in a breaking way → CI fails before deployment</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Why not E2E for everything?</span><div class="callout-body">E2E tests require all services running simultaneously, are slow (minutes), flaky (network issues, timing), and when they fail the diagnosis is hard. Contract tests give you the same protection in seconds, without a full cluster.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">26</div><div class="qa-question-text">What is the "distributed monolith" anti-pattern and how do you recognize it?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A distributed monolith is the worst of both worlds: the operational complexity of microservices with none of the independence benefits. You've split the code across services, but the services are still tightly coupled.</p>
+            <p><strong>Signs you have a distributed monolith:</strong></p>
+            <ul>
+              <li>Deploying service A requires deploying services B and C at the same time</li>
+              <li>Services share a database (direct SQL across service boundaries)</li>
+              <li>Synchronous call chains: A → B → C → D on every request (cascade failure)</li>
+              <li>A team cannot release their service without coordinating with another team</li>
+              <li>Schema changes require simultaneous changes in multiple services</li>
+              <li>You have "util" or "common" jars shared across all services that change frequently</li>
+            </ul>
+            <p><strong>Fix:</strong> go back to the bounded context analysis. Which capabilities are truly independent? Merge over-split services. Replace synchronous chains with events. Each service must own its data.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">27</div><div class="qa-question-text">How do you handle distributed configuration and secrets across microservices?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Configuration strategy (by environment sensitivity):</strong></p>
+            <ul>
+              <li><strong>Non-sensitive config</strong>: Kubernetes ConfigMaps → mounted as env vars or files. Spring Boot picks up via <code>@ConfigurationProperties</code></li>
+              <li><strong>Sensitive config (secrets)</strong>: Kubernetes Secrets (base64 encoded, or better: backed by HashiCorp Vault via External Secrets Operator)</li>
+              <li><strong>Spring Cloud Config Server</strong>: central Git-backed config server; services pull config at startup and on refresh. Useful for non-K8s or multi-cloud environments</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — External Secrets Operator pulling from Vault</span><button class="copy-btn">Copy</button></div><pre><code">apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: order-service-secrets
+spec:
+  refreshInterval: 15m
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: order-service-secrets   <span class="cmt"># creates K8s Secret</span>
+  data:
+    - secretKey: DATABASE_PASSWORD
+      remoteRef:
+        key: secret/order-service
+        property: db-password</code></pre></div>
+            <p><strong>Never:</strong> hardcode credentials, commit secrets to Git (even in a "private" repo), put secrets in container images, or log secrets.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="migration">
+          <div class="qa-question"><div class="qa-num">28</div><div class="qa-question-text">Summarise: when should you NOT use microservices?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Microservices are an organisational and operational pattern as much as a technical one. The overhead is only justified at scale.</p>
+            <p><strong>Don't use microservices when:</strong></p>
+            <ul>
+              <li><strong>Team is ≤5-8 engineers</strong> — the operational overhead exceeds the productivity gain. A well-structured monolith ("Modulith") with clear package boundaries is the right answer</li>
+              <li><strong>Domain isn't stable</strong> — if you don't know your bounded contexts yet, splitting too early locks in wrong boundaries. Monolith first, extract services when the seams become clear</li>
+              <li><strong>You don't have DevOps capability</strong> — microservices require CI/CD pipelines, container orchestration, distributed tracing, and on-call culture. Without these, deployments become a nightmare</li>
+              <li><strong>The problem is a simple CRUD app</strong> — a 3-table app with 100 users doesn't need 5 services</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Martin Fowler's rule</span><div class="callout-body">"Don't start with microservices. Start with a monolith, identify the seams of independent deployability, and extract services when the monolith starts hurting your team's ability to work independently." The Modulith pattern (Spring Modulith) gives you internal module isolation without the distributed systems complexity — a good intermediate step.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+    <div class="related-pages">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="kafka.html">Kafka</a>
+      <a href="kubernetes-devops.html">Kubernetes &amp; DevOps</a>
+      <a href="system-design.html">System Design</a>
+    </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Design — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
+        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
+        <a class="nav-link active" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#fundamentals"><i class="fa-solid fa-ruler icon-fw"></i> Fundamentals</a>
+        <a class="nav-link" href="#databases"><i class="fa-solid fa-database icon-fw"></i> Databases</a>
+        <a class="nav-link" href="#caching"><i class="fa-solid fa-bolt icon-fw"></i> Caching</a>
+        <a class="nav-link" href="#messaging"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Messaging</a>
+        <a class="nav-link" href="#patterns"><i class="fa-solid fa-puzzle-piece icon-fw"></i> Patterns</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-diagram-project"></i> System Design <span>20 Interview Questions</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <div class="progress-wrap">
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 20 reviewed</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <!-- Interview approach box -->
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.1));border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:32px">
+        <h3 class="mb-12">🎯 System Design Interview Framework</h3>
+        <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px">Always follow this structure — interviewers reward process, not just the final answer.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+          <div style="background:var(--bg-card);border-radius:10px;padding:14px"><div style="font-weight:700;margin-bottom:6px">1. Clarify (5 min)</div><div style="font-size:13px;color:var(--text-secondary)">Users, scale, SLA, read/write ratio, geographic distribution</div></div>
+          <div style="background:var(--bg-card);border-radius:10px;padding:14px"><div style="font-weight:700;margin-bottom:6px">2. Estimate (3 min)</div><div style="font-size:13px;color:var(--text-secondary)">QPS, storage, bandwidth — back-of-envelope math</div></div>
+          <div style="background:var(--bg-card);border-radius:10px;padding:14px"><div style="font-weight:700;margin-bottom:6px">3. High-level design</div><div style="font-size:13px;color:var(--text-secondary)">Draw boxes and arrows — API gateway, services, DB, cache</div></div>
+          <div style="background:var(--bg-card);border-radius:10px;padding:14px"><div style="font-weight:700;margin-bottom:6px">4. Deep dive</div><div style="font-size:13px;color:var(--text-secondary)">Pick the hardest component and go deep (data model, consistency, failover)</div></div>
+          <div style="background:var(--bg-card);border-radius:10px;padding:14px"><div style="font-weight:700;margin-bottom:6px">5. Trade-offs</div><div style="font-size:13px;color:var(--text-secondary)">Discuss what you'd change for different constraints</div></div>
+        </div>
+      </div>
+
+      <div class="pillar-row">
+        <button class="pillar-chip active" data-pillar="">All</button>
+        <button class="pillar-chip" data-pillar="fundamentals">Fundamentals</button>
+        <button class="pillar-chip" data-pillar="databases">Databases</button>
+        <button class="pillar-chip" data-pillar="caching">Caching</button>
+        <button class="pillar-chip" data-pillar="messaging">Messaging</button>
+        <button class="pillar-chip" data-pillar="patterns">Patterns</button>
+      </div>
+
+      <!-- ════ FUNDAMENTALS ════ -->
+      <div class="section-header" id="fundamentals">
+        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-ruler"></i></div>
+        <div><h2>Distributed Systems Fundamentals</h2><p>CAP, consistency, scalability, load balancing</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="fundamentals">
+          <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">Explain the CAP theorem. Give a real example of a CP vs AP system.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A distributed system can only guarantee <strong>2 of 3</strong> in the presence of a network partition:</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Property</th><th>Meaning</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Consistency (C)</strong></td><td>Every read gets the most recent write or an error — all nodes see the same data at the same time</td></tr>
+                <tr><td><strong>Availability (A)</strong></td><td>Every request gets a (possibly stale) response — system is always responsive</td></tr>
+                <tr><td><strong>Partition Tolerance (P)</strong></td><td>System continues operating despite network failures between nodes — always required in a real distributed system</td></tr>
+              </tbody>
+            </table></div>
+            <p>Since P is mandatory (networks fail), the real choice is <strong>CP vs AP</strong>:</p>
+            <ul>
+              <li><strong>CP systems</strong> — HBase, ZooKeeper, etcd: prefer consistency; return error rather than stale data during partition</li>
+              <li><strong>AP systems</strong> — Cassandra, CouchDB, DynamoDB: prefer availability; may return stale data during partition; eventually consistent</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Real example</span><div class="callout-body">A bank balance query should be CP — better to show an error than a stale (incorrect) balance. A social media "like count" can be AP — showing 2,341 instead of 2,342 for a few seconds is acceptable.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="fundamentals">
+          <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">What is the difference between horizontal and vertical scaling? What are the limits of each?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th></th><th>Vertical (Scale Up)</th><th>Horizontal (Scale Out)</th></tr></thead>
+              <tbody>
+                <tr><td><strong>How</strong></td><td>Bigger machine (more CPU, RAM)</td><td>More machines</td></tr>
+                <tr><td><strong>Limit</strong></td><td>Single machine max (~hundreds of cores, TBs RAM)</td><td>Theoretically unlimited, but coordination overhead grows</td></tr>
+                <tr><td><strong>Downtime</strong></td><td>Usually yes during upgrade</td><td>No — add nodes while running</td></tr>
+                <tr><td><strong>State</strong></td><td>Easy — single machine</td><td>Hard — must externalise session state, distributed cache</td></tr>
+                <tr><td><strong>Cost</strong></td><td>Exponential beyond a point</td><td>Linear (commodity hardware)</td></tr>
+                <tr><td><strong>Use for</strong></td><td>Databases (PostgreSQL primary), quick fix</td><td>Stateless apps, microservices, read replicas</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="fundamentals">
+          <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">How does a Load Balancer work? Compare L4 vs L7 load balancing.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th></th><th>L4 (Transport Layer)</th><th>L7 (Application Layer)</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Works on</strong></td><td>TCP/UDP packets (IP + port)</td><td>HTTP request (URL, headers, cookies)</td></tr>
+                <tr><td><strong>Speed</strong></td><td>Very fast (no content inspection)</td><td>Slower (parses HTTP)</td></tr>
+                <tr><td><strong>Routing decisions</strong></td><td>Round-robin, least connections, hash</td><td>URL path, host header, cookie, content type</td></tr>
+                <tr><td><strong>Features</strong></td><td>TLS passthrough, raw TCP proxying</td><td>SSL termination, authentication, rate limiting, A/B testing</td></tr>
+                <tr><td><strong>Examples</strong></td><td>AWS NLB, HAProxy TCP mode</td><td>Nginx, AWS ALB, Kubernetes Ingress, Envoy</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>Algorithms:</strong> Round Robin (even distribution), Least Connections (route to least busy), IP Hash (sticky sessions — same client → same server), Weighted (more traffic to powerful servers).</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="fundamentals">
+          <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">Design a URL shortener (like bit.ly). Discuss trade-offs.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Requirements clarification:</strong> 100M URLs/day created, 10B redirects/day (read-heavy 100:1), URLs expire after 5 years, analytics needed.</p>
+            <p><strong>High-level design:</strong></p>
+            <ul>
+              <li><strong>Shorten API</strong> — generate unique 7-char key (Base62: a-z, A-Z, 0-9 = 62^7 = 3.5T combinations)</li>
+              <li><strong>Redirect</strong> — look up key in cache → DB, respond with 301 (cached by browser) or 302 (enables analytics on repeat visits)</li>
+              <li><strong>Storage</strong> — PostgreSQL for URL mapping; Redis for cache (TTL matching URL expiry)</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- URL table</span>
+CREATE TABLE urls (
+  short_key  CHAR(7)     PRIMARY KEY,
+  long_url   TEXT        NOT NULL,
+  user_id    BIGINT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  expires_at TIMESTAMPTZ,
+  click_count BIGINT     DEFAULT 0
+);
+
+CREATE INDEX idx_expires ON urls(expires_at);  <span class="cmt">-- for cleanup jobs</span></code></pre></div>
+            <p><strong>Key generation approaches:</strong></p>
+            <ul>
+              <li><strong>Hash (MD5/SHA256) + take 7 chars</strong> — fast but collision risk; need collision handling</li>
+              <li><strong>Auto-increment ID → Base62 encode</strong> — no collisions, but predictable sequential keys</li>
+              <li><strong>Random key generation</strong> — check uniqueness in DB/Redis Bloom filter before saving</li>
+            </ul>
+            <p><strong>Scale to 10B redirects/day (~115K/sec):</strong> Cache top 20% of URLs in Redis (hot URLs = 80% of traffic). Use CDN for redirect responses. Read replicas for DB.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ DATABASES ════ -->
+      <div class="section-header" id="databases">
+        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-database"></i></div>
+        <div><h2>Database Design &amp; Scaling</h2><p>SQL vs NoSQL, sharding, replication, ACID</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="databases">
+          <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">When do you choose SQL vs NoSQL? Give specific use cases for each.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th></th><th>SQL (Relational)</th><th>NoSQL</th></tr></thead>
+              <tbody>
+                <tr><td>Data model</td><td>Structured, schema-enforced, joins</td><td>Document, key-value, graph, column — flexible schema</td></tr>
+                <tr><td>Consistency</td><td>ACID transactions</td><td>BASE (eventually consistent, varies by type)</td></tr>
+                <tr><td>Scaling</td><td>Vertical primary; horizontal via read replicas</td><td>Horizontally sharded natively</td></tr>
+                <tr><td>Use for</td><td>Financial data, orders, user accounts — relational data with transactions</td><td>User sessions, caching, product catalogs, real-time analytics, content</td></tr>
+                <tr><td>Examples</td><td>PostgreSQL, MySQL, Oracle</td><td>MongoDB (doc), Redis (KV), Cassandra (wide-col), Neo4j (graph)</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Default choice</span><div class="callout-body">Default to PostgreSQL. Reach for NoSQL when you have a specific scaling or data-model reason (e.g., schema-less documents, >10TB write throughput, graph traversals). "NoSQL is faster" is a myth without a specific bottleneck.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="databases">
+          <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">What is database sharding and what are its challenges?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Sharding splits data across multiple databases (shards) based on a shard key. Each shard holds a subset of the data.</p>
+            <p><strong>Sharding strategies:</strong></p>
+            <ul>
+              <li><strong>Range-based</strong> — shard by value range (user_id 1-1M → shard 1, etc.). Simple but creates hot spots if one range is accessed more</li>
+              <li><strong>Hash-based</strong> — hash(shard_key) % N_shards. Even distribution but hard to add shards (consistent hashing solves this)</li>
+              <li><strong>Directory-based</strong> — lookup table maps each key to a shard. Flexible but lookup table is a bottleneck/SPOF</li>
+            </ul>
+            <p><strong>Challenges:</strong></p>
+            <ul>
+              <li>Cross-shard queries / joins — very expensive, avoided by denormalisation</li>
+              <li>Cross-shard transactions — 2PC or saga required</li>
+              <li>Rebalancing — adding a shard means moving data</li>
+              <li>Schema changes — must apply to all shards</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="databases">
+          <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">Explain ACID vs BASE. What is eventual consistency?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>ACID</strong> — Atomicity (all or nothing), Consistency (valid state before and after), Isolation (concurrent tx don't interfere), Durability (committed data survives failures). Guaranteed by most relational DBs.</p>
+            <p><strong>BASE</strong> — Basically Available, Soft state, Eventually consistent. NoSQL trade-off: sacrifice strong consistency for availability and performance.</p>
+            <p><strong>Eventual consistency</strong> — replicas may temporarily return stale data but will <em>eventually</em> converge to the same value. The window might be milliseconds (Cassandra within a data center) to seconds (cross-region).</p>
+            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">ACID in microservices</span><div class="callout-body">ACID guarantees end at the service boundary. Cross-service operations can't use database transactions — this is why patterns like Saga and Outbox exist.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="databases">
+          <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">What is the Outbox Pattern? How does it solve dual-write problems?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Dual-write problem:</strong> Writing to a DB and publishing a Kafka message in two separate operations — if the app crashes between them, they go out of sync.</p>
+            <p><strong>Outbox pattern:</strong> Write the event to an <code>outbox</code> table in the <em>same DB transaction</em> as the business data. A separate poller or CDC (Change Data Capture) tool reads the outbox and publishes to Kafka — exactly-once delivery.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- Outbox table</span>
+CREATE TABLE outbox_events (
+  id          UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_type  VARCHAR(100) NOT NULL,
+  payload     JSONB        NOT NULL,
+  created_at  TIMESTAMPTZ  DEFAULT now(),
+  published   BOOLEAN      DEFAULT FALSE
+);
+
+<span class="cmt">-- In a single transaction:</span>
+BEGIN;
+  INSERT INTO orders (id, user_id, total) VALUES (...);
+  INSERT INTO outbox_events (event_type, payload)
+    VALUES ('ORDER_PLACED', '{"orderId": "...", "userId": "..."}');
+COMMIT;
+
+<span class="cmt">-- Debezium (CDC) watches outbox_events and publishes to Kafka
+-- Zero risk of message loss or duplication</span></code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ CACHING ════ -->
+      <div class="section-header" id="caching">
+        <div class="section-icon" class="chip-success"><i class="fa-solid fa-bolt"></i></div>
+        <div><h2>Caching Strategies</h2><p>Cache patterns, eviction, Redis, CDN</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="caching">
+          <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">What are the main caching patterns? When do you use Cache-Aside vs Write-Through?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Pattern</th><th>How</th><th>Good for</th><th>Risk</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Cache-Aside (Lazy)</strong></td><td>App checks cache first; on miss, reads DB, populates cache</td><td>Read-heavy, tolerate eventual consistency</td><td>Cache stampede on cold start; stale data</td></tr>
+                <tr><td><strong>Write-Through</strong></td><td>Write to cache and DB simultaneously</td><td>Data that will be read soon after write</td><td>Write latency doubles; cache fills with unread data</td></tr>
+                <tr><td><strong>Write-Behind (Write-Back)</strong></td><td>Write to cache; asynchronously flush to DB later</td><td>Write-heavy workloads (gaming leaderboards)</td><td>Data loss if cache fails before flush</td></tr>
+                <tr><td><strong>Read-Through</strong></td><td>Cache sits in front of DB; on miss, cache fetches from DB</td><td>Transparent caching via framework</td><td>Complex cache logic; cold start problem</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Cache stampede</span><div class="callout-body">When many requests hit an expired cache key simultaneously and all go to the DB. Fix: probabilistic early expiration, distributed lock (Redis SETNX), or "cache warming" before expiry.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="caching">
+          <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">What are Redis cache eviction policies? Which would you use for a session store vs a product catalog?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Policy</th><th>What gets evicted</th><th>Use case</th></tr></thead>
+              <tbody>
+                <tr><td>noeviction</td><td>Nothing — returns error when full</td><td>Message queues where data loss is unacceptable</td></tr>
+                <tr><td>allkeys-lru</td><td>Least recently used across all keys</td><td>General caching — most common choice</td></tr>
+                <tr><td>volatile-lru</td><td>LRU among keys with TTL set</td><td>Mix of cached data and persistent data in one Redis</td></tr>
+                <tr><td>allkeys-lfu</td><td>Least frequently used — better for Zipfian distributions</td><td>Product catalog (popular items stay; cold items evicted)</td></tr>
+                <tr><td>volatile-ttl</td><td>Key with lowest TTL first</td><td>Session stores where oldest sessions should expire first</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>Session store:</strong> <code>volatile-ttl</code> — oldest sessions expire first, mimicking sliding window behaviour.<br>
+            <strong>Product catalog:</strong> <code>allkeys-lfu</code> — popular products stay in cache; rarely-viewed products evicted.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ MESSAGING ════ -->
+      <div class="section-header" id="messaging">
+        <div class="section-icon" class="chip-info"><i class="fa-solid fa-envelope-open-text"></i></div>
+        <div><h2>Messaging &amp; Event Streaming</h2><p>Kafka, queues, event-driven architecture</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="messaging">
+          <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">How does Apache Kafka work? What are Topics, Partitions, Consumer Groups, and Offsets?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <ul>
+              <li><strong>Topic</strong> — named category of messages (like a table); append-only, durable log</li>
+              <li><strong>Partition</strong> — unit of parallelism within a topic; messages ordered within a partition; distributed across brokers</li>
+              <li><strong>Offset</strong> — each message's position within a partition; consumers track their offset (usually in <code>__consumer_offsets</code> topic)</li>
+              <li><strong>Consumer Group</strong> — group of consumers sharing a topic's partitions; each partition consumed by exactly one consumer in the group (parallelism = # partitions)</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Spring Kafka producer</span>
+<span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="typ">OrderEventProducer</span> {
+    <span class="ann">@Autowired</span> <span class="kw">private</span> <span class="typ">KafkaTemplate</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; kafkaTemplate;
+
+    <span class="kw">public void</span> <span class="fn">publish</span>(<span class="typ">OrderEvent</span> event) {
+        kafkaTemplate.send(<span class="str">"orders"</span>, event.getOrderId().toString(), event)
+            .whenComplete((result, ex) -> {
+                <span class="kw">if</span> (ex != <span class="kw">null</span>) log.error(<span class="str">"Failed to send"</span>, ex);
+            });
+    }
+}
+
+<span class="cmt">// Spring Kafka consumer</span>
+<span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>, groupId = <span class="str">"inventory-service"</span>)
+<span class="kw">public void</span> <span class="fn">onOrderPlaced</span>(<span class="ann">@Payload</span> <span class="typ">OrderEvent</span> event,
+                          <span class="ann">@Header</span>(<span class="typ">KafkaHeaders</span>.RECEIVED_PARTITION) <span class="kw">int</span> partition) {
+    log.info(<span class="str">"Processing order {} from partition {}"</span>, event.getOrderId(), partition);
+    inventoryService.reserveItems(event);
+}</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key trade-off</span><div class="callout-body">Kafka ordering is guaranteed only within a partition. To ensure all events for one orderId are ordered, use orderId as the message key — Kafka routes same-key messages to the same partition.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="messaging">
+          <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">What is at-most-once, at-least-once, and exactly-once delivery? How does Kafka achieve exactly-once?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Semantics</th><th>Messages may be?</th><th>How</th></tr></thead>
+              <tbody>
+                <tr><td><strong>At-most-once</strong></td><td>Lost (never duplicated)</td><td>Commit offset before processing; fire and forget</td></tr>
+                <tr><td><strong>At-least-once</strong></td><td>Duplicated (never lost)</td><td>Commit offset only after successful processing; retry on failure</td></tr>
+                <tr><td><strong>Exactly-once</strong></td><td>Neither lost nor duplicated</td><td>Idempotent producers + transactional API; most complex and slowest</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>Practically:</strong> Most systems use at-least-once + idempotent consumers (check if event already processed by storing event ID in DB). This is simpler and has most of the same guarantees.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Idempotent consumer — safe to process duplicate messages</span>
+<span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>)
+<span class="ann">@Transactional</span>
+<span class="kw">public void</span> <span class="fn">process</span>(<span class="typ">OrderEvent</span> event) {
+    <span class="cmt">// Upsert — idempotent by design</span>
+    <span class="kw">if</span> (processedEventRepo.existsById(event.getEventId())) {
+        log.info(<span class="str">"Skipping duplicate event {}"</span>, event.getEventId());
+        <span class="kw">return</span>;
+    }
+    inventoryService.reserve(event);
+    processedEventRepo.save(<span class="kw">new</span> <span class="typ">ProcessedEvent</span>(event.getEventId()));
+}</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ PATTERNS ════ -->
+      <div class="section-header" id="patterns">
+        <div class="section-icon" class="chip-purple"><i class="fa-solid fa-puzzle-piece"></i></div>
+        <div><h2>Architecture Patterns</h2><p>Microservices, SOLID, design patterns</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="patterns">
+          <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">What are the SOLID principles? Give a Java example for each.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// S — Single Responsibility: one class, one reason to change</span>
+<span class="kw">class</span> <span class="typ">UserService</span>   { <span class="kw">void</span> <span class="fn">createUser</span>()  {} }   <span class="cmt">// business logic only</span>
+<span class="kw">class</span> <span class="typ">UserEmailer</span>  { <span class="kw">void</span> <span class="fn">sendWelcome</span>() {} }   <span class="cmt">// email concern separate</span>
+<span class="kw">class</span> <span class="typ">UserRepository</span>{ <span class="kw">void</span> <span class="fn">save</span>()        {} }   <span class="cmt">// persistence separate</span>
+
+<span class="cmt">// O — Open/Closed: open for extension, closed for modification</span>
+<span class="kw">interface</span> <span class="typ">Discount</span>   { <span class="kw">double</span> <span class="fn">apply</span>(<span class="kw">double</span> price); }
+<span class="kw">class</span> <span class="typ">NoDiscount</span>    <span class="kw">implements</span> <span class="typ">Discount</span> { ... }
+<span class="kw">class</span> <span class="typ">VIPDiscount</span>   <span class="kw">implements</span> <span class="typ">Discount</span> { ... }   <span class="cmt">// extend without modifying</span>
+
+<span class="cmt">// L — Liskov Substitution: subtype must be usable in place of parent</span>
+<span class="kw">class</span> <span class="typ">Rectangle</span>  { <span class="kw">void</span> <span class="fn">setWidth</span>(<span class="kw">int</span> w) {} <span class="kw">void</span> <span class="fn">setHeight</span>(<span class="kw">int</span> h) {} }
+<span class="cmt">// 🚫 class Square extends Rectangle breaks LSP — setting width changes height</span>
+<span class="cmt">// Fix: separate Shape interface, no inheritance between Square and Rectangle</span>
+
+<span class="cmt">// I — Interface Segregation: many small interfaces > one fat interface</span>
+<span class="kw">interface</span> <span class="typ">Readable</span>  { <span class="typ">String</span> <span class="fn">read</span>(); }
+<span class="kw">interface</span> <span class="typ">Writable</span>  { <span class="kw">void</span>   <span class="fn">write</span>(<span class="typ">String</span> data); }
+<span class="cmt">// ReadonlyFile implements only Readable, not forced to implement write()</span>
+
+<span class="cmt">// D — Dependency Inversion: depend on abstractions, not concretions</span>
+<span class="kw">interface</span> <span class="typ">NotificationSender</span> { <span class="kw">void</span> <span class="fn">send</span>(<span class="typ">String</span> msg); }
+<span class="kw">class</span> <span class="typ">EmailSender</span> <span class="kw">implements</span> <span class="typ">NotificationSender</span> { ... }
+<span class="kw">class</span> <span class="typ">SmsSender</span>   <span class="kw">implements</span> <span class="typ">NotificationSender</span> { ... }
+<span class="kw">class</span> <span class="typ">AlertService</span> {
+    <span class="kw">private final</span> <span class="typ">NotificationSender</span> sender; <span class="cmt">// inject abstraction</span>
+    <span class="kw">public</span> <span class="fn">AlertService</span>(<span class="typ">NotificationSender</span> s) { <span class="kw">this</span>.sender = s; }
+}</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="patterns">
+          <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">What design patterns do you use regularly? Explain Strategy, Observer, and Decorator with examples.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Strategy — swap algorithms at runtime (e.g. payment methods)</span>
+<span class="kw">interface</span> <span class="typ">PaymentStrategy</span> { <span class="kw">void</span> <span class="fn">pay</span>(<span class="kw">double</span> amount); }
+<span class="kw">class</span> <span class="typ">CardPayment</span>   <span class="kw">implements</span> <span class="typ">PaymentStrategy</span> { ... }
+<span class="kw">class</span> <span class="typ">PayPalPayment</span> <span class="kw">implements</span> <span class="typ">PaymentStrategy</span> { ... }
+<span class="cmt">// Spring uses Strategy heavily: @Qualifier selects strategy beans</span>
+
+<span class="cmt">// Observer — event-driven notification (Spring's ApplicationEventPublisher)</span>
+<span class="ann">@Component</span>
+<span class="kw">public class</span> <span class="typ">OrderService</span> {
+    <span class="ann">@Autowired</span> <span class="kw">private</span> <span class="typ">ApplicationEventPublisher</span> events;
+
+    <span class="kw">public void</span> <span class="fn">placeOrder</span>(<span class="typ">Order</span> order) {
+        orderRepo.save(order);
+        events.publishEvent(<span class="kw">new</span> <span class="typ">OrderPlacedEvent</span>(order)); <span class="cmt">// notify observers</span>
+    }
+}
+<span class="ann">@EventListener</span>
+<span class="kw">public void</span> <span class="fn">onOrderPlaced</span>(<span class="typ">OrderPlacedEvent</span> e) { emailService.sendConfirmation(e); }
+
+<span class="cmt">// Decorator — add behaviour without subclassing (Servlet Filters, Spring AOP)</span>
+<span class="kw">interface</span> <span class="typ">TextFormatter</span> { <span class="typ">String</span> <span class="fn">format</span>(<span class="typ">String</span> text); }
+<span class="kw">class</span> <span class="typ">PlainFormatter</span>  <span class="kw">implements</span> <span class="typ">TextFormatter</span> { <span class="kw">return</span> text; }
+<span class="kw">class</span> <span class="typ">UpperDecorator</span>  <span class="kw">implements</span> <span class="typ">TextFormatter</span> {
+    <span class="kw">private final</span> <span class="typ">TextFormatter</span> inner;
+    <span class="kw">public</span> <span class="typ">String</span> <span class="fn">format</span>(<span class="typ">String</span> t) { <span class="kw">return</span> inner.format(t).toUpperCase(); }
+}</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="patterns">
+          <div class="qa-question"><div class="qa-num">15</div><div class="qa-question-text">Microservices vs Monolith — when would you choose each?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th></th><th>Monolith</th><th>Microservices</th></tr></thead>
+              <tbody>
+                <tr><td>Team size</td><td>Small team (2-10); one codebase is manageable</td><td>Large org; teams own services independently</td></tr>
+                <tr><td>Deployment</td><td>Simple — deploy one artifact</td><td>Complex — dozens of services, each with own CI/CD</td></tr>
+                <tr><td>Scaling</td><td>Scale the whole app, even if only one feature is hot</td><td>Scale individual services independently</td></tr>
+                <tr><td>Technology</td><td>Single stack</td><td>Polyglot — right tool per service</td></tr>
+                <tr><td>Debugging</td><td>Easy — one process, one log stream</td><td>Hard — distributed tracing needed</td></tr>
+                <tr><td>Start here?</td><td>✅ Yes — most products start as a monolith</td><td>After bottlenecks emerge and team grows</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Martin Fowler's advice</span><div class="callout-body">"Don't start with microservices — start with a monolith and extract services when you understand your domain boundaries and have a clear scaling need." The Modular Monolith is a great middle ground.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="patterns">
+          <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">Design a rate limiter. What algorithms would you use?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Algorithms:</strong></p>
+            <ul>
+              <li><strong>Fixed Window Counter</strong> — count requests in fixed time window (e.g. 100/min). Simple but bursts at window edges (98 at end of minute + 98 at start of next = 196 effectively)</li>
+              <li><strong>Sliding Window Log</strong> — log each request timestamp; count within sliding window. Accurate but memory-intensive</li>
+              <li><strong>Token Bucket</strong> — bucket holds N tokens; each request consumes one; tokens refilled at rate R/sec. Allows controlled bursting. <strong>Most common in practice</strong></li>
+              <li><strong>Leaky Bucket</strong> — requests queue; processed at constant rate. Smooths bursts completely; old requests dropped if queue full</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Token Bucket with Redis (distributed rate limiter)</span>
+<span class="cmt">// Lua script — atomic check + decrement</span>
+<span class="kw">private static final</span> <span class="typ">String</span> RATE_LIMIT_SCRIPT = <span class="str">"""
+    local tokens = tonumber(redis.call('get', KEYS[1]) or ARGV[1])
+    if tokens > 0 then
+        redis.call('set', KEYS[1], tokens - 1, 'EX', ARGV[2])
+        return 1  -- allowed
+    else
+        return 0  -- rejected
+    end
+    """</span>;
+
+<span class="kw">public boolean</span> <span class="fn">isAllowed</span>(<span class="typ">String</span> userId) {
+    <span class="typ">String</span> key = <span class="str">"rate_limit:"</span> + userId;
+    <span class="typ">Long</span> result = redisTemplate.execute(
+        RedisScript.of(RATE_LIMIT_SCRIPT, Long.class),
+        <span class="typ">List</span>.of(key),
+        <span class="str">"100"</span>,   <span class="cmt">// max tokens</span>
+        <span class="str">"60"</span>    <span class="cmt">// window in seconds</span>
+    );
+    <span class="kw">return</span> <span class="typ">Long</span>.valueOf(<span class="num">1</span>).equals(result);
+}</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="patterns">
+          <div class="qa-question"><div class="qa-num">17</div><div class="qa-question-text">How would you design a notification system (email, SMS, push) at scale?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Requirements:</strong> 10M notifications/day, multi-channel (email/SMS/push), user preferences, guaranteed delivery, retries.</p>
+            <p><strong>Architecture:</strong></p>
+            <ol>
+              <li><strong>Notification Service API</strong> — receives notification requests, validates, stores in DB</li>
+              <li><strong>Preference Service</strong> — determines which channels a user wants for each notification type</li>
+              <li><strong>Priority Queue</strong> (Kafka topics per priority) — routes to channel-specific workers</li>
+              <li><strong>Channel Workers</strong> — Email Worker (SES/SendGrid), SMS Worker (Twilio), Push Worker (FCM/APNs)</li>
+              <li><strong>Retry with exponential backoff</strong> — failed notifications re-enqueued with delay</li>
+              <li><strong>Delivery tracking</strong> — webhooks from providers update delivery status in DB</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key design decisions</span><div class="callout-body">Deduplication: use idempotency keys to prevent duplicate sends on retry. Rate limiting: respect per-provider limits (e.g. SES 14 emails/sec on sandbox). Templating: store template IDs + variables in DB, render at send time for localisation.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="fundamentals">
+          <div class="qa-question"><div class="qa-num">18</div><div class="qa-question-text">What is a CDN? How does it improve performance and what are its limitations?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A CDN (Content Delivery Network) caches static assets at edge servers geographically close to users, reducing latency and origin server load.</p>
+            <p><strong>How it works:</strong> User requests <code>cdn.example.com/logo.png</code> → DNS routes to nearest PoP (Point of Presence) → If cached: serve immediately. If not: fetch from origin, cache at edge, serve.</p>
+            <p><strong>Good for:</strong> Static assets (JS, CSS, images, videos), API responses with Cache-Control headers, geographic distribution.</p>
+            <p><strong>Limitations:</strong></p>
+            <ul>
+              <li>Not suitable for personalised or authenticated content (though edge auth is evolving)</li>
+              <li>Cache invalidation is hard — purging stale content needs CDN API calls</li>
+              <li>Cost at high volume</li>
+              <li>Single point of trust — CDN sees all your traffic (mitigate with TLS, SRI hashes)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="patterns">
+          <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">What is the Service Mesh pattern? What does Istio provide that Kubernetes doesn't?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A Service Mesh adds a sidecar proxy (Envoy) to every Pod. All traffic goes through the proxy, enabling infrastructure-level observability, security, and traffic control — without changing application code.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Feature</th><th>Kubernetes alone</th><th>With Istio</th></tr></thead>
+              <tbody>
+                <tr><td>Mutual TLS (mTLS)</td><td>Manual certificate management</td><td>Automatic per-service identity and mTLS</td></tr>
+                <tr><td>Traffic splitting</td><td>By pod count only</td><td>Weight-based (10%/90% canary)</td></tr>
+                <tr><td>Observability</td><td>Basic metrics</td><td>Golden signals per service pair, trace spans</td></tr>
+                <tr><td>Retries/timeouts</td><td>App code</td><td>Declarative policies in YAML</td></tr>
+                <tr><td>Fault injection</td><td>Not available</td><td>Inject delays/errors for chaos testing</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Complexity cost</span><div class="callout-body">Istio adds ~50ms latency per hop (proxy overhead) and significant operational complexity. Don't adopt a service mesh until you have ≥10 services and clear pain points it solves — most teams reach for it too early.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="fundamentals">
+          <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">How would you design a system to handle 1 million concurrent WebSocket connections?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Challenge:</strong> 1M persistent connections — traditional thread-per-connection model won't scale (1M threads × 1MB stack = 1TB RAM).</p>
+            <p><strong>Solution components:</strong></p>
+            <ol>
+              <li><strong>Non-blocking I/O</strong> — Netty/Vert.x or Spring WebFlux with Reactor Netty (event loop, not thread per connection)</li>
+              <li><strong>Horizontal scaling</strong> — 20 WebSocket servers × 50K connections each = 1M. Route with sticky L7 load balancer (same client → same server)</li>
+              <li><strong>Message fan-out</strong> — when server A needs to send to user on server B: publish to Redis Pub/Sub; all servers subscribe; the one holding the connection delivers</li>
+              <li><strong>Presence tracking</strong> — Redis hash map of userId → serverId</li>
+              <li><strong>Heartbeat + reconnect</strong> — client sends ping every 30s; server disconnects on timeout; client auto-reconnects with exponential backoff</li>
+            </ol>
+            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">Java 21 alternative</span><div class="callout-body">With virtual threads (Project Loom) you can use blocking code with 1M threads — JVM handles the multiplexing. Eliminates the need for reactive programming while achieving the same scale.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+    <div class="related-pages">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="patterns.html">Design Patterns</a>
+      <a href="microservices.html">Microservices</a>
+      <a href="general.html">General &amp; Interview Tips</a>
+    </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soft Skills & General Questions — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    .trap-card {
+      background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.03));
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+    }
+    .trap-card h4 { color: #ef4444; font-size: 14px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .trap-card p  { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+    .trap-card .what-they-want { font-size: 13px; background: var(--bg-secondary); border-radius: 8px; padding: 10px 14px; margin: 8px 0; }
+    .trap-card .what-they-want strong { color: var(--warning); }
+    .good-answer  { background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.25); border-radius: 10px; padding: 14px 16px; margin: 8px 0; font-size: 13px; }
+    .bad-answer   { background: rgba(239,68,68,.08);  border: 1px solid rgba(239,68,68,.25);  border-radius: 10px; padding: 14px 16px; margin: 8px 0; font-size: 13px; }
+    .good-answer::before { content: "✅ Say this: "; font-weight: 700; color: #10b981; display: block; margin-bottom: 4px; }
+    .bad-answer::before  { content: "🚫 Don't say: "; font-weight: 700; color: #ef4444; display: block; margin-bottom: 4px; }
+    .pillar-chip[data-pillar="manipulation"] { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.3); color: #ef4444; }
+    .pillar-chip[data-pillar="soft"]         { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.3); color: #10b981; }
+    .pillar-chip[data-pillar="salary"]       { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.3); color: #f59e0b; }
+    .pillar-chip[data-pillar="motivation"]   { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.3); color: #6366f1; }
+    .pillar-chip[data-pillar="conflict"]     { background: rgba(168,85,247,.12); border-color: rgba(168,85,247,.3); color: #a855f7; }
+    .warning-banner {
+      background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(245,158,11,.08));
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
+        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
+        <a class="nav-link active" href="general.html"><i class="fa-solid fa-brain icon-fw"></i> Soft Skills &amp; Traps<span class="nav-badge">32</span></a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#manipulation"><i class="fa-solid fa-triangle-exclamation icon-fw"></i> Manipulation &amp; Traps</a>
+        <a class="nav-link" href="#soft-skills"><i class="fa-solid fa-handshake icon-fw"></i> Soft Skills</a>
+        <a class="nav-link" href="#motivation"><i class="fa-solid fa-lightbulb icon-fw"></i> Motivation &amp; Fit</a>
+        <a class="nav-link" href="#conflict"><i class="fa-solid fa-bolt icon-fw"></i> Conflict &amp; Pressure</a>
+        <a class="nav-link" href="#salary"><i class="fa-solid fa-money-bill-wave icon-fw"></i> Salary Negotiation</a>
+        <a class="nav-link" href="#questions-to-ask"><i class="fa-solid fa-hand icon-fw"></i> Questions to Ask Them</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-brain"></i> Soft Skills &amp; Interview Traps <span>32 Questions + Manipulation Guide</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <!-- Hero -->
+      <div class="hero warning-banner">
+        <h1 style="font-size:24px;margin-bottom:10px">⚠️ Know the Traps Before You Walk In</h1>
+        <p style="color:var(--text-secondary)">Many interview questions are not what they appear. Some are designed to make you reveal weaknesses, accept low offers, or admit things that hurt you. This guide explains exactly what each trap question is trying to extract — and how to answer honestly without giving away leverage.</p>
+        <div class="hero-stats" class="mt-20">
+          <div class="hero-stat"><div class="num" style="color:#ef4444">12</div><div class="lbl">Manipulation traps</div></div>
+          <div class="hero-stat"><div class="num" style="color:#10b981">10</div><div class="lbl">Soft skill Q&amp;As</div></div>
+          <div class="hero-stat"><div class="num" style="color:#f59e0b">5</div><div class="lbl">Salary tactics</div></div>
+          <div class="hero-stat"><div class="num">5</div><div class="lbl">Questions to ask them</div></div>
+        </div>
+      </div>
+
+      <div class="pillar-filters">
+        <button class="pillar-chip active" data-pillar="all">All</button>
+        <button class="pillar-chip" data-pillar="manipulation">Manipulation Traps</button>
+        <button class="pillar-chip" data-pillar="soft">Soft Skills</button>
+        <button class="pillar-chip" data-pillar="motivation">Motivation &amp; Fit</button>
+        <button class="pillar-chip" data-pillar="conflict">Conflict &amp; Pressure</button>
+        <button class="pillar-chip" data-pillar="salary">Salary</button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 32 reviewed</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           MANIPULATION & TRAP QUESTIONS
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="manipulation">
+        <div class="section-icon" class="chip-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div><h2>Manipulation &amp; Trap Questions</h2><p>What they're really asking — and how to answer without hurting yourself</p></div>
+      </div>
+
+      <div class="callout danger" class="mb-20">
+        <span class="callout-icon">🚨</span>
+        <div><span class="callout-title">How to recognise a trap question</span>
+        <div class="callout-body">Trap questions sound friendly and conversational — "just tell me honestly", "there are no wrong answers", "we're very informal here". They're designed to make you drop your guard. The interviewer is not your friend yet. You're negotiating a business contract. Be honest, but strategic. Never volunteer information that weakens your position.</div></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">"What is your current salary?" / "What are you earning now?"</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To anchor your offer to your current salary — even if your market value is significantly higher. If you earn €60k and they were planning to offer €85k, your answer just saved them €25k. Revealing your current salary almost always costs you money.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> "We need to know to make a fair offer." This sounds logical but is false — a fair offer is based on market rate and the role's value, not your history.</div>
+            </div>
+            <div class="good-answer">"I'd prefer to keep that confidential. What I'm looking for is a total package in the range of [your target range] — does that align with the budget for this role?"</div>
+            <div class="good-answer">"I'm happy to discuss compensation expectations. I've researched the market for this role and level, and I'm targeting [range]. Can you share the budget?"</div>
+            <div class="bad-answer">"I currently earn €60,000." — Now every offer will be anchored to this number.</div>
+            <div class="bad-answer">"Well, I can't say exactly, but it's around…" — Partial reveals still anchor the conversation.</div>
+            <p style="font-size:13px;margin-top:12px;color:var(--text-secondary)"><strong>Note:</strong> In many European countries (Austria, Germany, etc.) and some US states it is illegal for employers to ask about your current salary. You are not obligated to answer.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">"What's your salary expectation?" (asked very early, before you know anything about the role)</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To get you to anchor low before they've described the full scope of the role, the benefits, growth potential, or the team. Once you name a number, everything negotiates from there.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> Whoever names a number first loses. They want you to go first because they already know their budget.</div>
+            </div>
+            <p><strong>Strategy: defer until you have full information, then name a range at the top of market.</strong></p>
+            <div class="good-answer">"I'd like to learn more about the full scope of the role first — responsibilities, team size, growth trajectory — before we talk about compensation. What's the approved budget range for this position?"</div>
+            <div class="good-answer">If pushed: "Based on my research into the market for senior backend engineers with K8s experience in [city], I'm targeting €85,000–€95,000. I'm flexible depending on the full package. Does that work with your budget?"</div>
+            <p style="font-size:13px;margin-top:10px;color:var(--text-secondary)">Note: give a range, not a number. The bottom of your range should be what you'd actually accept. They will offer the bottom.</p>
+            <div class="bad-answer">"I'll accept whatever is fair." — No leverage, no anchor, you'll get the minimum.</div>
+            <div class="bad-answer">Naming a number that's below market because you don't want to seem greedy — research first.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">"What's your biggest weakness?"</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To hear a real weakness — not a fake-humble "I work too hard" answer. They want to see self-awareness (you can identify real weaknesses), growth mindset (you're working on it), and honesty.</p>
+              <div class="what-they-want"><strong>The trap:</strong> Many candidates either give a non-answer that annoys interviewers, or panic and reveal something genuinely disqualifying.</div>
+            </div>
+            <p><strong>Formula: Real weakness + concrete steps you're taking + evidence of progress.</strong></p>
+            <div class="good-answer">"Public speaking and presenting to large groups. I'm naturally more comfortable in written communication or 1:1 discussions. I've been actively working on this — I've joined an internal tech talks programme and given 3 presentations this year. My last one had 40 people and went well. It's still something I'm developing, but I'm making measurable progress."</div>
+            <div class="good-answer">"I sometimes over-engineer solutions — I get excited about clean architecture and can spend time on abstractions the project doesn't need yet. I've learned to apply YAGNI more consciously and ask 'does this serve the current requirement?' before adding complexity."</div>
+            <div class="bad-answer">"I work too hard / I'm a perfectionist." — Every interviewer rolls their eyes at this. It signals you're not self-aware.</div>
+            <div class="bad-answer">Naming a weakness that is core to the job. "I'm not great at backend performance optimisation" for a backend performance role.</div>
+            <div class="bad-answer">Refusing to answer or saying you don't have weaknesses. This is a red flag.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">"Why are you leaving your current job?" / "Why did you leave your last job?"</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To find red flags: were you fired? Do you badmouth employers? Are you running away from something (conflict, performance issues) or toward something (growth, better role)?</p>
+              <div class="what-they-want"><strong>The trap:</strong> Emotional or negative answers ("my boss was terrible", "the company was a mess") immediately create doubt about whether YOU were the problem.</div>
+            </div>
+            <p><strong>Rule: Never badmouth your previous employer. Always frame as moving TOWARD something, not AWAY from something bad.</strong></p>
+            <div class="good-answer">"I've really valued my time at [Company]. I've grown a lot there — I went from junior to leading a team of 4. But I've reached the natural ceiling for growth in that team: the tech stack is stable, the architecture is mature, and there aren't opportunities to work on the kind of distributed systems problems I want to specialise in. That's what's brought me here — the work you're doing on [specific product/challenge] is exactly where I want to develop."</div>
+            <div class="good-answer">If you were made redundant: "The company went through a restructuring and my role was affected. I took it as an opportunity to find something more aligned with where I want to go rather than immediately jumping to the first offer."</div>
+            <div class="bad-answer">"My manager was terrible and played favourites." — Even if true, this makes you look difficult.</div>
+            <div class="bad-answer">"The company is a disaster, no one knows what they're doing." — Signals you might say the same about them.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">"We have other strong candidates. You should decide quickly." (artificial urgency)</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To prevent you from using competing offers to negotiate, or to stop you from thinking clearly about the decision. Artificial urgency is a classic sales tactic — it's used to bypass rational decision-making.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> "We have many candidates and need to move fast." This is often false, or even if true, is designed to make you accept terms you'd otherwise negotiate.</div>
+            </div>
+            <p><strong>Counter: stay calm, ask for reasonable time, and never make a major career decision under pressure.</strong></p>
+            <div class="good-answer">"I understand the timeline pressure and I'm genuinely interested in this role. I want to make this decision carefully so that if I accept, I'm fully committed. What's the minimum time you'd need me to decide by? I'll work within that."</div>
+            <div class="good-answer">If you have other processes: "I'm at late stages with two other companies as well. I'd like to complete those processes so I can make a fully informed decision. Could we aim for [specific date, 5-7 days]?"</div>
+            <div class="bad-answer">Accepting immediately to "secure the role" — if the offer is poor, you've locked yourself in.</div>
+            <div class="bad-answer">Panicking and dropping other interview processes that might produce better offers.</div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Reality check</span><div class="callout-body">A company that truly wants you will wait 3–5 business days for you to decide. If they won't, that tells you something about how they treat employees' decisions once you're inside the company. Companies that pressure you into quick decisions tend to also pressure you once employed.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">"Are you interviewing anywhere else?" / "Do you have other offers?"</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To gauge how much leverage you have. If you have no other offers, they know they can offer less. If you have competing offers, they may accelerate or improve their offer. They're assessing market demand for you.</p>
+            </div>
+            <p><strong>Strategy: if you have other processes, mention them without specifics. This creates leverage. If you don't, say you're "actively exploring" — which is true.</strong></p>
+            <div class="good-answer">"Yes, I'm in late-stage conversations with a couple of other companies. I haven't received formal offers yet, but I expect to within the next two weeks. I'm keeping my options open while I find the right fit — and this role is one I'm genuinely excited about."</div>
+            <div class="good-answer">If you have an actual offer: "I do have an offer from [type of company, not name] with a deadline of [date]. I'm hoping to evaluate everything together, but I want to be transparent so we can align timelines."</div>
+            <div class="bad-answer">"No, this is the only company I'm interviewing with." — Even if true, this removes all your leverage.</div>
+            <div class="bad-answer">Lying about a specific offer you don't have — if they ask for details, you can't deliver.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">"We can't match that offer. But the learning opportunities here are amazing." (selling you intangibles)</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To get you to accept below-market compensation in exchange for vague promises ("amazing learning", "great culture", "exciting projects"). These intangibles are real and valuable — but they're also used to compensate for underpaying.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> Paying you with "exposure", "experience", or "opportunity" instead of money. Rent cannot be paid in learning opportunities.</div>
+            </div>
+            <p><strong>Counter: acknowledge the value of intangibles but don't trade them for compensation you need.</strong></p>
+            <div class="good-answer">"I really value the learning and growth aspects — that's genuinely one of the reasons I'm interested in this role. But I also need compensation that reflects my experience and the market rate for this level. Is there any flexibility on the base, or could we look at other components — annual bonus, extra leave, remote flexibility, equity? I'd like to find a structure that works for both of us."</div>
+            <div class="good-answer">If they truly can't move: "I appreciate the transparency. Could you tell me: what's the typical timeline to reach [next level] here, and what would the compensation look like at that stage?"</div>
+            <div class="bad-answer">Accepting significantly below market because "it's a great learning opportunity" — learning is valuable but it doesn't pay rent. And the learning will end before the underpay does.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">"Tell me about a time you failed." (and they press harder than expected)</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>Self-awareness and growth. But if they press — "what about a bigger failure?", "what did your colleagues think?", "were there consequences?" — they're stress-testing your ability to handle failure without becoming defensive or over-apologetic.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> "Tell me about an even bigger failure" is designed to get you to reveal something genuinely disqualifying under social pressure. Know in advance where your floor is.</div>
+            </div>
+            <p><strong>Prepare two failure stories. One medium (your default). One real (your backup if pressed). Deliver both without shame — you grew from them.</strong></p>
+            <div class="good-answer">"The most significant failure I've been involved in was [real story, specific, with impact]. What I learned from it was [concrete lesson]. The change I made to my process after was [specific change]. That mistake hasn't happened again and I've shared the learning with my team."</div>
+            <p>If they keep pressing: it's OK to say — <em>"I've shared the two most significant failures I've been part of. I don't want to manufacture more serious failures to seem humble. Is there a specific area of failure you're most interested in exploring?"</em></p>
+            <div class="bad-answer">Becoming defensive: "Well it wasn't entirely my fault." — You'll look like someone who doesn't accept accountability.</div>
+            <div class="bad-answer">Revealing something genuinely disqualifying under pressure just because they asked a second time.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">"We think you're a bit overqualified. Will you really be happy here?" (reverse trap)</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>Two possible interpretations: (1) They're genuinely concerned you'll leave quickly once a better opportunity arises — a real risk for them. (2) They're using "overqualified" to justify underpaying you ("we can't pay you what your experience is worth at this level"). Identify which it is.</p>
+            </div>
+            <div class="good-answer">"I've thought about this. What I'm looking for at this stage is [specific: stability, impact in a focused domain, work-life balance, great team]. This role offers that in a way that my previous roles haven't. I'm not looking for the most senior title — I'm looking for the right environment. And from everything I've seen about your team, I think this is it."</div>
+            <div class="good-answer">If you suspect it's a pay issue: "Is there a concern that my compensation expectations won't match what the role is budgeted for? I'm happy to have that conversation directly."</div>
+            <div class="bad-answer">"No, I'd be happy with anything." — Sounds desperate, not convincing.</div>
+            <div class="bad-answer">Getting defensive: "I don't think I'm overqualified." — This doesn't address their real concern.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">"What would your previous manager say about you if I called them right now?"</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To catch you off-guard about your relationship with your manager. They want to see whether your self-assessment matches reality, and whether there's hidden conflict or a bad reference lurking. They may actually call.</p>
+              <div class="what-they-want"><strong>The trap:</strong> If you panic, you may reveal tension or negativity that wasn't otherwise in the conversation.</div>
+            </div>
+            <p><strong>Answer this as if your manager is sitting next to you. Be specific — vague positives sound like PR. Then add the growth area your manager would honestly mention.</strong></p>
+            <div class="good-answer">"I think [Manager name] would say I'm someone they trust to take ownership of a problem without needing to be managed closely. They've commented specifically that when I took on the migration project, I flagged risks early and delivered on schedule. They'd probably also say I could communicate status updates more proactively on long-running tasks — that's something I've been working on."</div>
+            <div class="bad-answer">"They'd say I was amazing and an incredible asset." — Unbelievably positive, signals you're not self-aware or you're hiding something.</div>
+            <div class="bad-answer">"Honestly, we didn't have the best relationship…" — Immediately raises a red flag about you. Even if the manager was the problem, this isn't the moment to explain that.</div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Preparation</span><div class="callout-body">Before any interview, think about what every previous manager would honestly say — positive AND negative. Prepare a one-paragraph summary for each. This question, and the reference check, will be consistent if you've thought it through in advance.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">"This role might be challenging for you. Are you sure you can handle it?" (confidence test / intimidation)</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>They're testing resilience and confidence under pressure. Some interviewers do this deliberately — especially for senior roles. They want to see if you fold, get defensive, or stay calm and grounded.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> This can also be a negotiation tactic — if they can shake your confidence, you'll accept a lower offer or a more junior title.</div>
+            </div>
+            <p><strong>Counter: don't fold, don't get angry, don't oversell. Answer with evidence and curiosity.</strong></p>
+            <div class="good-answer">"What specific aspect of the role are you most concerned about? I'd like to understand what challenge you're referring to — I may have experience that addresses it directly, or it could be a genuine growth area I can speak to."</div>
+            <div class="good-answer">"I'm confident in my ability to take on hard problems. I've navigated [specific comparable challenge] at [Company] — I'd love to understand what's hardest about this role specifically so we can have a concrete conversation."</div>
+            <div class="bad-answer">"You're right, maybe I'm not ready." — This is the response they're looking for if the goal is to underpay you or discount your seniority.</div>
+            <div class="bad-answer">Getting defensive or angry — "I definitely CAN handle it!" without evidence.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="manipulation">
+          <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">"Where do you see yourself in 5 years?" (loyalty / ambition test)</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To assess: will you stay long enough to be worth training? Do you want to move into management (some roles need that trajectory, others don't)? Are your ambitions realistic? Will you leave in 18 months for a competitor?</p>
+            </div>
+            <p><strong>Formula: connect your 5-year vision to what this role enables. Be specific about skills, not just titles.</strong></p>
+            <div class="good-answer">"In five years, I want to have gone significantly deeper in distributed systems — handling real-scale challenges across services, events, and databases. I'd also like to be the kind of engineer that junior engineers come to for architectural guidance — not necessarily in a formal management role, but as a technical mentor. This role gives me exactly the exposure I need to get there: the system scale, the team structure, the type of problems."</div>
+            <div class="bad-answer">"I want to be in your position." — Sounds either flattering or threatening, depending on the interviewer.</div>
+            <div class="bad-answer">"Honestly, I'm not sure yet." — Signals lack of direction. Even a flexible answer needs to sound intentional.</div>
+            <div class="bad-answer">"I plan to start my own company." — Immediately signals you'll leave.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           SOFT SKILLS
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="soft-skills">
+        <div class="section-icon" class="chip-success"><i class="fa-solid fa-handshake"></i></div>
+        <div><h2>Soft Skills &amp; Teamwork</h2><p>How you work with people — just as important as technical skills at senior level</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="soft">
+          <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">How do you handle code reviews — both giving and receiving feedback?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Giving feedback — principles:</strong></p>
+            <ul>
+              <li>Review the code, never the person. "This function does X" not "you did X wrong"</li>
+              <li>Label severity: <strong>nit:</strong> (can ignore), <strong>suggestion:</strong> (consider it), blocking (must fix). Don't make everything blocking</li>
+              <li>Explain WHY, not just what. "This could cause a race condition if two threads hit this concurrently" not just "this is wrong"</li>
+              <li>Acknowledge what's done well — positive reinforcement is part of effective review culture</li>
+              <li>Approve when good enough — perfect is the enemy of shipped</li>
+            </ul>
+            <p><strong>Receiving feedback — principles:</strong></p>
+            <ul>
+              <li>Separate ego from code. A critique of the PR is not a critique of you</li>
+              <li>Ask for clarification rather than defending immediately: "Can you help me understand the concern here?"</li>
+              <li>If you disagree, make your case with evidence — not emotion. If you still disagree after discussion, escalate or agree to try one approach and measure</li>
+              <li>Thank reviewers — they spent time on your code</li>
+            </ul>
+            <div class="good-answer">"I try to make every review comment a learning opportunity in both directions. When I give feedback I label severity so the author knows what's blocking vs a suggestion. When I receive it, I try to genuinely consider the perspective before responding — if I disagree, I'll explain my reasoning and we talk it out. I've found that the best teams I've worked on had a strong review culture where feedback was expected and valued, not taken personally."</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="soft">
+          <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">Describe a time you had to onboard yourself quickly into an unfamiliar codebase. How do you approach it?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>My codebase exploration process:</strong></p>
+            <ol>
+              <li><strong>Read the README and docs first</strong> — understand the purpose before the implementation</li>
+              <li><strong>Run the app locally</strong> — follow the happy path end to end to understand what it actually does</li>
+              <li><strong>Find the entry points</strong> — for a REST API: the controllers. For a consumer: the listener. For a batch job: the scheduler. Work outward from there</li>
+              <li><strong>Read the tests</strong> — tests document what the system is supposed to do. A well-tested codebase's test suite is the best documentation</li>
+              <li><strong>Find the data model</strong> — understand the DB schema / entity model. Everything in a system serves the data</li>
+              <li><strong>Make a small change and trace it</strong> — pick a small bug or improvement, implement it, trace through the system to understand how all layers connect</li>
+              <li><strong>Ask specific questions</strong> — not "can you explain the whole system to me" but "I see this service calls X — is this always synchronous or does it have an async path?"</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Time target</span><div class="callout-body">A senior engineer should be able to make a meaningful contribution within the first 2 weeks in a new codebase. First week: understand. Second week: first PR. If it's taking longer, ask for a pairing session — it's not a weakness to ask for help, it's efficient.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="soft">
+          <div class="qa-question"><div class="qa-num">15</div><div class="qa-question-text">How do you manage your time when you have multiple deadlines competing for attention?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>My framework (and what interviewers want to hear):</strong></p>
+            <ol>
+              <li><strong>Clarify priorities explicitly</strong> — don't assume. Ask stakeholders: "If I can only deliver one of these by Friday, which one?" Most deadlines are soft until confirmed as hard</li>
+              <li><strong>Identify dependencies</strong> — am I blocking someone else? Do they need my output to start their work? Unblocking others comes first</li>
+              <li><strong>Time-box ruthlessly</strong> — fixed work windows per project. No open-ended sessions on one thing while another waits</li>
+              <li><strong>Communicate early</strong> — if a deadline is at risk, say so when you discover the risk, not the day before. Give options: "I can deliver A on time, or split B off to next sprint — which do you prefer?"</li>
+              <li><strong>Focus on delivery, not perfection</strong> — shipping 80% now beats 100% too late for most features</li>
+            </ol>
+            <div class="good-answer">"When I have competing deadlines I first confirm which ones are actually hard deadlines vs soft. I've often found that 'I need this by Friday' means 'I'd like this by Friday'. Then I communicate proactively — if I see a risk, I raise it days early with options, not the day before it's due. I'd rather have an uncomfortable conversation early than miss a deadline silently."</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="soft">
+          <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">How do you approach mentoring junior developers?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Senior engineers are evaluated on this at almost every company. They want to know you make the team better — not just yourself.</p>
+            <p><strong>Key principles:</strong></p>
+            <ul>
+              <li><strong>Ask before telling</strong> — "What have you tried so far?" and "What do you think the issue might be?" before explaining. Guided discovery is more durable than being given the answer</li>
+              <li><strong>Pair programming</strong> — side by side, not just code review. Let them drive, you navigate</li>
+              <li><strong>Explain the WHY</strong> — not just "do it this way" but "the reason we prefer constructor injection is because…"</li>
+              <li><strong>Set them up for visible wins</strong> — help them pick tasks that will stretch them but are achievable. First success builds confidence</li>
+              <li><strong>Review their PRs promptly</strong> — nothing kills momentum like waiting 3 days for review feedback</li>
+              <li><strong>Acknowledge their growth explicitly</strong> — "You handled that on-call incident really well. Six months ago that would have taken you twice as long."</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           MOTIVATION & FIT
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="motivation">
+        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-lightbulb"></i></div>
+        <div><h2>Motivation &amp; Culture Fit</h2><p>Why you, why us, why now — and how to answer authentically</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="motivation">
+          <div class="qa-question"><div class="qa-num">17</div><div class="qa-question-text">"Tell me about yourself." — How to nail the 2-minute intro</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>This is almost always the first question. It's your chance to set the tone and frame the rest of the interview. Most candidates either ramble (10 minutes of career history nobody asked for) or are too brief ("I'm a backend developer, I've been doing Java for 5 years").</p>
+            <p><strong>The 2-minute structure:</strong></p>
+            <ol>
+              <li><strong>Current role (30 sec)</strong> — what you do now, at what scale, with which technologies</li>
+              <li><strong>The thread (30 sec)</strong> — the pattern across your career: what you specialise in, what problems you've been drawn to</li>
+              <li><strong>Key achievement (30 sec)</strong> — one concrete accomplishment that is most relevant to THIS role</li>
+              <li><strong>Why here (30 sec)</strong> — what specifically about this role/company interests you (research beforehand)</li>
+            </ol>
+            <div class="good-answer">"I'm a full-stack Java engineer with 6 years of experience, currently at [Company] where I lead backend development for a high-traffic B2C platform — we handle around 50k concurrent users. My speciality has always been the intersection of reliability and developer productivity: I care about systems that are observable, testable, and fast to deploy. In my last two years I led a migration from a monolith to microservices on Kubernetes, which reduced our deployment time from 2 hours to 8 minutes and incident rate by 60%. I'm here because I've been following [Company]'s engineering blog and the problems you're working on in distributed state management are exactly where I want to deepen my expertise."</div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-top:10px">Prepare this and practise it until it sounds natural, not rehearsed. The first 2 minutes set the interviewer's frame for everything that follows.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="motivation">
+          <div class="qa-question"><div class="qa-num">18</div><div class="qa-question-text">"Why do you want to work here specifically?" (and you haven't done research)</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This question kills more candidates than technical questions.</strong> A generic answer ("I like the culture and the growth opportunities") signals that you sent 50 identical applications and don't really care about this company.</p>
+            <p><strong>What to research before every interview:</strong></p>
+            <ul>
+              <li>Company engineering blog / tech blog — what problems are they solving?</li>
+              <li>Their tech stack (StackShare, job postings, LinkedIn engineering posts)</li>
+              <li>Recent news: funding rounds, product launches, partnerships, acquisitions</li>
+              <li>The specific team you'd join — what do they ship?</li>
+              <li>Glassdoor / Blind reviews — what do employees say? (Don't mention this in the interview)</li>
+            </ul>
+            <div class="good-answer">"Two things specifically. First, the technical challenge — I've read your engineering post about how you handle eventual consistency across your payment and inventory services. That problem space is exactly where I've been building experience and I want to go deeper on it with a team that's already thinking at that level. Second, the product itself — [specific thing about product/mission]. I actually use it personally, and I've had ideas about [specific aspect] for a while. I'd want to be part of shaping that."</div>
+            <div class="bad-answer">"You're a well-known company with great culture and growth opportunities." — Every candidate says this. You haven't differentiated yourself at all.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="motivation">
+          <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">What kind of work environment do you thrive in? (culture fit question)</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>They're checking whether you'll be happy and productive in their actual environment — or whether you'll leave in 6 months. Answer honestly. A mismatch benefits nobody.</p>
+            <div class="good-answer">"I work best in an environment where engineers have real ownership — where if I see a problem I can fix it and deploy it, without 5 approval layers. I like teams that value direct feedback and where it's safe to say 'I think we should reconsider this direction' without it being political. And I need some degree of autonomy — I do my best work when I have a clear problem and the freedom to approach it my way, rather than being given a step-by-step spec. How would you describe the team culture here?"</div>
+            <p>Then: genuinely listen to their answer. If they describe the opposite of what you said, that's important information for your decision.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           CONFLICT & PRESSURE
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="conflict">
+        <div class="section-icon" style="background:rgba(168,85,247,.15);color:#a855f7"><i class="fa-solid fa-bolt"></i></div>
+        <div><h2>Conflict, Pressure &amp; Difficult Situations</h2><p>How you perform when things aren't smooth</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="conflict">
+          <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">Describe a time you strongly disagreed with a technical decision and what happened.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>What they're testing:</strong> Can you push back professionally? Can you lose an argument and still commit? Can you advocate with evidence rather than politics?</p>
+            <p><strong>The structure to use:</strong></p>
+            <ol>
+              <li>The disagreement and why you believed you were right (with technical reason)</li>
+              <li>How you raised it (data, alternative proposal, not just complaint)</li>
+              <li>How the decision was made (who decided, on what basis)</li>
+              <li>How you responded (committed fully? or continued fighting?)</li>
+              <li>What happened and what you learned</li>
+            </ol>
+            <div class="good-answer">"We were choosing between a monolith-first approach and going microservices from day one for a new product. I believed microservices at that stage was premature optimisation — we didn't know our domain well enough to set the right boundaries. I wrote a short proposal comparing the two approaches with trade-offs and time estimates. After discussion, the team chose microservices anyway. I committed to the decision and helped execute it. Six months later, we'd already had to merge three services because the boundaries were wrong — which validated my concern, but also showed me that being right doesn't always matter as much as the team executing together on one direction."</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="conflict">
+          <div class="qa-question"><div class="qa-num">21</div><div class="qa-question-text">How do you handle a production incident? What's your process?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Incident handling is a proxy for how you perform under pressure. Senior engineers are calm, systematic, and communicate well in a crisis.</p>
+            <p><strong>Incident response framework:</strong></p>
+            <ol>
+              <li><strong>Acknowledge immediately</strong> — "I'm looking at it now" within 2 minutes of alert</li>
+              <li><strong>Scope the impact</strong> — what is broken? How many users? Revenue impact? Is it getting worse?</li>
+              <li><strong>Mitigate first, root-cause second</strong> — rollback, feature flag off, scale up. Fix the symptoms to stop the bleeding before diagnosing the disease</li>
+              <li><strong>Communicate the status</strong> — brief update every 15 minutes to stakeholders, even if it's "still investigating"</li>
+              <li><strong>Don't guess</strong> — measure. Check metrics, traces, logs before drawing conclusions</li>
+              <li><strong>Resolve and document</strong> — once stable, write a post-mortem: timeline, root cause, contributing factors, action items</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Post-mortem culture</span><div class="callout-body">Blameless post-mortems are the sign of a healthy engineering organisation. The goal is to find system improvements, not to punish individuals. If your interviewer describes a "we find who made the mistake" culture in post-mortems, that's a warning sign. Good teams ask "what process could have caught this" not "who did this".</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="conflict">
+          <div class="qa-question"><div class="qa-num">22</div><div class="qa-question-text">How do you deal with a teammate who is significantly underperforming?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This is a trap if you answer too harshly (sounds like you throw people under the bus) or too softly (sounds like you avoid confrontation).</strong></p>
+            <p><strong>The honest answer — graduated approach:</strong></p>
+            <ol>
+              <li><strong>First: understand</strong> — is it a skill gap, a context gap, a personal problem, or a motivation issue? The answer changes the response</li>
+              <li><strong>Offer help directly</strong> — "I've noticed you seem stuck on X — can I help?" before escalating</li>
+              <li><strong>Be specific and private</strong> — not "your code is bad" but "this specific PR missed the error handling we discussed — let's pair on this pattern"</li>
+              <li><strong>If it continues</strong> — involve the manager. Document specifically what you've observed and tried. Not to get someone fired but to get support for both of you</li>
+              <li><strong>Don't absorb the work silently</strong> — doing someone else's work to cover for them helps nobody and breeds resentment</li>
+            </ol>
+            <div class="good-answer">"I try to start by understanding why, not jumping to judgment. If a teammate is consistently missing estimates or producing buggy code, there might be context they're missing, or they might be struggling personally. I'd approach them directly and privately first — offer pairing sessions, ask what they're finding hard. If that doesn't move the needle after a couple of weeks, I'd involve the manager — not to escalate blame but because it's a management problem at that point, not something I can fix alone."</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           SALARY NEGOTIATION
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="salary">
+        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <div><h2>Salary Negotiation Tactics</h2><p>The rules most engineers don't know — and they cost them thousands every year</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="salary">
+          <div class="qa-question"><div class="qa-num">23</div><div class="qa-question-text">You've received an offer. How do you negotiate without seeming greedy?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Key insight: negotiating is expected and professional. HR and hiring managers expect candidates to negotiate. A candidate who accepts the first offer immediately is the exception, not the rule at senior level.</strong></p>
+            <p><strong>The negotiation script:</strong></p>
+            <ol>
+              <li><strong>Express genuine enthusiasm first</strong> — you want them confident you're interested</li>
+              <li><strong>Name your number with a reason</strong> — not just "I want more" but "based on my market research and the scope of the role"</li>
+              <li><strong>Use silence</strong> — after naming your number, stop talking. Silence creates pressure on them, not you</li>
+              <li><strong>Be specific</strong> — "€90,000" is more convincing than "somewhere around €90k"</li>
+              <li><strong>Negotiate the full package</strong> — base, bonus, stock/equity, extra vacation, remote days, conference budget, learning budget</li>
+            </ol>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Script — How to respond to an offer</span><button class="copy-btn">Copy</button></div><pre><code">Them: "We'd like to offer you €78,000."
+
+You: "Thank you — I'm genuinely excited about this role and the team.
+     I'd like to take a day to review the full offer package.
+     [next day]
+     I've reviewed everything. I'm very interested in joining.
+     Based on my research into market rates for this level and the scope
+     of the responsibilities, I was targeting closer to €88,000.
+     Is there flexibility on the base?"
+
+Them: "The best we can do is €82,000."
+
+You: [Silence for 3-5 seconds]
+     "I appreciate that. Could we look at other components?
+     Could we add an extra week of vacation, or increase the
+     performance bonus target? I want to make this work."</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">The 10-second rule</span><div class="callout-body">After you name your number, do not speak for at least 5–10 seconds. The discomfort of silence often makes the other person fill it — sometimes by immediately agreeing to your number or revealing more flexibility than they intended. Most people negotiate against themselves by softening their ask immediately: "I was thinking €90k... but €85k is fine too." Don't do this.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="salary">
+          <div class="qa-question"><div class="qa-num">24</div><div class="qa-question-text">How do you use competing offers to negotiate without burning bridges?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A competing offer is the most powerful negotiation tool you have — but using it poorly feels like a threat and sours the relationship before you've started.</p>
+            <p><strong>How to do it professionally:</strong></p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Script — Using a competing offer</span><button class="copy-btn">Copy</button></div><pre><code">"I want to be transparent with you because I'm genuinely interested
+in joining your team. I've also received an offer from another company
+for €92,000. Your role is actually my first choice — the work and the
+team here are what I'm most excited about. Is there anything you can do
+to close the gap? I'd love to be able to say yes to you."</code></pre></div>
+            <p><strong>Key elements:</strong></p>
+            <ul>
+              <li>Name the number (or a number near it) — "another company" without a figure is weak</li>
+              <li>Affirm that this is your preference — makes it a collaboration not a threat</li>
+              <li>Don't lie about an offer you don't have — they may ask for written confirmation</li>
+              <li>Don't use one company solely as a bargaining chip if you'd never accept them — it's dishonest and can burn relationships in small industries</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="salary">
+          <div class="qa-question"><div class="qa-num">25</div><div class="qa-question-text">They said the salary is fixed. Is it really?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>"The salary is fixed" is often a negotiation tactic, not a fact. Salary bands have ranges. HR has discretion within those ranges. What's actually fixed is often the bonus structure or equity tier — not the base.</p>
+            <p><strong>What to do:</strong></p>
+            <ol>
+              <li>Accept that the base might genuinely be fixed (government jobs, large corporations with rigid bands)</li>
+              <li>Shift to negotiating the full package: signing bonus, annual review timeline, extra vacation days, remote work policy, professional development budget</li>
+              <li>Ask: "Is there a signing bonus that might be possible? Or could we accelerate my first performance review to 6 months instead of 12?"</li>
+            </ol>
+            <div class="good-answer">"I understand the base may be fixed within the band. Could we explore other components? Even a signing bonus or an accelerated first-year review would help me bridge the gap. I want to make this work."</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           QUESTIONS TO ASK THEM
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="questions-to-ask">
+        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-hand"></i></div>
+        <div><h2>Questions to Ask the Interviewer</h2><p>"Do you have any questions for us?" — Always have 5 ready. These reveal your seriousness and help you evaluate them.</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="soft">
+          <div class="qa-question"><div class="qa-num">26</div><div class="qa-question-text">Questions that make you look senior and interested (not generic)</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Most candidates ask "what does a typical day look like" or "what's the culture like" — these are fine but forgettable. Great questions reveal you've thought deeply about the role and help you genuinely assess whether you want it.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Question</th><th>What it signals about you</th><th>What you learn</th></tr></thead>
+              <tbody>
+                <tr><td>"What's the biggest technical problem your team is trying to solve in the next 6 months?"</td><td>You think about impact, not just tasks</td><td>Whether the work is interesting and whether your skills fit</td></tr>
+                <tr><td>"What does success look like in this role at 3 months, 6 months, and 1 year?"</td><td>You're outcome-oriented, not just present</td><td>Whether expectations are clear and realistic</td></tr>
+                <tr><td>"How does the team handle on-call? What's the typical incident load?"</td><td>You understand operational reality</td><td>Whether the on-call burden is sustainable</td></tr>
+                <tr><td>"Can you walk me through a recent technical decision the team made that you're proud of?"</td><td>You care about engineering culture and craft</td><td>Quality of technical thinking and team dynamics</td></tr>
+                <tr><td>"What's the biggest challenge a new engineer typically faces in the first 90 days here?"</td><td>You're realistic and preparing to succeed</td><td>Real onboarding friction vs official line</td></tr>
+                <tr><td>"How does the team approach technical debt? Is there time allocated for it?"</td><td>You care about sustainability</td><td>Whether quality is valued or sacrificed constantly</td></tr>
+                <tr><td>"What made you personally join this company / stay here?"</td><td>You're human and curious about people</td><td>Authentic perspective from someone who chose the company</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Questions to avoid</span><div class="callout-body">"What are the working hours?" (sounds like you're planning to do minimum) · "When will I get a promotion?" (too early) · "Can I work fully remotely?" (ask after the offer) · "What does the company do?" (you should already know this — it signals you didn't research them).</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="soft">
+          <div class="qa-question"><div class="qa-num">27</div><div class="qa-question-text">Red flag questions — what to ask to identify a toxic company BEFORE you accept</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>The interview is a two-way evaluation. Many engineers only realise they joined a bad company after 2–3 months. These questions reveal warning signs during the process.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>What to ask</th><th>Red flag answer</th><th>Green flag answer</th></tr></thead>
+              <tbody>
+                <tr><td>"What's the average tenure in the engineering team?"</td><td>"People move around a lot — it's a stepping stone" (high churn)</td><td>"Most of us have been here 2–4 years" (stability)</td></tr>
+                <tr><td>"Why did the last person in this role leave?"</td><td>Evasion, vague answer, or "they weren't a good fit"</td><td>Transparent answer: promotion, personal reasons, career change</td></tr>
+                <tr><td>"How often does the team do unplanned weekend or evening work?"</td><td>"We move fast and sometimes it requires extra effort" (= yes, a lot)</td><td>Specific and honest: "once a quarter for a major deploy, otherwise rarely"</td></tr>
+                <tr><td>"What's the post-mortem process when something goes wrong in production?"</td><td>"We find out what happened and who was responsible"</td><td>"Blameless post-mortems — we look at system improvements"</td></tr>
+                <tr><td>"Can you describe the relationship between engineering and product/management?"</td><td>"Product decides and engineering implements"</td><td>"Engineers are involved in shaping the roadmap and pushing back on scope"</td></tr>
+                <tr><td>"Is there budget for conferences and learning?"</td><td>"We learn on the job here" / long pause</td><td>Specific answer with amount or examples</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">The most important signal</span><div class="callout-body">How interviewers answer these questions matters more than what they say. Do they answer without hesitation, specifically, with examples? Or do they hedge, look uncomfortable, or pivot? Body language and tone during "red flag questions" reveals more than the content of the answer.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+    <div class="related-pages">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="soft-skills.html">Soft Skills</a>
+      <a href="big-tech.html">Big Tech &amp; Companies</a>
+      <a href="system-design.html">System Design</a>
+    </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>

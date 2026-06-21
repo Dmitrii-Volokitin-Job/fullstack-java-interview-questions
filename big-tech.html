@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon &amp; Google Interview — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    .company-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 99px;
+      font-size: 12px; font-weight: 700; margin-right: 10px; margin-bottom: 8px;
+    }
+    .amazon { background: rgba(255,153,0,.15); border: 1px solid rgba(255,153,0,.4); color: #ff9900; }
+    .google  { background: rgba(66,133,244,.15); border: 1px solid rgba(66,133,244,.4);  color: #4285f4; }
+    .lp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .lp-card:hover { border-color: var(--border); }
+    .lp-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+    .lp-num {
+      min-width: 32px; height: 32px;
+      background: rgba(255,153,0,.15); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #ff9900;
+    }
+    .lp-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .lp-desc { font-size: 13px; color: var(--text-secondary); }
+    .star-box {
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 10px;
+    }
+    .star-row { display: flex; gap: 10px; font-size: 13px; margin-bottom: 8px; }
+    .star-row:last-child { margin-bottom: 0; }
+    .star-label {
+      font-weight: 700; color: #ff9900;
+      min-width: 80px;
+    }
+    .star-row p { color: var(--text-secondary); flex: 1; }
+    .google-value {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+    }
+    .google-icon { font-size: 22px; min-width: 30px; }
+    .google-value h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .google-value p  { font-size: 13px; color: var(--text-secondary); }
+    .question-prompt {
+      background: linear-gradient(135deg, rgba(66,133,244,.08), rgba(66,133,244,.04));
+      border: 1px solid rgba(66,133,244,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin: 10px 0;
+    }
+    .question-prompt strong { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot</a>
+        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular</a>
+        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps</a>
+        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design</a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive</a>
+        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices</a>
+        <a class="nav-link active" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#amazon-lp"><i class="fa-solid fa-box icon-fw"></i> Amazon LP</a>
+        <a class="nav-link" href="#amazon-behavioral"><i class="fa-solid fa-comment icon-fw"></i> Amazon Behavioral</a>
+        <a class="nav-link" href="#amazon-technical"><i class="fa-solid fa-wrench icon-fw"></i> Amazon Technical</a>
+        <a class="nav-link" href="#google-culture"><i class="fa-solid fa-rainbow icon-fw"></i> Google Culture</a>
+        <a class="nav-link" href="#google-behavioral"><i class="fa-solid fa-comment icon-fw"></i> Google Behavioral</a>
+        <a class="nav-link" href="#google-technical"><i class="fa-solid fa-wrench icon-fw"></i> Google Technical</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-building"></i> Amazon &amp; Google <span>40 Interview Questions + Full LP Guide</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <!-- Hero -->
+      <div class="hero" class="mb-28">
+        <div class="mb-12">
+          <span class="company-badge amazon">📦 Amazon</span>
+          <span class="company-badge google">🔍 Google</span>
+        </div>
+        <h1 style="font-size:28px">Big Tech Interview Playbook</h1>
+        <p>Amazon Leadership Principles deep-dive with STAR answers, Google Googleyness guide, and the technical questions these companies ask Java/backend engineers.</p>
+        <div class="hero-stats" class="mt-20">
+          <div class="hero-stat"><div class="num" style="color:#ff9900">16</div><div class="lbl">Amazon LPs</div></div>
+          <div class="hero-stat"><div class="num" style="color:#ff9900">20</div><div class="lbl">Amazon Q&amp;As</div></div>
+          <div class="hero-stat"><div class="num" style="color:#4285f4">20</div><div class="lbl">Google Q&amp;As</div></div>
+          <div class="hero-stat"><div class="num">40</div><div class="lbl">Total Questions</div></div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 40 reviewed</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           AMAZON — LEADERSHIP PRINCIPLES
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="amazon-lp">
+        <div class="section-icon" class="chip-aws"><i class="fa-solid fa-box"></i></div>
+        <div><h2>Amazon — 16 Leadership Principles</h2><p>Know every LP with an example story ready — interviewers pick 2-4 per round</p></div>
+      </div>
+
+      <div class="callout info" class="mb-20">
+        <span class="callout-icon">ℹ️</span>
+        <div>
+          <span class="callout-title">How Amazon interviews work</span>
+          <div class="callout-body">Each interviewer is assigned 1-3 LPs to probe. They'll ask a behavioural question and dig with "tell me more", "what was your specific contribution", "what would you do differently". Prepare <strong>2 stories per LP</strong>. Every story must follow STAR: <strong>Situation → Task → Action → Result</strong> with numbers.</div>
+        </div>
+      </div>
+
+      <!-- LP Grid -->
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">1</div><div><div class="lp-name">Customer Obsession</div><div class="lp-desc">Leaders start with the customer and work backwards. They work vigorously to earn and keep customer trust.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you went above and beyond for a customer."</p></div>
+          <div class="star-row"><span class="star-label">Keywords:</span><p>Sacrificed speed/cost for customer benefit, advocated for users against internal pressure, fixed a customer problem that wasn't your direct responsibility.</p></div>
+          <div class="star-row"><span class="star-label">Red flags:</span><p>Stories where you prioritised process over the customer outcome. Never say "it wasn't my job."</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">2</div><div><div class="lp-name">Ownership</div><div class="lp-desc">Leaders are owners. They think long-term and don't sacrifice long-term value for short-term results. They never say "that's not my job."</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Describe a time you took on a project that was outside your job description."</p></div>
+          <div class="star-row"><span class="star-label">Keywords:</span><p>Stepped up when no one else did, fixed problems in adjacent teams' code, stayed late to resolve a production incident even though it was someone else's service.</p></div>
+          <div class="star-row"><span class="star-label">Tip:</span><p>Show the business impact, not just "I helped". What would have happened if you <em>hadn't</em> stepped in?</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">3</div><div><div class="lp-name">Invent and Simplify</div><div class="lp-desc">Leaders expect and require innovation and invention from their teams and always find ways to simplify.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you innovated on behalf of customers or simplified a complex process."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Replaced a complex multi-step manual process with automation. Redesigned an API that reduced client code complexity. Proposed a simpler architecture that reduced bug rate. Quantify: "reduced deploy time from 2 hours to 10 minutes."</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">4</div><div><div class="lp-name">Are Right, A Lot</div><div class="lp-desc">Leaders are right a lot. They have strong judgment and good instincts. They seek diverse perspectives and work to disconfirm their beliefs.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time your judgment turned out to be correct despite opposition."</p></div>
+          <div class="star-row"><span class="star-label">Also:</span><p>"Tell me about a time you were wrong." — Being wrong AND adapting quickly scores very well. Never claim you've never been wrong.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">5</div><div><div class="lp-name">Learn and Be Curious</div><div class="lp-desc">Leaders are never done learning and always seek to improve themselves. They are curious about new possibilities.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"What have you learned in the past year? How did you apply it?"</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Self-taught a new technology (Kafka, K8s), read papers and applied research, experimented with side projects, upskilled after a production incident revealed a gap.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">6</div><div><div class="lp-name">Hire and Develop the Best</div><div class="lp-desc">Leaders raise the performance bar with every hire and promotion. They recognize exceptional talent and willingly move them throughout the organization.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you helped a teammate grow or mentored someone."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Pair-programmed regularly, gave detailed code review feedback, helped someone get promoted, identified skills gap and proposed training, coached a junior engineer through a difficult project.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">7</div><div><div class="lp-name">Insist on the Highest Standards</div><div class="lp-desc">Leaders have relentlessly high standards — many people may think these standards are unreasonably high. They continually raise the bar.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Describe a time you refused to accept a lower standard than what was needed."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Pushed back on releasing code with known bugs, wrote tests when team culture didn't require them, rejected a design that would create tech debt, added monitoring when no one asked for it.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">8</div><div><div class="lp-name">Think Big</div><div class="lp-desc">Thinking small is a self-fulfilling prophecy. Leaders create and communicate a bold direction that inspires results.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you proposed a bold idea or a direction that changed the approach."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Proposed migrating from monolith to microservices when team was thinking "just refactor this class", suggested a new product feature that opened a new market segment, architected for 10x scale when only 2x was requested.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">9</div><div><div class="lp-name">Bias for Action</div><div class="lp-desc">Speed matters in business. Many decisions and actions are reversible and do not need extensive study. We value calculated risk-taking.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you made an important decision without complete information."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Deployed a hotfix during an incident without a full root cause analysis, ran a quick prototype to validate an idea before writing a full spec, made a reversible architectural decision quickly to unblock the team.</p></div>
+          <div class="star-row"><span class="star-label">Key phrase:</span><p>"I knew I had enough data to act. Waiting would have cost more than being wrong and adjusting."</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">10</div><div><div class="lp-name">Frugality</div><div class="lp-desc">Accomplish more with less. Constraints breed resourcefulness, self-sufficiency, and invention. There are no extra points for growing headcount, budget, or fixed expense.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you achieved a goal with fewer resources than expected."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Used open-source instead of buying a $50K tool, reduced cloud costs by 40% through optimisation, built a feature with 2 engineers that others quoted would need 5.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">11</div><div><div class="lp-name">Earn Trust</div><div class="lp-desc">Leaders listen attentively, speak candidly, and treat others respectfully. They are vocally self-critical, even when it is awkward or embarrassing.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Describe a time you had to deliver difficult feedback or disagree with a colleague."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Told a senior engineer their design had a flaw (respectfully, with data), admitted a mistake to a stakeholder before they noticed, gave honest performance feedback that was hard to hear.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">12</div><div><div class="lp-name">Dive Deep</div><div class="lp-desc">Leaders operate at all levels, stay connected to the details, and audit frequently. No task is beneath them.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you identified a root cause that others had missed."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Profiled production to find a 10x performance bottleneck no one had found, read the Kafka source code to understand an obscure behavior, spent a day with production logs to find intermittent data corruption.</p></div>
+          <div class="star-row"><span class="star-label">Key phrase:</span><p>"I didn't accept 'it works in prod' as evidence. I went into the data and found..."</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">13</div><div><div class="lp-name">Have Backbone; Disagree and Commit</div><div class="lp-desc">Leaders are obligated to respectfully challenge decisions when they disagree, even when doing so is uncomfortable. But once a decision is made, they commit wholly.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you disagreed with your manager or team and how you handled it."</p></div>
+          <div class="star-row"><span class="star-label">Structure:</span><p>1) I clearly stated my position with evidence. 2) I listened to counter-arguments. 3) The decision went against me. 4) I committed fully and helped make it succeed. 5) Result (even if I wasn't right).</p></div>
+          <div class="star-row"><span class="star-label">Never say:</span><p>"I gave up because they outranked me" or "I sabotaged the decision after I lost."</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">14</div><div><div class="lp-name">Deliver Results</div><div class="lp-desc">Leaders focus on the key inputs for their business and deliver them with the right quality and in a timely fashion. Despite setbacks, they rise to the occasion and never settle.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you delivered a project under a difficult constraint."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Met a hard deadline despite scope changes, recovered a failing project and shipped on time, delivered while a key team member was absent.</p></div>
+          <div class="star-row"><span class="star-label">Always include:</span><p>Specific metrics. "Delivered 2 weeks early" or "reduced error rate from 5% to 0.1%". No numbers = weak story.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">15</div><div><div class="lp-name">Strive to be Earth's Best Employer</div><div class="lp-desc">Leaders work every day to create a safer, more productive, higher performing, more diverse, and more just work environment.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"How have you created an inclusive environment or supported teammate wellbeing?"</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Pushed back on crunch culture, advocated for a colleague's promotion, introduced on-call rotation to spread incident burden equitably, ensured quieter voices were heard in design discussions.</p></div>
+        </div>
+      </div>
+
+      <div class="lp-card">
+        <div class="lp-header"><div class="lp-num">16</div><div><div class="lp-name">Success and Scale Bring Broad Responsibility</div><div class="lp-desc">Amazon has an outsized impact. Leaders create more than they take and always leave things better than how they found them.</div></div></div>
+        <div class="star-box">
+          <div class="star-row"><span class="star-label">Question:</span><p>"Tell me about a time you considered the broader impact of your technical decisions."</p></div>
+          <div class="star-row"><span class="star-label">Story angle:</span><p>Reduced cloud footprint/carbon impact, audited a feature for bias or privacy implications, open-sourced internal tooling, documented a process so the team after you could build on it.</p></div>
+        </div>
+      </div>
+
+      <!-- ════ AMAZON BEHAVIORAL ════ -->
+      <div class="section-header" id="amazon-behavioral">
+        <div class="section-icon" class="chip-aws"><i class="fa-solid fa-comment"></i></div>
+        <div><h2>Amazon — Behavioral Q&amp;A</h2><p>Common questions with full STAR answer frameworks</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">Walk me through the most complex technical project you've worked on.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Dive Deep, Deliver Results, Think Big, Invent and Simplify.</p>
+            <p><strong>Framework:</strong></p>
+            <ul>
+              <li><strong>S</strong>: Set the scale — how many users, how much data, what business impact</li>
+              <li><strong>T</strong>: What was your specific responsibility (avoid "we")</li>
+              <li><strong>A</strong>: Walk through your specific decisions — what alternatives you considered and why you chose this approach</li>
+              <li><strong>R</strong>: Concrete numbers — latency improvement, cost reduction, reliability gain, revenue impact</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Do</span><div class="callout-body">Pick a project where YOU made a consequential architectural or engineering decision. Talk about trade-offs you evaluated. Mention a mistake you made and how you corrected it — this shows Dive Deep + Earn Trust.</div></div></div>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Avoid</span><div class="callout-body">"We built X and it was great." No individual ownership. "The team decided." No demonstrated judgment. Projects without measurable outcomes.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">Tell me about a time you had to deal with a significant technical debt problem.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Insist on Highest Standards, Ownership, Deliver Results.</p>
+            <div class="star-box">
+              <div class="star-row"><span class="star-label">S:</span><p>Our payment service had grown organically over 4 years. It had no unit tests, mixed SQL directly in controllers, and any change caused unpredictable failures. Deployment took 2 hours and required manual steps.</p></div>
+              <div class="star-row"><span class="star-label">T:</span><p>I was tasked with adding a new payment method. I could hack it in a week or advocate for fixing the foundation first.</p></div>
+              <div class="star-row"><span class="star-label">A:</span><p>I wrote a proposal quantifying the cost: 3 production incidents in 6 months, each averaging 4h × 3 engineers = 72 engineer-hours. I modeled that 3 weeks of refactoring would recover that cost in 4 months. Got approval. I split the work: extracted repository layer (no behaviour change), added tests for critical paths, automated deployment. Delivered the new payment method in week 4 with full test coverage.</p></div>
+              <div class="star-row"><span class="star-label">R:</span><p>Deployment time dropped from 2h to 12 minutes. Zero production incidents over the next 6 months. Feature velocity in that service increased 40% as measured by PRs merged per sprint.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">Describe a situation where you had to work with a difficult colleague or stakeholder.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Earn Trust, Have Backbone, Deliver Results.</p>
+            <p><strong>Key principles:</strong></p>
+            <ul>
+              <li>Never badmouth the person — focus on the professional disagreement, not their character</li>
+              <li>Show you took responsibility for the relationship dynamic too</li>
+              <li>Show the outcome was a win for both parties</li>
+            </ul>
+            <div class="star-box">
+              <div class="star-row"><span class="star-label">What to say:</span><p>"We had different priorities — they were optimising for delivery speed, I was concerned about reliability. I asked for a 30-minute meeting where I brought data: our last 3 major incidents were all caused by rushing. We agreed on a shared definition of 'done' that included automated tests and a canary deploy. The next release went out on time and with zero post-deploy incidents."</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">Tell me about a time you failed. What did you learn?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Earn Trust (self-critical), Are Right A Lot (learn from mistakes), Learn and Be Curious.</p>
+            <p><strong>This is one of the most important questions.</strong> Amazon explicitly wants people who are vocally self-critical. A weak or deflecting answer kills your chances.</p>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Formula</span><div class="callout-body">Pick a real, significant failure (not "I worked too hard"). Explain what you did wrong specifically. Show what you learned and how you changed your behavior. Show the durable improvement. A candidate who's never failed is not credible; a candidate who failed and grew is exactly what Amazon wants.</div></div></div>
+            <div class="star-box">
+              <div class="star-row"><span class="star-label">Example:</span><p>"I shipped a database migration without testing it on a dataset representative of production. The migration ran fine on 100K rows in staging but timed out on 50M rows in prod, causing a 90-minute outage. I failed to Dive Deep into the data distribution. After that, I made it a personal standard to always run migrations against a production-sized data sample in pre-prod. I also introduced a migration checklist that the team now uses on every release."</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">How do you prioritise when you have multiple urgent projects competing for your time?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Deliver Results, Bias for Action, Customer Obsession.</p>
+            <p><strong>Framework to describe:</strong></p>
+            <ol>
+              <li>Identify customer impact of each item — which delays hurt users most?</li>
+              <li>Identify reversibility — what's harder to undo? Do that first</li>
+              <li>Check dependencies — is anyone else blocked by me? Unblock them first</li>
+              <li>Communicate clearly — tell stakeholders of the others what to expect</li>
+              <li>Time-box ruthlessly — use fixed time slots, don't let one project expand</li>
+            </ol>
+            <p>Then give a specific example from your experience where you used this approach.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ AMAZON TECHNICAL ════ -->
+      <div class="section-header" id="amazon-technical">
+        <div class="section-icon" class="chip-aws"><i class="fa-solid fa-wrench"></i></div>
+        <div><h2>Amazon — Technical Questions</h2><p>Java/backend-focused questions Amazon asks senior engineers</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">Design Amazon's order processing system. Handle 1M orders/day with payment, inventory, and notification.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Clarify first:</strong> Average or peak? Global or one region? Consistency requirements for inventory? SLA for order confirmation?</p>
+            <p><strong>High-level design:</strong></p>
+            <ol>
+              <li><strong>API Gateway</strong> → <strong>Order Service</strong>: validates request, creates order in PENDING state, publishes <code>OrderCreated</code> event via Kafka (Outbox pattern)</li>
+              <li><strong>Payment Service</strong>: consumes event, charges card, publishes <code>PaymentCompleted</code> or <code>PaymentFailed</code></li>
+              <li><strong>Inventory Service</strong>: consumes <code>PaymentCompleted</code>, reserves stock, publishes <code>InventoryReserved</code></li>
+              <li><strong>Notification Service</strong>: consumes events, sends email/SMS/push</li>
+              <li><strong>Saga orchestrator</strong>: watches all events; on failure, triggers compensating transactions (refund, release reservation)</li>
+            </ol>
+            <p><strong>Data:</strong> PostgreSQL per service (service-owns-data), Redis for session/idempotency keys, Kafka for event bus.</p>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Amazon expects</span><div class="callout-body">Operational excellence thinking: how do you monitor each service? What's your on-call runbook? How do you handle a payment service brownout? Show you think about failure modes, not just happy paths.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">How would you design a distributed rate limiter that works across multiple data centers?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Single-node rate limiter (in-memory or single Redis) breaks with horizontal scaling. Distributed options:</p>
+            <ul>
+              <li><strong>Redis cluster with Lua script</strong> — atomic INCR + EXPIRE in one script; Redis handles replication. Latency ~1ms. Works well for ≤10 data centers</li>
+              <li><strong>Token bucket in Redis</strong> — store token count + last refill time; Lua script refills proportionally to time elapsed and deducts. Allows bursting</li>
+              <li><strong>Approximate local counting + sync</strong> — each node keeps local counter; every 100ms syncs delta to Redis. Allows small overcount in exchange for much lower Redis load (Google's approach with Doorman)</li>
+              <li><strong>Sliding window in Redis with sorted set</strong> — <code>ZADD</code> request timestamps, <code>ZREMRANGEBYSCORE</code> to remove old entries, <code>ZCARD</code> to count. Accurate but O(N) per request</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Trade-off to mention</span><div class="callout-body">Cross-DC synchronous rate limiting adds latency for every request. Most production systems accept 5-10% overage and use local counting with eventual sync — the cost of occasional overage is less than the latency cost of perfect coordination.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">Explain how you'd ensure zero-downtime deployments in a Java microservice on AWS.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <ul>
+              <li><strong>Blue-Green or Rolling deploy</strong> — Kubernetes rolling update with <code>maxUnavailable: 0</code></li>
+              <li><strong>Health probes</strong> — readiness probe ensures traffic only goes to healthy pods</li>
+              <li><strong>Database migrations</strong> — always backwards-compatible: add columns (nullable), don't rename/remove in same deploy. Use Flyway with expand/contract pattern</li>
+              <li><strong>API versioning</strong> — keep v1 and v2 endpoints running concurrently during transition</li>
+              <li><strong>Connection draining</strong> — ALB connection draining gives in-flight requests time to complete before pod is terminated. Set <code>terminationGracePeriodSeconds</code> appropriately</li>
+              <li><strong>Feature flags</strong> — deploy code dark (off), test in prod, ramp traffic gradually, instant rollback by toggling flag</li>
+              <li><strong>Circuit breaker</strong> — if new version has elevated error rate, circuit opens and routes to old version</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">What's your approach to debugging a production memory leak in a Java application?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Dive Deep, Deliver Results, Ownership.</p>
+            <ol>
+              <li><strong>Confirm it's a leak</strong> — heap used grows over time even after GC; OOMKilled events in K8s logs</li>
+              <li><strong>Capture a heap dump</strong>: <code>jcmd &lt;pid&gt; GC.heap_dump /tmp/heap.hprof</code> or wait for OOM (<code>-XX:+HeapDumpOnOutOfMemoryError</code>)</li>
+              <li><strong>Analyse with Eclipse MAT or VisualVM</strong> — "Dominator Tree" shows which objects hold most memory; "Leak Suspects" report often finds the culprit</li>
+              <li><strong>Common culprits</strong>: static collections not cleared, listeners registered but never removed, ThreadLocal not removed after request, unbounded cache (Caffeine with no eviction), large byte[] held in session</li>
+              <li><strong>Fix + verify</strong> — add metrics: <code>jvm_memory_used_bytes</code> in Prometheus/Grafana; deploy fix and watch the sawtooth pattern disappear</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">How do you design for idempotency in a REST API? Why does it matter?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Idempotency ensures that repeating the same request produces the same result — critical for retries (network errors, timeouts, client retries).</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Idempotency key pattern</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Client sends Idempotency-Key header on POST</span>
+<span class="cmt">// POST /api/payments  Idempotency-Key: client-generated-uuid</span>
+
+<span class="ann">@PostMapping</span>(<span class="str">"/payments"</span>)
+<span class="kw">public</span> <span class="typ">ResponseEntity</span>&lt;<span class="typ">PaymentResponse</span>&gt; <span class="fn">createPayment</span>(
+        <span class="ann">@RequestHeader</span>(<span class="str">"Idempotency-Key"</span>) <span class="typ">String</span> idempotencyKey,
+        <span class="ann">@RequestBody</span> <span class="typ">PaymentRequest</span> req) {
+
+    <span class="cmt">// Check if we've already processed this key</span>
+    <span class="kw">return</span> idempotencyStore.get(idempotencyKey)
+        .map(cached -> <span class="typ">ResponseEntity</span>.ok(cached))   <span class="cmt">// return cached result</span>
+        .orElseGet(() -> {
+            <span class="typ">PaymentResponse</span> result = paymentService.process(req);
+            idempotencyStore.store(idempotencyKey, result, <span class="typ">Duration</span>.ofHours(<span class="num">24</span>));
+            <span class="kw">return</span> <span class="typ">ResponseEntity</span>.status(<span class="num">201</span>).body(result);
+        });
+}
+<span class="cmt">// Store: Redis with TTL. Key must be scoped per customer to prevent cross-customer replay</span></code></pre></div>
+            <p>HTTP methods: GET, PUT, DELETE are naturally idempotent. POST is not — use idempotency keys. PATCH may or may not be (depends on operation: "set to X" vs "add N").</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           GOOGLE
+      ═══════════════════════════════════ -->
+      <div class="section-header" id="google-culture">
+        <div class="section-icon" class="chip-gcp"><i class="fa-solid fa-rainbow"></i></div>
+        <div><h2>Google — Culture &amp; What They Evaluate</h2><p>Googleyness, cognitive ability, leadership, role-related knowledge</p></div>
+      </div>
+
+      <div style="margin-bottom:24px">
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div>
+            <span class="callout-title">Google's 4 interview dimensions</span>
+            <div class="callout-body">
+              Google scores every interview on: <strong>General Cognitive Ability</strong> (structured problem solving, learning from ambiguity), <strong>Leadership</strong> (emergent leadership, not just management), <strong>Googleyness</strong> (culture fit, intellectual humility, comfort with ambiguity), and <strong>Role-Related Knowledge</strong> (your specific technical domain).
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
+          <div class="google-value"><span class="google-icon">🧠</span><div><h4>Intellectual Humility</h4><p>Say "I don't know but here's how I'd find out". Google values curiosity over pretending to know.</p></div></div>
+          <div class="google-value"><span class="google-icon">🤝</span><div><h4>Collaborative</h4><p>Show you build on others' ideas, give credit, pull people in rather than working alone by default.</p></div></div>
+          <div class="google-value"><span class="google-icon">📊</span><div><h4>Data-Driven</h4><p>Back claims with metrics, experiments, A/B tests. Opinions are hypotheses to be tested.</p></div></div>
+          <div class="google-value"><span class="google-icon">🔄</span><div><h4>Comfort with Ambiguity</h4><p>Show you can make progress when requirements are unclear — define the problem, then solve it.</p></div></div>
+        </div>
+      </div>
+
+      <!-- ════ GOOGLE BEHAVIORAL ════ -->
+      <div class="section-header" id="google-behavioral">
+        <div class="section-icon" class="chip-gcp"><i class="fa-solid fa-comment"></i></div>
+        <div><h2>Google — Behavioral Q&amp;A</h2><p>Googleyness and leadership questions with answer frameworks</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">Tell me about a time you influenced a technical decision without having formal authority.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Emergent leadership, collaboration, cognitive ability.</p>
+            <p><strong>Google wants to see:</strong> You built a coalition through evidence and persuasion, not through hierarchy. You brought others along rather than going around them.</p>
+            <div class="star-box">
+              <div class="star-row"><span class="star-label">Framework:</span><p>1) Identify the problem and why it mattered. 2) Gather data / build prototype. 3) Find allies (who also cared?). 4) Present options with trade-offs, not a single mandate. 5) Let the team own the decision. 6) Result.</p></div>
+              <div class="star-row"><span class="star-label">Key phrase:</span><p>"I didn't ask for permission — I built a working prototype over a weekend and shared the results. The numbers did the persuading."</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">Describe a time you had to learn something completely new under time pressure.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> General cognitive ability (learning speed), Googleyness.</p>
+            <p><strong>What to show:</strong></p>
+            <ul>
+              <li>How you approached the learning (official docs → tutorials → hands-on → expert consultation)</li>
+              <li>How you managed uncertainty ("I didn't know what I didn't know, so I first mapped out what questions I needed to answer")</li>
+              <li>The meta-skill: how you learn, not just what you learned</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Strong angle</span><div class="callout-body">Kubernetes, Kafka, a new cloud provider, a new programming language — pick the one where you went deepest fastest and had measurable impact within weeks. Explain your learning strategy, not just the outcome.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">How do you handle disagreement in a design review? Give an example.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Collaboration, intellectual humility, leadership.</p>
+            <p><strong>Google's pattern:</strong> Document the disagreement, discuss the trade-offs explicitly, run an experiment or prototype if the decision is reversible, make a time-bound decision if it's not.</p>
+            <div class="star-box">
+              <div class="star-row"><span class="star-label">Example:</span><p>"In a design review for our new caching layer, two engineers disagreed on Redis vs Memcached. Instead of debating, I suggested we write the trade-off matrix together: consistency model, cluster management, data types, client library maturity. Once we had it documented, the decision became obvious for our use case. The team aligned in 10 minutes."</p></div>
+              <div class="star-row"><span class="star-label">Key phrase:</span><p>"I find that most engineering disagreements dissolve when you write down the constraints. People argue past each other because they're optimizing for different things."</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">Tell me about a time you simplified something that others thought was inherently complex.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Cognitive ability, engineering judgment, Googleyness.</p>
+            <p><strong>Good examples for full-stack engineers:</strong></p>
+            <ul>
+              <li>Replaced a custom event system with standard Java ApplicationEvents — same behaviour, 80% less code</li>
+              <li>Replaced 6 microservices that had grown too small with 2 better-bounded services</li>
+              <li>Eliminated a complex Angular state management layer by using signals and AsyncPipe instead of NgRx for a feature that didn't warrant the complexity</li>
+              <li>Replaced an elaborate Helm chart with a simple Helm chart + Kustomize overlays that any engineer could understand</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">15</div><div class="qa-question-text">Why do you want to work at Google? (How to answer this authentically)</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Don't say:</strong> "Great compensation", "amazing culture", "I've always dreamed of Google."</p>
+            <p><strong>Do say something specific:</strong></p>
+            <ul>
+              <li>A specific Google technology or team that aligns with your expertise: "I've been using Cloud Spanner in my work and want to work on problems at that scale"</li>
+              <li>A specific product you're passionate about and what you'd improve</li>
+              <li>Google's approach to a problem that differs from your current experience: "Google's SRE model is something I've studied deeply and want to practice at the source"</li>
+              <li>Research: "I read the Borg paper and Kubernetes is a direct descendant — I want to work closer to where those ideas originate"</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Research</span><div class="callout-body">Mention a specific Google research paper, blog post, or open-source project that influenced your work. Shows you engage with Google's intellectual output, not just its brand.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ GOOGLE TECHNICAL ════ -->
+      <div class="section-header" id="google-technical">
+        <div class="section-icon" class="chip-gcp"><i class="fa-solid fa-wrench"></i></div>
+        <div><h2>Google — Technical Questions</h2><p>System design and Java questions Google asks senior backend engineers</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">Design Google Maps' real-time traffic layer. How do you aggregate data from millions of devices?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Clarify:</strong> How often do devices report? What's the update latency requirement? What resolution (per-road segment vs per-intersection)?</p>
+            <p><strong>Data pipeline:</strong></p>
+            <ol>
+              <li><strong>Device → Kafka</strong>: 500M devices × 1 report/30s = ~17M events/sec. Kafka partitioned by geo-hash</li>
+              <li><strong>Stream processor (Flink/Kafka Streams)</strong>: aggregate speed data by road segment per 30s window; compute average speed, detect anomalies (accident = sudden speed drop)</li>
+              <li><strong>Storage</strong>: Redis for current traffic (fast read, TTL 60s), BigTable for historical patterns (ML training), PostgreSQL with PostGIS for road network</li>
+              <li><strong>Client delivery</strong>: WebSocket or Server-Sent Events for real-time updates; delta compression (only changed segments)</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Google expects</span><span class="callout-body">They want to see you reason about data consistency trade-offs. Traffic data can be eventually consistent — a 30-second stale reading is acceptable. You don't need distributed transactions here. Also: how do you handle device privacy? Aggregate before storing, never store individual GPS traces.</span></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">17</div><div class="qa-question-text">How would you design a globally consistent distributed key-value store (like Spanner/Bigtable)?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>This is asking you to reason about distributed systems fundamentals that underpin Cloud Spanner.</p>
+            <p><strong>Core challenges:</strong></p>
+            <ul>
+              <li><strong>Consistency across regions</strong> — Spanner uses TrueTime API (atomic clocks + GPS) for globally ordered timestamps. At Google, this is a hardware advantage. For us: hybrid logical clocks or vector clocks</li>
+              <li><strong>Replication</strong> — Paxos/Raft per shard; Spanner uses Paxos groups (typically 5 replicas across 3+ regions)</li>
+              <li><strong>Transactions</strong> — Two-phase locking within a shard; two-phase commit across shards (coordinator node per transaction)</li>
+              <li><strong>Reads without coordination</strong> — stale reads can be served from any replica; strong reads go through the leader</li>
+            </ul>
+            <p><strong>Trade-off to mention:</strong> Global strong consistency costs ~100ms cross-region RTT. Most reads should use bounded staleness reads (10s-30s stale) for ~5ms local latency.</p>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">18</div><div class="qa-question-text">How do you approach code reviews? What makes a great code review comment?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Collaboration, engineering standards, leadership.</p>
+            <p><strong>Google's code review culture is very specific:</strong></p>
+            <ul>
+              <li>Every change must be approved before merge — no exceptions</li>
+              <li>Review within 24 hours (not letting PRs rot)</li>
+              <li>Comments are labelled: <strong>nit:</strong> (minor style, can ignore), <strong>optional:</strong> (suggestion), or blocking</li>
+              <li>Focus on: correctness, readability, test coverage, performance implications, security</li>
+            </ul>
+            <p><strong>Great review comment structure:</strong> "What the problem is" → "Why it matters" → "Suggested fix or alternative". Never just "this is wrong."</p>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Google-specific</span><div class="callout-body">Mention you've read or agree with Google's Engineering Practices guide (it's public). They value reviewers who explain the "why" behind feedback, not just the "what". Also: separate correctness from style — correctness is blocking; style is a nit.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">How do you write production-ready code? What checklist do you use before submitting a PR?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Insist on Highest Standards, Role-Related Knowledge.</p>
+            <p><strong>My production-readiness checklist:</strong></p>
+            <ul>
+              <li>✅ Unit tests with meaningful assertions (not just coverage %)</li>
+              <li>✅ Integration test for the happy path + one error case</li>
+              <li>✅ Error cases handled: what happens at each external call failure?</li>
+              <li>✅ Logging: enough to diagnose issues without exposing PII</li>
+              <li>✅ Metrics: new Prometheus counters/gauges for meaningful operations</li>
+              <li>✅ Alerting: will we know if this breaks in prod?</li>
+              <li>✅ Documentation: complex logic explained inline; public API documented</li>
+              <li>✅ Database migrations: backwards-compatible; tested on prod-sized data</li>
+              <li>✅ Security: no secrets in code, SQL parameterised, input validated</li>
+              <li>✅ Performance: no N+1 queries, no blocking calls in hot path</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card">
+          <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">Walk me through how you'd investigate a sudden 10x increase in API latency.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This tests:</strong> Systematic debugging, Dive Deep, Deliver Results.</p>
+            <p><strong>Systematic investigation — don't guess, measure:</strong></p>
+            <ol>
+              <li><strong>Scope</strong> — is it all endpoints or one? All users or a subset? All regions or one?</li>
+              <li><strong>Timeline</strong> — when did it start? Correlate with deploys, traffic spikes, external events (certificate rotation, dependency updates)</li>
+              <li><strong>Metrics</strong> — check p50 vs p99: if p50 is fine but p99 is high = tail latency issue (GC pause, connection pool exhaustion). If both high = systemic issue</li>
+              <li><strong>Trace</strong> — pull distributed traces for slow requests. Which span is slow? DB query? External HTTP call? Kafka consumer lag?</li>
+              <li><strong>Resource check</strong> — CPU, memory, network I/O, disk I/O on all services in the path. Connection pool utilisation</li>
+              <li><strong>Dependency check</strong> — is a downstream service slow? Check its latency metrics</li>
+              <li><strong>DB</strong> — check slow query log, lock waits, connection pool exhaustion, table bloat (VACUUM not running?)</li>
+              <li><strong>Mitigation</strong> — can you rollback? Scale horizontally? Circuit break the slow dependency?</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key phrase</span><div class="callout-body">"I narrow the problem before proposing solutions. I'd rather spend 10 minutes on data than 2 hours fixing the wrong thing."</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+    <div class="related-pages">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="soft-skills.html">Soft Skills</a>
+      <a href="system-design.html">System Design</a>
+      <a href="general.html">General &amp; Interview Tips</a>
+    </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>

@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java 8–16 Refresher — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    /* ── Refresher-specific styles ──────────────────────────── */
+    .version-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 28px 32px 0;
+    }
+    .version-badge {
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      padding: 4px 12px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff; white-space: nowrap;
+    }
+    .version-badge.v8  { background: linear-gradient(135deg,#f89820,#e65c00); }
+    .version-badge.v11 { background: linear-gradient(135deg,#10b981,#059669); }
+    .version-badge.v14 { background: linear-gradient(135deg,#3b82f6,#6366f1); }
+    .version-title { font-size: 22px; font-weight: 800; }
+
+    /* Story context banner */
+    .story-banner {
+      margin: 20px 32px 0;
+      padding: 14px 18px;
+      background: rgba(99,102,241,.1);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      font-size: 14px; color: var(--text-secondary);
+    }
+    .story-banner strong { color: var(--accent); }
+
+    /* UML diagram box */
+    .uml-box {
+      margin: 20px 32px;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .uml-title {
+      padding: 8px 16px;
+      background: rgba(99,102,241,.15);
+      font-size: 11px; font-weight: 600; letter-spacing: .1em;
+      color: var(--accent); text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .uml-body {
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px; line-height: 1.6;
+      color: #a5d6ff;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* Feature card */
+    .feature-card {
+      margin: 20px 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .feature-card-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+    }
+    .feature-card-header:hover { background: var(--bg-card-hover); }
+    .feature-icon { font-size: 20px; }
+    .feature-name { font-size: 16px; font-weight: 700; flex: 1; }
+    .feature-tagline { font-size: 12px; color: var(--text-muted); }
+    .feature-arrow { color: var(--text-muted); transition: transform .2s; font-size: 18px; }
+    .feature-card.open .feature-arrow { transform: rotate(90deg); }
+    .feature-body { display: none; padding: 0 20px 20px; }
+    .feature-card.open .feature-body { display: block; }
+
+    /* Before/After comparison */
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+      margin: 14px 0;
+    }
+    @media (max-width: 700px) { .compare-grid { grid-template-columns: 1fr; } }
+    .compare-block { border-radius: 10px; overflow: hidden; }
+    .compare-label {
+      padding: 6px 12px;
+      font-size: 11px; font-weight: 700; letter-spacing: .07em;
+    }
+    .compare-label.before { background: rgba(239,68,68,.2); color: #fca5a5; }
+    .compare-label.after  { background: rgba(16,185,129,.2); color: #6ee7b7; }
+    .compare-block pre { margin: 0; border-radius: 0; }
+
+    /* Callout note */
+    .callout {
+      margin: 14px 0; padding: 12px 16px;
+      border-radius: 8px; font-size: 13.5px;
+    }
+    .callout.tip    { background: rgba(16,185,129,.1); border-left: 3px solid var(--success); }
+    .callout.warn   { background: rgba(245,158,11,.1);  border-left: 3px solid var(--warning); }
+    .callout.danger { background: rgba(239,68,68,.1);   border-left: 3px solid var(--danger);  }
+    .callout.info   { background: rgba(99,102,241,.1);  border-left: 3px solid var(--accent);  }
+
+    /* Method table */
+    .method-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 14px 0; }
+    .method-table th {
+      text-align: left; padding: 8px 12px;
+      background: rgba(99,102,241,.15);
+      font-size: 11px; font-weight: 600; letter-spacing: .07em; color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+    .method-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+    .method-table tr:last-child td { border-bottom: none; }
+    .method-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #93c5fd; }
+    .method-table td:last-child  { color: var(--text-secondary); }
+
+    /* Pipeline flow */
+    .pipeline-flow {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+      margin: 12px 0; padding: 16px; background: var(--bg-code);
+      border-radius: 10px; font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; overflow-x: auto;
+    }
+    .pipe-step {
+      padding: 6px 12px; border-radius: 6px; white-space: nowrap;
+    }
+    .pipe-step.source  { background: rgba(245,158,11,.2);  color: #fcd34d; }
+    .pipe-step.inter   { background: rgba(99,102,241,.2);  color: #a5b4fc; }
+    .pipe-step.term    { background: rgba(16,185,129,.2);  color: #6ee7b7; }
+    .pipe-arrow { color: var(--text-muted); }
+
+    /* Section divider */
+    .section-divider {
+      margin: 32px 32px 0;
+      border: none; border-top: 1px solid var(--border-subtle);
+    }
+
+    /* code block shorthand */
+    .code-block {
+      background: var(--bg-code);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.7;
+      overflow-x: auto; margin: 12px 0;
+    }
+    .code-block .kw  { color: #c792ea; }
+    .code-block .cls { color: #82aaff; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .cmt { color: #546e7a; font-style: italic; }
+    .code-block .ann { color: #ffcb6b; }
+    .code-block .met { color: #82aaff; }
+
+    /* Hero for the page */
+    .refresh-hero {
+      padding: 36px 32px 24px;
+      background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(139,92,246,.08));
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .refresh-hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .refresh-hero p  { color: var(--text-secondary); max-width: 640px; }
+    .refresh-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .refresh-tag {
+      padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    /* Running scenario box */
+    .scenario-box {
+      margin: 24px 32px;
+      padding: 18px 20px;
+      background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(139,92,246,.05));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+    .scenario-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--accent); }
+    .scenario-box p  { font-size: 14px; color: var(--text-secondary); }
+
+    /* Page bottom padding */
+    .page-end { height: 80px; }
+
+    /* SVG diagram container */
+    .uml-svg { display: block; width: 100%; padding: 16px; overflow-x: auto; background: #0d1117; }
+    .uml-svg svg { min-width: 480px; display: block; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
+        <a class="nav-link active" href="java-refresher.html"><i class="fa-solid fa-book-open icon-fw"></i> Java 8–16 Refresher</a>
+        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
+        <a class="nav-link" href="general.html"><i class="fa-solid fa-brain icon-fw"></i> General &amp; Soft Skills<span class="nav-badge">32</span></a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#java8"><i class="fa-solid fa-8 icon-fw"></i> Java 8</a>
+        <a class="nav-link" href="#java11"><i class="fa-solid fa-hashtag icon-fw"></i> Java 11</a>
+        <a class="nav-link" href="#java14"><i class="fa-solid fa-code-branch icon-fw"></i> Java 14–16</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="text-muted">Click headers to expand · dark / light toggle →</p>
+    </div>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────────── -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-book-open"></i> Java 8–16 Refresher</div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input id="searchInput" type="text" placeholder="Search…">
+      </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <!-- Hero -->
+    <div class="refresh-hero">
+      <h1><i class="fa-solid fa-mug-hot"></i> Java 8 → 16 — Visual Refresher</h1>
+      <p>Every feature explained through one running example: an <strong>e-commerce Order system</strong>. Follow the same domain from lambdas to records and see how the language evolved to reduce boilerplate and increase clarity.</p>
+      <div class="refresh-tags">
+        <span class="refresh-tag">Lambdas &amp; Streams</span>
+        <span class="refresh-tag">Optional</span>
+        <span class="refresh-tag">Default Methods</span>
+        <span class="refresh-tag">Date/Time API</span>
+        <span class="refresh-tag">var in lambdas</span>
+        <span class="refresh-tag">String methods</span>
+        <span class="refresh-tag">Records</span>
+        <span class="refresh-tag">Pattern Matching</span>
+        <span class="refresh-tag">Sealed Classes</span>
+      </div>
+    </div>
+
+    <!-- Running scenario -->
+    <div class="scenario-box">
+      <h3>🛒 Running Example — OrderService</h3>
+      <p>Throughout this page we build a simplified <strong>OrderService</strong> for an online shop. Each Java version adds new tools that let us write the same logic cleaner and safer. The domain: <code>Customer</code>, <code>Order</code>, <code>OrderItem</code>, <code>Product</code>, and <code>PaymentStatus</code>.</p>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- JAVA 8                                                 -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div id="java8"></div>
+    <div class="version-header">
+      <span class="version-badge v8">Java 8 — LTS</span>
+      <span class="version-title">Functional Programming enters Java</span>
+    </div>
+    <div class="story-banner">
+      <strong>The problem before Java 8:</strong> To filter a list of orders by status you needed a <code>for</code> loop, a temporary list, and an anonymous <code>Comparator</code> class. Three constructs for one logical idea. Java 8 let you say <em>what</em> you want, not <em>how</em> to iterate.
+    </div>
+
+    <!-- UML: Domain model -->
+    <div class="uml-box">
+      <div class="uml-title">UML — Order Domain Model</div>
+      <div class="uml-svg">
+        <svg viewBox="0 0 820 215" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+          <defs>
+            <marker id="assoc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 L2,5 Z" fill="#475569"/></marker>
+          </defs>
+          <!-- Customer -->
+          <rect x="4" y="42" width="165" height="128" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+          <rect x="4" y="42" width="165" height="32" rx="5" fill="#243252"/>
+          <rect x="4" y="70" width="165" height="4" fill="#243252"/>
+          <text x="86" y="63" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Customer</text>
+          <line x1="4" y1="74" x2="169" y2="74" stroke="#2d3f6b" stroke-width="1"/>
+          <text x="14" y="93" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">id: Long</text>
+          <text x="14" y="111" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">name: String</text>
+          <text x="14" y="129" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">email: String</text>
+          <!-- Order -->
+          <rect x="224" y="4" width="210" height="196" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+          <rect x="224" y="4" width="210" height="32" rx="5" fill="#243252"/>
+          <rect x="224" y="32" width="210" height="4" fill="#243252"/>
+          <text x="329" y="25" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Order</text>
+          <line x1="224" y1="36" x2="434" y2="36" stroke="#2d3f6b" stroke-width="1"/>
+          <text x="234" y="55" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">id: Long</text>
+          <text x="234" y="73" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">customer: Customer</text>
+          <text x="234" y="91" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">items: List&lt;OrderItem&gt;</text>
+          <text x="234" y="109" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">status: OrderStatus</text>
+          <text x="234" y="127" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">createdAt: LocalDate</text>
+          <line x1="224" y1="138" x2="434" y2="138" stroke="#2d3f6b" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="234" y="157" fill="#a5b4fc" font-size="11.5" font-family="JetBrains Mono,monospace">totalAmount(): BigDecimal</text>
+          <!-- OrderItem -->
+          <rect x="494" y="42" width="180" height="128" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+          <rect x="494" y="42" width="180" height="32" rx="5" fill="#243252"/>
+          <rect x="494" y="70" width="180" height="4" fill="#243252"/>
+          <text x="584" y="63" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">OrderItem</text>
+          <line x1="494" y1="74" x2="674" y2="74" stroke="#2d3f6b" stroke-width="1"/>
+          <text x="504" y="93" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">product: Product</text>
+          <text x="504" y="111" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">quantity: int</text>
+          <text x="504" y="129" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">unitPrice: BigDecimal</text>
+          <!-- Product -->
+          <rect x="694" y="42" width="122" height="108" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+          <rect x="694" y="42" width="122" height="32" rx="5" fill="#243252"/>
+          <rect x="694" y="70" width="122" height="4" fill="#243252"/>
+          <text x="755" y="63" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Product</text>
+          <line x1="694" y1="74" x2="816" y2="74" stroke="#2d3f6b" stroke-width="1"/>
+          <text x="704" y="93" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">id: Long</text>
+          <text x="704" y="111" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">name: String</text>
+          <text x="704" y="129" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">category: String</text>
+          <!-- Customer → Order -->
+          <line x1="169" y1="106" x2="224" y2="106" stroke="#475569" stroke-width="1.5" marker-end="url(#assoc)"/>
+          <text x="172" y="100" fill="#f59e0b" font-size="10.5">1</text>
+          <text x="202" y="100" fill="#f59e0b" font-size="10.5">1..*</text>
+          <!-- Order → OrderItem -->
+          <line x1="434" y1="106" x2="494" y2="106" stroke="#475569" stroke-width="1.5" marker-end="url(#assoc)"/>
+          <text x="437" y="100" fill="#f59e0b" font-size="10.5">1</text>
+          <text x="474" y="100" fill="#f59e0b" font-size="10.5">1..*</text>
+          <!-- OrderItem → Product -->
+          <line x1="674" y1="96" x2="694" y2="92" stroke="#475569" stroke-width="1.5" marker-end="url(#assoc)"/>
+          <text x="677" y="89" fill="#f59e0b" font-size="10.5">*</text>
+          <text x="685" y="83" fill="#f59e0b" font-size="10.5">1</text>
+          <!-- Status bar -->
+          <rect x="4" y="192" width="812" height="22" rx="4" fill="#0a1525" stroke="#2d3f6b" stroke-width="1"/>
+          <text x="410" y="207" text-anchor="middle" fill="#64748b" font-size="11">OrderStatus (enum): PENDING · PAID · SHIPPED · CANCELLED</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Feature: Lambdas -->
+    <div class="feature-card open" id="f-lambda">
+      <div class="feature-card-header" onclick="toggleCard('f-lambda')">
+        <span class="feature-icon"><i class="fa-solid fa-code"></i></span>
+        <div>
+          <div class="feature-name">Lambdas &amp; Functional Interfaces</div>
+          <div class="feature-tagline">Short-form implementations of single-method interfaces</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">UML — java.util.function key interfaces</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <!-- Predicate<T> -->
+              <rect x="4" y="4" width="336" height="122" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <rect x="4" y="4" width="336" height="44" rx="5" fill="#1e1040"/>
+              <rect x="4" y="44" width="336" height="4" fill="#1e1040"/>
+              <text x="172" y="23" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«interface»</text>
+              <text x="172" y="41" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">Predicate&lt;T&gt;</text>
+              <line x1="4" y1="48" x2="340" y2="48" stroke="#2d3f6b"/>
+              <text x="14" y="68" fill="#64748b" font-size="11">abstract:</text>
+              <text x="14" y="86" fill="#a5b4fc" font-size="12.5" font-family="JetBrains Mono,monospace">boolean test(T t)</text>
+              <line x1="4" y1="96" x2="340" y2="96" stroke="#2d3f6b" stroke-dasharray="4,3"/>
+              <text x="14" y="114" fill="#64748b" font-size="11">use for: filtering → returns true / false</text>
+              <!-- Function<T,R> -->
+              <rect x="360" y="4" width="336" height="140" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <rect x="360" y="4" width="336" height="44" rx="5" fill="#1e1040"/>
+              <rect x="360" y="44" width="336" height="4" fill="#1e1040"/>
+              <text x="528" y="23" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«interface»</text>
+              <text x="528" y="41" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">Function&lt;T, R&gt;</text>
+              <line x1="360" y1="48" x2="696" y2="48" stroke="#2d3f6b"/>
+              <text x="370" y="68" fill="#64748b" font-size="11">abstract:</text>
+              <text x="370" y="86" fill="#a5b4fc" font-size="12.5" font-family="JetBrains Mono,monospace">R apply(T t)</text>
+              <line x1="360" y1="96" x2="696" y2="96" stroke="#2d3f6b" stroke-dasharray="4,3"/>
+              <text x="370" y="114" fill="#64748b" font-size="11">default: andThen(fn), compose(fn)</text>
+              <text x="370" y="130" fill="#64748b" font-size="11">use for: transforming T → R</text>
+              <!-- Consumer<T> -->
+              <rect x="4" y="148" width="336" height="140" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <rect x="4" y="148" width="336" height="44" rx="5" fill="#1e1040"/>
+              <rect x="4" y="188" width="336" height="4" fill="#1e1040"/>
+              <text x="172" y="167" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«interface»</text>
+              <text x="172" y="185" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">Consumer&lt;T&gt;</text>
+              <line x1="4" y1="192" x2="340" y2="192" stroke="#2d3f6b"/>
+              <text x="14" y="212" fill="#64748b" font-size="11">abstract:</text>
+              <text x="14" y="230" fill="#a5b4fc" font-size="12.5" font-family="JetBrains Mono,monospace">void accept(T t)</text>
+              <line x1="4" y1="240" x2="340" y2="240" stroke="#2d3f6b" stroke-dasharray="4,3"/>
+              <text x="14" y="258" fill="#64748b" font-size="11">default: andThen(consumer)</text>
+              <text x="14" y="275" fill="#64748b" font-size="11">use for: side effects — print, save, send</text>
+              <!-- Supplier<T> -->
+              <rect x="360" y="164" width="336" height="122" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <rect x="360" y="164" width="336" height="44" rx="5" fill="#1e1040"/>
+              <rect x="360" y="204" width="336" height="4" fill="#1e1040"/>
+              <text x="528" y="183" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«interface»</text>
+              <text x="528" y="201" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">Supplier&lt;T&gt;</text>
+              <line x1="360" y1="208" x2="696" y2="208" stroke="#2d3f6b"/>
+              <text x="370" y="228" fill="#64748b" font-size="11">abstract:</text>
+              <text x="370" y="246" fill="#a5b4fc" font-size="12.5" font-family="JetBrains Mono,monospace">T get()</text>
+              <line x1="360" y1="256" x2="696" y2="256" stroke="#2d3f6b" stroke-dasharray="4,3"/>
+              <text x="370" y="276" fill="#64748b" font-size="11">use for: lazy creation, factories</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="compare-grid">
+          <div class="compare-block">
+            <div class="compare-label before">❌ Before Java 8 — anonymous class</div>
+            <pre class="code-block">// Filter PAID orders
+List&lt;Order&gt; paid = new ArrayList&lt;&gt;();
+for (Order o : orders) {
+  if (o.getStatus() == PAID) {
+    paid.add(o);
+  }
+}
+// Sort by date — anonymous class
+Collections.sort(paid, new Comparator&lt;Order&gt;() {
+  @Override
+  public int compare(Order a, Order b) {
+    return a.getCreatedAt()
+            .compareTo(b.getCreatedAt());
+  }
+});</pre>
+          </div>
+          <div class="compare-block">
+            <div class="compare-label after">✅ Java 8 — lambda</div>
+            <pre class="code-block">// Filter PAID orders
+List&lt;Order&gt; paid = orders.stream()
+  .filter(o -&gt; o.getStatus() == PAID)
+  .sorted(Comparator.comparing(
+            Order::getCreatedAt))
+  .collect(Collectors.toList());
+
+// Same logic — 5 lines vs 12 lines
+// Reads as: "keep orders where status
+// is PAID, then sort by creation date"</pre>
+          </div>
+        </div>
+
+        <p style="margin:12px 0 6px;font-size:14px;font-weight:600;">4 lambda syntax forms:</p>
+        <pre class="code-block"><span class="cmt">// 1. No params</span>
+Runnable r = () -&gt; System.out.println("done");
+
+<span class="cmt">// 2. One param (parens optional)</span>
+Predicate&lt;Order&gt; isPaid = o -&gt; o.getStatus() == PAID;
+
+<span class="cmt">// 3. Multiple params</span>
+Comparator&lt;Order&gt; byDate = (a, b) -&gt; a.getCreatedAt().compareTo(b.getCreatedAt());
+
+<span class="cmt">// 4. Method reference — shorthand when lambda just calls one method</span>
+Function&lt;Order, OrderStatus&gt; getStatus = Order::getStatus;
+Consumer&lt;Order&gt; printer = System.out::println;</pre>
+
+        <div class="callout tip">
+          <strong>Effectively final rule:</strong> a lambda can read a local variable only if that variable is never reassigned. The compiler enforces this so lambdas are safe to pass across threads without synchronization.
+          <pre class="code-block" class="mt-8">OrderStatus filter = PAID;   // effectively final — OK
+// filter = SHIPPED;          // uncomment → compile error inside lambda below
+Predicate&lt;Order&gt; p = o -&gt; o.getStatus() == filter;</pre>
+        </div>
+
+        <p style="margin:12px 0 6px;font-size:14px;font-weight:600;">Using the 4 core interfaces in OrderService:</p>
+        <pre class="code-block"><span class="kw">public class</span> <span class="cls">OrderService</span> {
+
+  <span class="cmt">// Predicate — "does this order qualify?"</span>
+  <span class="kw">private</span> Predicate&lt;Order&gt; isHighValue =
+      o -&gt; o.totalAmount().compareTo(BigDecimal.valueOf(500)) &gt; 0;
+
+  <span class="cmt">// Function — "transform order to summary string"</span>
+  <span class="kw">private</span> Function&lt;Order, String&gt; toSummary =
+      o -&gt; o.getId() + " — " + o.getStatus() + " — €" + o.totalAmount();
+
+  <span class="cmt">// Consumer — "send email for this order"</span>
+  <span class="kw">private</span> Consumer&lt;Order&gt; sendConfirmation =
+      o -&gt; emailService.send(o.getCustomer().getEmail(), toSummary.apply(o));
+
+  <span class="cmt">// Supplier — "build default order if none found"</span>
+  <span class="kw">private</span> Supplier&lt;Order&gt; emptyOrder = Order::new;
+
+  <span class="kw">public void</span> processHighValueOrders(List&lt;Order&gt; orders) {
+    orders.stream()
+        .filter(isHighValue)            <span class="cmt">// Predicate</span>
+        .peek(sendConfirmation)         <span class="cmt">// Consumer — side effect in pipeline</span>
+        .map(toSummary)                 <span class="cmt">// Function</span>
+        .forEach(System.out::println);  <span class="cmt">// method reference Consumer</span>
+  }
+}</pre>
+      </div>
+    </div>
+
+    <!-- Feature: Streams -->
+    <div class="feature-card open" id="f-streams">
+      <div class="feature-card-header" onclick="toggleCard('f-streams')">
+        <span class="feature-icon"><i class="fa-solid fa-water"></i></span>
+        <div>
+          <div class="feature-name">Streams — Lazy Pipelines</div>
+          <div class="feature-tagline">Process collections without mutation, evaluated only on terminal call</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">UML — Stream Pipeline anatomy</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 700 235" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs>
+                <marker id="parr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker>
+              </defs>
+              <!-- SOURCE -->
+              <rect x="4" y="4" width="148" height="226" rx="6" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+              <rect x="4" y="4" width="148" height="40" rx="6" fill="#2a2008"/>
+              <text x="78" y="22" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="700" letter-spacing="1">SOURCE</text>
+              <text x="78" y="38" text-anchor="middle" fill="#fbbf24" font-size="10">creates the stream</text>
+              <line x1="4" y1="44" x2="152" y2="44" stroke="#3a3010" stroke-width="1"/>
+              <text x="14" y="62" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">list.stream()</text>
+              <text x="14" y="80" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">List.of().stream()</text>
+              <text x="14" y="98" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">Stream.of(a,b,c)</text>
+              <text x="14" y="116" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">Stream.generate()</text>
+              <text x="14" y="134" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">Stream.iterate()</text>
+              <text x="14" y="152" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">IntStream.range()</text>
+              <line x1="4" y1="163" x2="152" y2="163" stroke="#3a3010" stroke-dasharray="4,3"/>
+              <text x="14" y="181" fill="#f59e0b" font-size="11">Nothing triggers.</text>
+              <text x="14" y="197" fill="#f59e0b" font-size="11">Just describes the</text>
+              <text x="14" y="213" fill="#f59e0b" font-size="11">pipeline.</text>
+              <!-- Arrow 1 -->
+              <line x1="152" y1="117" x2="178" y2="117" stroke="#475569" stroke-width="2" marker-end="url(#parr)"/>
+              <!-- INTERMEDIATE -->
+              <rect x="178" y="4" width="270" height="226" rx="6" fill="#100d28" stroke="#6366f1" stroke-width="1.5"/>
+              <rect x="178" y="4" width="270" height="40" rx="6" fill="#1a1040"/>
+              <text x="313" y="22" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="700" letter-spacing="1">INTERMEDIATE OPS</text>
+              <text x="313" y="38" text-anchor="middle" fill="#818cf8" font-size="10">lazy — nothing executes yet</text>
+              <line x1="178" y1="44" x2="448" y2="44" stroke="#2a2060" stroke-width="1"/>
+              <text x="188" y="62" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.filter(Predicate)</text>
+              <text x="188" y="80" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.map(Function)</text>
+              <text x="188" y="98" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.flatMap(Function)</text>
+              <text x="188" y="116" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.sorted(Comparator)</text>
+              <text x="188" y="134" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.distinct()</text>
+              <text x="188" y="152" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.limit(n) / .skip(n)</text>
+              <line x1="178" y1="163" x2="448" y2="163" stroke="#2a2060" stroke-dasharray="4,3"/>
+              <text x="188" y="181" fill="#6366f1" font-size="11">Each call returns a new Stream.</text>
+              <text x="188" y="197" fill="#6366f1" font-size="11">Chainable. Still no data</text>
+              <text x="188" y="213" fill="#6366f1" font-size="11">moves through the pipeline.</text>
+              <!-- Arrow 2 -->
+              <line x1="448" y1="117" x2="474" y2="117" stroke="#475569" stroke-width="2" marker-end="url(#parr)"/>
+              <!-- TERMINAL -->
+              <rect x="474" y="4" width="222" height="226" rx="6" fill="#08190f" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="474" y="4" width="222" height="40" rx="6" fill="#0d2618"/>
+              <text x="585" y="22" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700" letter-spacing="1">TERMINAL OP</text>
+              <text x="585" y="38" text-anchor="middle" fill="#34d399" font-size="10">triggers execution</text>
+              <line x1="474" y1="44" x2="696" y2="44" stroke="#103020" stroke-width="1"/>
+              <text x="484" y="62" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.collect(Collector)</text>
+              <text x="484" y="80" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.forEach(Consumer)</text>
+              <text x="484" y="98" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.reduce(BinaryOp)</text>
+              <text x="484" y="116" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.count()</text>
+              <text x="484" y="134" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.findFirst()</text>
+              <text x="484" y="152" fill="#e2e8f0" font-size="11.5" font-family="JetBrains Mono,monospace">.anyMatch()</text>
+              <line x1="474" y1="163" x2="696" y2="163" stroke="#103020" stroke-dasharray="4,3"/>
+              <text x="484" y="181" fill="#10b981" font-size="11">Consumes the stream.</text>
+              <text x="484" y="197" fill="#10b981" font-size="11">Stream closed after —</text>
+              <text x="484" y="213" fill="#10b981" font-size="11">cannot be reused.</text>
+            </svg>
+          </div>
+        </div>
+
+        <p style="margin:14px 0 6px;font-size:14px;color:var(--text-secondary);">Stream pipeline visualised for our order list:</p>
+        <div class="pipeline-flow">
+          <span class="pipe-step source">orders.stream()</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step inter">.filter(isPaid)</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step inter">.map(Order::getItems)</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step inter">.flatMap(List::stream)</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step inter">.map(OrderItem::getProduct)</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step inter">.distinct()</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-step term">.collect(toList())</span>
+        </div>
+
+        <pre class="code-block"><span class="cmt">// All products bought in PAID orders (no duplicates)</span>
+List&lt;Product&gt; boughtProducts = orders.stream()
+    .filter(o -&gt; o.getStatus() == PAID)
+    .map(Order::getItems)               <span class="cmt">// Stream&lt;List&lt;OrderItem&gt;&gt;</span>
+    .flatMap(List::stream)              <span class="cmt">// Stream&lt;OrderItem&gt; — flatten</span>
+    .map(OrderItem::getProduct)         <span class="cmt">// Stream&lt;Product&gt;</span>
+    .distinct()                         <span class="cmt">// by equals()/hashCode()</span>
+    .collect(Collectors.toList());</pre>
+
+        <div class="callout info">
+          <strong>flatMap vs map:</strong> <code>map</code> turns each element into one thing. <code>flatMap</code> turns each element into a stream and merges them all. Use flatMap whenever you have "a list inside a list" you need to flatten.
+        </div>
+
+        <p style="margin:14px 0 6px;font-size:14px;font-weight:600;">5 Collectors you must know:</p>
+        <pre class="code-block"><span class="cmt">// 1. groupingBy — Map&lt;key, List&lt;Order&gt;&gt;</span>
+Map&lt;OrderStatus, List&lt;Order&gt;&gt; byStatus =
+    orders.stream().collect(Collectors.groupingBy(Order::getStatus));
+
+<span class="cmt">// 2. counting per group — Map&lt;key, Long&gt;</span>
+Map&lt;String, Long&gt; countByCategory = orders.stream()
+    .flatMap(o -&gt; o.getItems().stream())
+    .collect(Collectors.groupingBy(
+        item -&gt; item.getProduct().getCategory(),
+        Collectors.counting()));
+
+<span class="cmt">// 3. partitioningBy — Map&lt;boolean, List&gt;</span>
+Map&lt;Boolean, List&lt;Order&gt;&gt; parts =
+    orders.stream().collect(
+        Collectors.partitioningBy(o -&gt; o.totalAmount().compareTo(LIMIT) &gt; 0));
+List&lt;Order&gt; highValue = parts.get(true);
+List&lt;Order&gt; normal    = parts.get(false);
+
+<span class="cmt">// 4. joining — build CSV of order IDs</span>
+String csv = orders.stream()
+    .map(o -&gt; o.getId().toString())
+    .collect(Collectors.joining(", ", "[", "]"));
+<span class="cmt">// "[1001, 1002, 1003]"</span>
+
+<span class="cmt">// 5. summingDouble — total revenue</span>
+double revenue = orders.stream()
+    .filter(o -&gt; o.getStatus() == PAID)
+    .collect(Collectors.summingDouble(
+        o -&gt; o.totalAmount().doubleValue()));</pre>
+      </div>
+    </div>
+
+    <!-- Feature: Optional -->
+    <div class="feature-card open" id="f-optional">
+      <div class="feature-card-header" onclick="toggleCard('f-optional')">
+        <span class="feature-icon"><i class="fa-solid fa-box-open"></i></span>
+        <div>
+          <div class="feature-name">Optional — Explicit Null Safety</div>
+          <div class="feature-tagline">Forces callers to handle the "nothing found" case at compile time</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">Flowchart — Optional decision tree</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 680 298" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs>
+                <marker id="oarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker>
+              </defs>
+              <!-- Start pill -->
+              <rect x="215" y="8" width="250" height="36" rx="18" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="340" y="31" text-anchor="middle" fill="#e2e8f0" font-size="12" font-family="JetBrains Mono,monospace">findOrderById(id)</text>
+              <line x1="340" y1="44" x2="340" y2="68" stroke="#475569" stroke-width="1.5" marker-end="url(#oarr)"/>
+              <!-- Optional box -->
+              <rect x="200" y="68" width="280" height="38" rx="5" fill="#243252" stroke="#6366f1" stroke-width="2"/>
+              <text x="340" y="92" text-anchor="middle" fill="#a5b4fc" font-size="13.5" font-weight="600" font-family="JetBrains Mono,monospace">Optional&lt;Order&gt;</text>
+              <line x1="340" y1="106" x2="340" y2="132" stroke="#475569" stroke-width="1.5" marker-end="url(#oarr)"/>
+              <!-- Diamond -->
+              <polygon points="340,132 448,160 340,188 232,160" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <text x="340" y="156" text-anchor="middle" fill="#c4b5fd" font-size="11.5">value present?</text>
+              <text x="340" y="172" text-anchor="middle" fill="#c4b5fd" font-size="10">isPresent()</text>
+              <!-- YES branch -->
+              <line x1="232" y1="160" x2="112" y2="160" stroke="#10b981" stroke-width="1.5" marker-end="url(#oarr)"/>
+              <text x="175" y="153" fill="#10b981" font-size="10.5" font-weight="700">YES</text>
+              <!-- YES box -->
+              <rect x="4" y="130" width="108" height="155" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
+              <text x="58" y="150" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">present</text>
+              <line x1="4" y1="156" x2="112" y2="156" stroke="#103020"/>
+              <text x="13" y="174" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.map(fn)</text>
+              <text x="13" y="191" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.filter(p)</text>
+              <text x="13" y="208" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.ifPresent(fn)</text>
+              <text x="13" y="225" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.get()</text>
+              <line x1="4" y1="233" x2="112" y2="233" stroke="#103020" stroke-dasharray="3,3"/>
+              <text x="13" y="250" fill="#ef4444" font-size="10">⚠ .get() throws</text>
+              <text x="13" y="265" fill="#ef4444" font-size="10">if empty!</text>
+              <text x="13" y="280" fill="#64748b" font-size="10">use orElseThrow()</text>
+              <!-- NO branch -->
+              <line x1="448" y1="160" x2="564" y2="160" stroke="#ef4444" stroke-width="1.5" marker-end="url(#oarr)"/>
+              <text x="494" y="153" fill="#ef4444" font-size="10.5" font-weight="700">NO (empty)</text>
+              <!-- NO box -->
+              <rect x="564" y="100" width="112" height="192" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+              <text x="620" y="118" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">empty</text>
+              <line x1="564" y1="124" x2="676" y2="124" stroke="#300808"/>
+              <text x="573" y="142" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElse(v)</text>
+              <text x="573" y="160" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElseGet()</text>
+              <text x="573" y="178" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElseThrow()</text>
+              <text x="573" y="196" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.ifPresentOr</text>
+              <text x="573" y="213" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Else(fn, act)</text>
+              <line x1="564" y1="222" x2="676" y2="222" stroke="#300808" stroke-dasharray="3,3"/>
+              <text x="573" y="240" fill="#10b981" font-size="10">Never throws</text>
+              <text x="573" y="256" fill="#10b981" font-size="10">NPE or NSEE.</text>
+              <text x="573" y="272" fill="#10b981" font-size="10">Always safe.</text>
+              <text x="573" y="288" fill="#10b981" font-size="10">✓ Prefer these.</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="compare-grid">
+          <div class="compare-block">
+            <div class="compare-label before">❌ Without Optional — NullPointerException waiting</div>
+            <pre class="code-block">Order order = orderRepo.findById(id);
+<span class="cmt">// What if nothing found? NPE below!</span>
+String city = order.getCustomer()
+                   .getAddress()
+                   .getCity();</pre>
+          </div>
+          <div class="compare-block">
+            <div class="compare-label after">✅ With Optional — safe chain</div>
+            <pre class="code-block">String city = orderRepo.findById(id)
+    .map(Order::getCustomer)
+    .map(Customer::getAddress)
+    .map(Address::getCity)
+    .orElse("Unknown");</pre>
+          </div>
+        </div>
+
+        <pre class="code-block"><span class="cmt">// Repository returns Optional — signals "may not exist"</span>
+<span class="kw">public</span> Optional&lt;Order&gt; findById(Long id) {
+    <span class="kw">return</span> orders.stream()
+        .filter(o -&gt; o.getId().equals(id))
+        .findFirst();   <span class="cmt">// terminal that returns Optional&lt;T&gt;</span>
+}
+
+<span class="cmt">// Controller layer — 3 safe patterns</span>
+
+<span class="cmt">// Pattern 1: orElseThrow — most common in REST</span>
+Order order = findById(42L)
+    .orElseThrow(() -&gt; <span class="kw">new</span> OrderNotFoundException(42L));
+
+<span class="cmt">// Pattern 2: orElseGet — lazy default (supplier only called if empty)</span>
+Order order = findById(42L)
+    .orElseGet(() -&gt; createDraftOrder(customerId));
+
+<span class="cmt">// Pattern 3: ifPresentOrElse — side-effect branch (Java 9+)</span>
+findById(42L).ifPresentOrElse(
+    o  -&gt; log.info("Found: {}", o.getId()),
+    () -&gt; log.warn("Order 42 not found")
+);
+
+<span class="cmt">// Filter inside Optional</span>
+Optional&lt;Order&gt; paidOrder = findById(42L)
+    .filter(o -&gt; o.getStatus() == PAID);  <span class="cmt">// empty if status isn't PAID</span></pre>
+
+        <div class="callout danger">
+          <strong>Never call <code>.get()</code> without <code>.isPresent()</code> first.</strong> It throws <code>NoSuchElementException</code> — just as bad as NPE. Use <code>orElseThrow()</code> instead — it lets you control the exception type and message.
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature: Default methods -->
+    <div class="feature-card open" id="f-default">
+      <div class="feature-card-header" onclick="toggleCard('f-default')">
+        <span class="feature-icon"><i class="fa-solid fa-plug"></i></span>
+        <div>
+          <div class="feature-name">Default &amp; Static Interface Methods</div>
+          <div class="feature-tagline">Add behaviour to interfaces without breaking all existing implementations</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">UML — Interface with default methods (diamond problem)</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 700 278" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs>
+                <marker id="iarr" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="8" markerHeight="8" orient="auto"><polygon points="0,0 12,6 0,12" fill="none" stroke="#8b5cf6" stroke-width="1.5"/></marker>
+              </defs>
+              <!-- Discountable -->
+              <rect x="4" y="4" width="316" height="150" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <rect x="4" y="4" width="316" height="44" rx="5" fill="#1e1040"/>
+              <text x="162" y="22" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«interface»</text>
+              <text x="162" y="40" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">Discountable</text>
+              <line x1="4" y1="48" x2="320" y2="48" stroke="#2d2060"/>
+              <text x="14" y="65" fill="#64748b" font-size="10.5">abstract (must implement):</text>
+              <text x="14" y="82" fill="#a5b4fc" font-size="12" font-family="JetBrains Mono,monospace">double discountRate()</text>
+              <line x1="4" y1="92" x2="320" y2="92" stroke="#2d2060" stroke-dasharray="4,3"/>
+              <text x="14" y="108" fill="#64748b" font-size="10.5">default (optional override):</text>
+              <text x="14" y="126" fill="#93c5fd" font-size="12" font-family="JetBrains Mono,monospace">BigDecimal discountedPrice(</text>
+              <text x="14" y="143" fill="#93c5fd" font-size="12" font-family="JetBrains Mono,monospace">  BigDecimal price)</text>
+              <!-- Taxable -->
+              <rect x="380" y="4" width="316" height="130" rx="5" fill="#1a1535" stroke="#ef4444" stroke-width="1.5"/>
+              <rect x="380" y="4" width="316" height="44" rx="5" fill="#280808"/>
+              <text x="538" y="22" text-anchor="middle" fill="#fca5a5" font-size="11" font-style="italic">«interface»</text>
+              <text x="538" y="40" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">Taxable</text>
+              <line x1="380" y1="48" x2="696" y2="48" stroke="#380808"/>
+              <text x="390" y="65" fill="#64748b" font-size="10.5">default (SAME method name!):</text>
+              <text x="390" y="82" fill="#fca5a5" font-size="12" font-family="JetBrains Mono,monospace">BigDecimal discountedPrice(</text>
+              <text x="390" y="99" fill="#fca5a5" font-size="12" font-family="JetBrains Mono,monospace">  BigDecimal price)</text>
+              <line x1="380" y1="109" x2="696" y2="109" stroke="#380808" stroke-dasharray="4,3"/>
+              <text x="390" y="127" fill="#ef4444" font-size="11">⚠ Conflict — same signature as Discountable</text>
+              <!-- DigitalProduct -->
+              <rect x="220" y="200" width="260" height="74" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <rect x="220" y="200" width="260" height="30" rx="5" fill="#243252"/>
+              <text x="350" y="220" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">DigitalProduct</text>
+              <line x1="220" y1="230" x2="480" y2="230" stroke="#2d3f6b"/>
+              <text x="230" y="248" fill="#93c5fd" font-size="12" font-family="JetBrains Mono,monospace">double discountRate()  // required</text>
+              <text x="230" y="266" fill="#a5b4fc" font-size="11.5" font-family="JetBrains Mono,monospace">// must override discountedPrice()</text>
+              <!-- Dashed implements arrows -->
+              <line x1="310" y1="200" x2="220" y2="154" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#iarr)"/>
+              <line x1="390" y1="200" x2="480" y2="134" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#iarr)"/>
+              <!-- Resolution note -->
+              <rect x="4" y="256" width="692" height="20" rx="3" fill="#0a1525" stroke="#2d3f6b"/>
+              <text x="350" y="271" text-anchor="middle" fill="#f59e0b" font-size="11">Resolution: Discountable.super.discountedPrice(price) — explicitly pick which default to use</text>
+            </svg>
+          </div>
+        </div>
+
+        <pre class="code-block"><span class="kw">interface</span> <span class="cls">Discountable</span> {
+    <span class="kw">double</span> discountRate();   <span class="cmt">// abstract — implementors MUST provide this</span>
+
+    <span class="kw">default</span> BigDecimal discountedPrice(BigDecimal price) {
+        <span class="cmt">// Default — uses discountRate() which subtype provides</span>
+        <span class="kw">return</span> price.multiply(BigDecimal.valueOf(1 - discountRate()));
+    }
+
+    <span class="kw">static</span> Discountable noDiscount() {   <span class="cmt">// factory on the interface</span>
+        <span class="kw">return</span> () -&gt; 0.0;
+    }
+}
+
+<span class="kw">interface</span> <span class="cls">Taxable</span> {
+    <span class="kw">default</span> BigDecimal discountedPrice(BigDecimal price) {  <span class="cmt">// SAME method name!</span>
+        <span class="kw">return</span> price;
+    }
+}
+
+<span class="cmt">// Diamond problem: both interfaces have discountedPrice()</span>
+<span class="kw">class</span> <span class="cls">DigitalProduct</span> <span class="kw">implements</span> Discountable, Taxable {
+    <span class="kw">public double</span> discountRate() { <span class="kw">return</span> 0.1; }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> BigDecimal discountedPrice(BigDecimal price) {
+        <span class="kw">return</span> Discountable.<span class="kw">super</span>.discountedPrice(price);  <span class="cmt">// pick one explicitly</span>
+    }
+}
+
+<span class="cmt">// Usage</span>
+Discountable d = Discountable.noDiscount();  <span class="cmt">// static factory</span>
+d.discountedPrice(BigDecimal.valueOf(100));   <span class="cmt">// 100.0 (0% off)</span></pre>
+
+        <div class="callout tip">
+          <strong>Real-world use:</strong> Java's own <code>Comparator</code> interface uses default methods extensively — <code>.thenComparing()</code>, <code>.reversed()</code> are defaults. You chain them without subclassing: <code>Comparator.comparing(Order::getCreatedAt).reversed().thenComparing(Order::getId)</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature: Date/Time -->
+    <div class="feature-card open" id="f-datetime">
+      <div class="feature-card-header" onclick="toggleCard('f-datetime')">
+        <span class="feature-icon"><i class="fa-solid fa-calendar-days"></i></span>
+        <div>
+          <div class="feature-name">Date/Time API — <code>java.time</code></div>
+          <div class="feature-tagline">Immutable, thread-safe replacement for java.util.Date</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">UML — java.time class hierarchy (which to use when)</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 800 288" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <!-- Header -->
+              <text x="400" y="18" text-anchor="middle" fill="#64748b" font-size="11.5" font-weight="600">java.time — all immutable &amp; thread-safe</text>
+              <line x1="10" y1="26" x2="790" y2="26" stroke="#2d3f6b"/>
+              <!-- Connector spine -->
+              <line x1="400" y1="26" x2="400" y2="38" stroke="#334155"/>
+              <line x1="68" y1="38" x2="732" y2="38" stroke="#334155"/>
+              <line x1="68" y1="38" x2="68" y2="50" stroke="#334155"/>
+              <line x1="210" y1="38" x2="210" y2="50" stroke="#334155"/>
+              <line x1="370" y1="38" x2="370" y2="50" stroke="#334155"/>
+              <line x1="546" y1="38" x2="546" y2="50" stroke="#334155"/>
+              <line x1="706" y1="38" x2="706" y2="50" stroke="#334155"/>
+              <!-- LocalDate -->
+              <rect x="4" y="50" width="128" height="152" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <rect x="4" y="50" width="128" height="30" rx="5" fill="#243252"/>
+              <text x="68" y="70" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">LocalDate</text>
+              <line x1="4" y1="80" x2="132" y2="80" stroke="#2d3f6b"/>
+              <text x="13" y="97" fill="#64748b" font-size="10.5">Date only</text>
+              <text x="13" y="113" fill="#64748b" font-size="10.5">No timezone</text>
+              <line x1="4" y1="122" x2="132" y2="122" stroke="#2d3f6b" stroke-dasharray="3,3"/>
+              <text x="13" y="138" fill="#93c5fd" font-size="10" font-family="JetBrains Mono,monospace">2025-06-21</text>
+              <line x1="4" y1="148" x2="132" y2="148" stroke="#2d3f6b" stroke-dasharray="3,3"/>
+              <text x="13" y="164" fill="#f59e0b" font-size="10">Birthdays</text>
+              <text x="13" y="179" fill="#f59e0b" font-size="10">Business dates</text>
+              <text x="13" y="194" fill="#f59e0b" font-size="10">Orders, invoices</text>
+              <!-- LocalTime -->
+              <rect x="146" y="50" width="128" height="152" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <rect x="146" y="50" width="128" height="30" rx="5" fill="#243252"/>
+              <text x="210" y="70" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">LocalTime</text>
+              <line x1="146" y1="80" x2="274" y2="80" stroke="#2d3f6b"/>
+              <text x="156" y="97" fill="#64748b" font-size="10.5">Time only</text>
+              <text x="156" y="113" fill="#64748b" font-size="10.5">No timezone</text>
+              <line x1="146" y1="122" x2="274" y2="122" stroke="#2d3f6b" stroke-dasharray="3,3"/>
+              <text x="156" y="138" fill="#93c5fd" font-size="10" font-family="JetBrains Mono,monospace">14:30:00</text>
+              <line x1="146" y1="148" x2="274" y2="148" stroke="#2d3f6b" stroke-dasharray="3,3"/>
+              <text x="156" y="164" fill="#f59e0b" font-size="10">Opening hours</text>
+              <text x="156" y="179" fill="#f59e0b" font-size="10">Cron schedules</text>
+              <text x="156" y="194" fill="#f59e0b" font-size="10">Time-of-day rules</text>
+              <!-- LocalDateTime -->
+              <rect x="288" y="50" width="164" height="152" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <rect x="288" y="50" width="164" height="30" rx="5" fill="#243252"/>
+              <text x="370" y="70" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">LocalDateTime</text>
+              <line x1="288" y1="80" x2="452" y2="80" stroke="#2d3f6b"/>
+              <text x="298" y="97" fill="#64748b" font-size="10.5">Date + Time</text>
+              <text x="298" y="113" fill="#64748b" font-size="10.5">No timezone</text>
+              <line x1="288" y1="122" x2="452" y2="122" stroke="#2d3f6b" stroke-dasharray="3,3"/>
+              <text x="298" y="138" fill="#93c5fd" font-size="10" font-family="JetBrains Mono,monospace">2025-06-21T14:30</text>
+              <line x1="288" y1="148" x2="452" y2="148" stroke="#2d3f6b" stroke-dasharray="3,3"/>
+              <text x="298" y="164" fill="#f59e0b" font-size="10">Calendar events</text>
+              <text x="298" y="179" fill="#f59e0b" font-size="10">DB timestamps</text>
+              <text x="298" y="194" fill="#f59e0b" font-size="10">Without TZ context</text>
+              <!-- ZonedDateTime -->
+              <rect x="466" y="50" width="164" height="152" rx="5" fill="#1e2d45" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="466" y="50" width="164" height="30" rx="5" fill="#0d2618"/>
+              <text x="548" y="70" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">ZonedDateTime</text>
+              <line x1="466" y1="80" x2="630" y2="80" stroke="#103020"/>
+              <text x="476" y="97" fill="#64748b" font-size="10.5">Date+Time+Timezone</text>
+              <text x="476" y="113" fill="#10b981" font-size="10.5">Full timestamp</text>
+              <line x1="466" y1="122" x2="630" y2="122" stroke="#103020" stroke-dasharray="3,3"/>
+              <text x="476" y="138" fill="#93c5fd" font-size="10" font-family="JetBrains Mono,monospace">T14:30+02:00[Vienna]</text>
+              <line x1="466" y1="148" x2="630" y2="148" stroke="#103020" stroke-dasharray="3,3"/>
+              <text x="476" y="164" fill="#f59e0b" font-size="10">Cross-TZ scheduling</text>
+              <text x="476" y="179" fill="#f59e0b" font-size="10">User-facing delivery</text>
+              <text x="476" y="194" fill="#f59e0b" font-size="10">API responses</text>
+              <!-- Instant -->
+              <rect x="644" y="50" width="152" height="152" rx="5" fill="#1e2d45" stroke="#f59e0b" stroke-width="1.5"/>
+              <rect x="644" y="50" width="152" height="30" rx="5" fill="#2a1e08"/>
+              <text x="720" y="70" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">Instant</text>
+              <line x1="644" y1="80" x2="796" y2="80" stroke="#3a2808"/>
+              <text x="654" y="97" fill="#f59e0b" font-size="10.5">Machine time</text>
+              <text x="654" y="113" fill="#f59e0b" font-size="10.5">Epoch millis</text>
+              <line x1="644" y1="122" x2="796" y2="122" stroke="#3a2808" stroke-dasharray="3,3"/>
+              <text x="654" y="138" fill="#93c5fd" font-size="10" font-family="JetBrains Mono,monospace">1750499400000</text>
+              <line x1="644" y1="148" x2="796" y2="148" stroke="#3a2808" stroke-dasharray="3,3"/>
+              <text x="654" y="164" fill="#f59e0b" font-size="10">DB storage (UTC)</text>
+              <text x="654" y="179" fill="#f59e0b" font-size="10">Audit logs</text>
+              <text x="654" y="194" fill="#f59e0b" font-size="10">Comparing times</text>
+              <!-- Duration + Period -->
+              <rect x="4" y="218" width="382" height="66" rx="5" fill="#1e2d45" stroke="#8b5cf6" stroke-width="1.5"/>
+              <text x="14" y="236" fill="#a5b4fc" font-size="12" font-weight="700">Duration</text>
+              <text x="90" y="236" fill="#64748b" font-size="11">— gap measured in hours / minutes / seconds</text>
+              <text x="14" y="254" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Duration.between(start, end).toMinutes()</text>
+              <text x="14" y="276" fill="#f59e0b" font-size="10.5">Example: "2h 30min since order was placed"</text>
+              <rect x="400" y="218" width="396" height="66" rx="5" fill="#1e2d45" stroke="#8b5cf6" stroke-width="1.5"/>
+              <text x="410" y="236" fill="#a5b4fc" font-size="12" font-weight="700">Period</text>
+              <text x="465" y="236" fill="#64748b" font-size="11">— gap measured in years / months / days</text>
+              <text x="410" y="254" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Period.between(orderDate, today).getDays()</text>
+              <text x="410" y="276" fill="#f59e0b" font-size="10.5">Example: "30-day return window"</text>
+            </svg>
+          </div>
+        </div>
+
+        <pre class="code-block"><span class="cmt">// In our Order — we use LocalDate for order date, Instant for timestamps</span>
+<span class="kw">class</span> <span class="cls">Order</span> {
+    <span class="kw">private</span> LocalDate   orderDate;     <span class="cmt">// "2025-06-20" — business date</span>
+    <span class="kw">private</span> Instant     createdAt;     <span class="cmt">// epoch millis — for audit logs</span>
+    <span class="kw">private</span> ZonedDateTime deliverySlot; <span class="cmt">// timezone-aware — user facing</span>
+}
+
+<span class="cmt">// LocalDate — date arithmetic</span>
+LocalDate today        = LocalDate.now();
+LocalDate orderDate    = LocalDate.of(2025, Month.JUNE, 20);
+LocalDate deliveryDate = orderDate.plusDays(3);           <span class="cmt">// 2025-06-23</span>
+long daysUntilDelivery = ChronoUnit.DAYS.between(today, deliveryDate);
+boolean isWeekend      = deliveryDate.getDayOfWeek() == DayOfWeek.SATURDAY
+                      || deliveryDate.getDayOfWeek() == DayOfWeek.SUNDAY;
+
+<span class="cmt">// ZonedDateTime — customer in Vienna, warehouse in UTC</span>
+ZonedDateTime viennaDelivery = ZonedDateTime.of(
+    LocalDateTime.of(2025, 6, 23, 9, 0),
+    ZoneId.of("Europe/Vienna"));
+ZonedDateTime warehouseTime = viennaDelivery
+    .withZoneSameInstant(ZoneId.of("UTC"));  <span class="cmt">// 07:00 UTC</span>
+
+<span class="cmt">// Duration vs Period</span>
+Duration processingTime = Duration.between(order.getCreatedAt(),
+                                           Instant.now());
+processingTime.toMinutes();   <span class="cmt">// how many minutes since order placed</span>
+
+Period returnWindow = Period.ofDays(30);
+LocalDate lastReturnDate = orderDate.plus(returnWindow);  <span class="cmt">// 2025-07-20</span>
+
+<span class="cmt">// Formatting for API response / display</span>
+DateTimeFormatter iso   = DateTimeFormatter.ISO_LOCAL_DATE;         <span class="cmt">// 2025-06-20</span>
+DateTimeFormatter euro  = DateTimeFormatter.ofPattern("dd.MM.yyyy"); <span class="cmt">// 20.06.2025</span>
+String display = orderDate.format(euro);       <span class="cmt">// "20.06.2025"</span>
+LocalDate parsed = LocalDate.parse("20.06.2025", euro);</pre>
+
+        <div class="callout warn">
+          <strong>JPA + java.time:</strong> Hibernate 5+ maps <code>LocalDate</code> → <code>DATE</code>, <code>LocalDateTime</code> → <code>TIMESTAMP</code>, <code>Instant</code> → <code>TIMESTAMP</code> automatically. For timezone-aware storage use <code>Instant</code> (stores in UTC) and convert to user's timezone in the presentation layer.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- JAVA 11                                                -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <hr class="section-divider">
+    <div id="java11"></div>
+    <div class="version-header">
+      <span class="version-badge v11">Java 11 — LTS</span>
+      <span class="version-title">Standard library polish</span>
+    </div>
+    <div class="story-banner">
+      <strong>Context:</strong> Java 11 didn't change the language dramatically — it <em>polished</em> the standard library. Reading a config file went from 5 lines to 1. Checking for blank strings got a proper Unicode-aware method. The new <code>HttpClient</code> replaced Apache HttpClient for simple cases.
+    </div>
+
+    <!-- Feature: var in lambdas -->
+    <div class="feature-card open" id="f-var">
+      <div class="feature-card-header" onclick="toggleCard('f-var')">
+        <span class="feature-icon"><i class="fa-solid fa-tag"></i></span>
+        <div>
+          <div class="feature-name"><code>var</code> in lambda parameters</div>
+          <div class="feature-tagline">Allows annotations on inferred lambda param types</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <div class="callout info">
+          <strong>Why does this exist?</strong> Before Java 11 you couldn't annotate a lambda parameter whose type was inferred. Adding <code>var</code> lets you write <code>(@NonNull var order) -&gt; ...</code> — the type is still inferred, but annotations like <code>@NonNull</code>, <code>@NotNull</code>, or custom validation annotations now work.
+        </div>
+        <pre class="code-block"><span class="cmt">// Java 10 — var in local variables (not lambdas)</span>
+<span class="kw">var</span> orders = orderRepo.findAll();   <span class="cmt">// inferred as List&lt;Order&gt;</span>
+
+<span class="cmt">// Java 11 — var in lambda params (for annotations)</span>
+orders.stream()
+    .filter((<span class="ann">@NonNull</span> <span class="kw">var</span> o) -&gt; o.getStatus() == PAID)
+    .forEach((<span class="ann">@NotNull</span> <span class="kw">var</span> o) -&gt; emailService.notify(o));
+
+<span class="cmt">// ⚠️ Rule: if you use var for one param, ALL params must use var</span>
+BiFunction&lt;Order, Customer, String&gt; label =
+    (<span class="kw">var</span> o, <span class="kw">var</span> c) -&gt; o.getId() + " for " + c.getName(); <span class="cmt">// OK</span>
+<span class="cmt">// (var o, Customer c) → compile error — mixed not allowed</span></pre>
+      </div>
+    </div>
+
+    <!-- Feature: String methods -->
+    <div class="feature-card open" id="f-string11">
+      <div class="feature-card-header" onclick="toggleCard('f-string11')">
+        <span class="feature-icon"><i class="fa-solid fa-file-lines"></i></span>
+        <div>
+          <div class="feature-name">New String Methods</div>
+          <div class="feature-tagline">isBlank · strip · lines · repeat — Unicode-aware and stream-friendly</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <table class="method-table">
+          <tr><th>Method</th><th>What it does</th><th>Example</th></tr>
+          <tr><td>isBlank()</td><td>true if empty or whitespace-only (Unicode-aware)</td><td>"  ".isBlank() → true</td></tr>
+          <tr><td>strip()</td><td>Remove leading/trailing whitespace (Unicode)</td><td>"  hi  ".strip() → "hi"</td></tr>
+          <tr><td>stripLeading()</td><td>Remove only leading whitespace</td><td>"  hi  ".stripLeading() → "hi  "</td></tr>
+          <tr><td>stripTrailing()</td><td>Remove only trailing whitespace</td><td>"  hi  ".stripTrailing() → "  hi"</td></tr>
+          <tr><td>lines()</td><td>Stream&lt;String&gt; of lines split on line terminators</td><td>"a\nb".lines() → ["a","b"]</td></tr>
+          <tr><td>repeat(n)</td><td>Concatenate string n times</td><td>"ab".repeat(3) → "ababab"</td></tr>
+        </table>
+
+        <div class="callout tip">
+          <strong>strip() vs trim():</strong> <code>trim()</code> removes ASCII chars ≤ 32 only. <code>strip()</code> understands Unicode whitespace (e.g., non-breaking space  ). Always use <code>strip()</code> in new code.
+        </div>
+
+        <pre class="code-block"><span class="cmt">// Validating customer note on order submission</span>
+<span class="kw">public void</span> validateNote(String note) {
+    <span class="kw">if</span> (note == <span class="kw">null</span> || note.isBlank()) {
+        <span class="kw">throw new</span> ValidationException("Note cannot be blank");
+    }
+    <span class="kw">if</span> (note.strip().length() &gt; 500) {
+        <span class="kw">throw new</span> ValidationException("Note too long");
+    }
+}
+
+<span class="cmt">// Parsing a multi-line CSV export of order IDs</span>
+String csvBlob = """
+    1001
+    1002
+
+    1003
+    """;
+List&lt;Long&gt; ids = csvBlob.lines()
+    .map(String::strip)
+    .filter(Predicate.not(String::isBlank))  <span class="cmt">// skip blank lines</span>
+    .map(Long::parseLong)
+    .collect(Collectors.toList());
+<span class="cmt">// [1001, 1002, 1003]</span>
+
+<span class="cmt">// Repeating a separator for log readability</span>
+String separator = "─".repeat(60);  <span class="cmt">// ────────────────────────────────────────</span></pre>
+      </div>
+    </div>
+
+    <!-- Feature: Files.readString -->
+    <div class="feature-card open" id="f-files11">
+      <div class="feature-card-header" onclick="toggleCard('f-files11')">
+        <span class="feature-icon"><i class="fa-solid fa-folder-open"></i></span>
+        <div>
+          <div class="feature-name">Files.readString / writeString</div>
+          <div class="feature-tagline">Read/write entire files in one line — replaces BufferedReader boilerplate</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <div class="compare-grid">
+          <div class="compare-block">
+            <div class="compare-label before">❌ Before Java 11 — verbose</div>
+            <pre class="code-block">Path p = Path.of("/etc/config.json");
+StringBuilder sb = new StringBuilder();
+try (BufferedReader r =
+     Files.newBufferedReader(p)) {
+  String line;
+  while ((line = r.readLine()) != null)
+    sb.append(line).append("\n");
+}
+String content = sb.toString();</pre>
+          </div>
+          <div class="compare-block">
+            <div class="compare-label after">✅ Java 11 — one line</div>
+            <pre class="code-block">Path p = Path.of("/etc/config.json");
+
+String content = Files.readString(p);
+
+<span class="cmt">// write back</span>
+Files.writeString(p, updatedContent);
+
+<span class="cmt">// append mode</span>
+Files.writeString(p, "\nline",
+    StandardOpenOption.APPEND);</pre>
+          </div>
+        </div>
+
+        <pre class="code-block"><span class="cmt">// Real use: loading order template from classpath resource</span>
+<span class="kw">public</span> String loadEmailTemplate(String name) <span class="kw">throws</span> IOException {
+    Path templatePath = Path.of(
+        getClass().getResource("/templates/" + name + ".html").toURI());
+    <span class="kw">return</span> Files.readString(templatePath, StandardCharsets.UTF_8);
+}
+
+<span class="cmt">// Writing order export</span>
+<span class="kw">public</span> <span class="kw">void</span> exportOrdersToCsv(List&lt;Order&gt; orders, Path outputPath)
+        <span class="kw">throws</span> IOException {
+    String csv = orders.stream()
+        .map(o -&gt; o.getId() + "," + o.getStatus() + "," + o.totalAmount())
+        .collect(Collectors.joining("\n", "id,status,total\n", ""));
+    Files.writeString(outputPath, csv);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- JAVA 14–16                                             -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <hr class="section-divider">
+    <div id="java14"></div>
+    <div class="version-header">
+      <span class="version-badge v14">Java 14–16</span>
+      <span class="version-title">Data modelling revolution</span>
+    </div>
+    <div class="story-banner">
+      <strong>Context:</strong> These releases introduced the features that most changed <em>how</em> Java code looks. Records eliminated DTO boilerplate. Pattern matching killed redundant casts. Sealed classes gave the compiler full knowledge of your type hierarchy — enabling exhaustive checks that prevent entire bug classes.
+    </div>
+
+    <!-- Feature: Records -->
+    <div class="feature-card open" id="f-records">
+      <div class="feature-card-header" onclick="toggleCard('f-records')">
+        <span class="feature-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+        <div>
+          <div class="feature-name">Records — Immutable Data Carriers</div>
+          <div class="feature-tagline">Auto-generates constructor · accessors · equals · hashCode · toString</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">UML — Record auto-generation</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 700 278" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs>
+                <marker id="rarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#10b981"/></marker>
+              </defs>
+              <!-- Input -->
+              <rect x="4" y="4" width="300" height="60" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <text x="154" y="22" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">you write 1 line:</text>
+              <text x="14" y="40" fill="#c792ea" font-size="12" font-family="JetBrains Mono,monospace">record OrderSummary(</text>
+              <text x="14" y="57" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">  Long id, OrderStatus status, BigDecimal total)</text>
+              <!-- Arrow -->
+              <line x1="304" y1="34" x2="360" y2="34" stroke="#10b981" stroke-width="2" marker-end="url(#rarr)"/>
+              <text x="332" y="26" text-anchor="middle" fill="#10b981" font-size="10" font-weight="700">compiler</text>
+              <text x="332" y="47" text-anchor="middle" fill="#10b981" font-size="10">generates</text>
+              <!-- Output box -->
+              <rect x="360" y="4" width="336" height="190" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="360" y="4" width="336" height="30" rx="5" fill="#0f3020"/>
+              <text x="528" y="23" text-anchor="middle" fill="#10b981" font-size="11.5" font-weight="700">compiler auto-generates</text>
+              <line x1="360" y1="34" x2="696" y2="34" stroke="#103020"/>
+              <text x="370" y="52" fill="#64748b" font-size="10.5">canonical constructor:</text>
+              <text x="370" y="68" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">OrderSummary(Long, OrderStatus,</text>
+              <text x="370" y="84" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">  BigDecimal)</text>
+              <line x1="360" y1="94" x2="696" y2="94" stroke="#103020" stroke-dasharray="3,3"/>
+              <text x="370" y="110" fill="#64748b" font-size="10.5">accessors (no "get" prefix):</text>
+              <text x="370" y="126" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">Long id()  ·  OrderStatus status()</text>
+              <text x="370" y="142" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">BigDecimal total()</text>
+              <line x1="360" y1="152" x2="696" y2="152" stroke="#103020" stroke-dasharray="3,3"/>
+              <text x="370" y="168" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">boolean equals(Object)</text>
+              <text x="370" y="184" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">int hashCode()  ·  String toString()</text>
+              <!-- Cannot / Can -->
+              <rect x="4" y="82" width="300" height="120" rx="5" fill="#1e2d45" stroke="#334155" stroke-width="1"/>
+              <text x="14" y="101" fill="#ef4444" font-size="11" font-weight="600">Cannot:</text>
+              <text x="14" y="118" fill="#94a3b8" font-size="11">• extend a class (implicitly extends Record)</text>
+              <text x="14" y="135" fill="#94a3b8" font-size="11">• add instance fields beyond header</text>
+              <text x="14" y="152" fill="#94a3b8" font-size="11">• be abstract</text>
+              <line x1="4" y1="162" x2="304" y2="162" stroke="#334155" stroke-dasharray="3,3"/>
+              <text x="14" y="179" fill="#10b981" font-size="11" font-weight="600">Can:</text>
+              <text x="14" y="196" fill="#94a3b8" font-size="11">• implement interfaces</text>
+              <!-- toString output note -->
+              <rect x="4" y="218" width="692" height="56" rx="5" fill="#0a1525" stroke="#2d3f6b" stroke-width="1"/>
+              <text x="14" y="236" fill="#64748b" font-size="11">toString() output:</text>
+              <text x="130" y="236" fill="#c3e88d" font-size="11.5" font-family="JetBrains Mono,monospace">OrderSummary[id=1, status=PAID, total=99.99]</text>
+              <text x="14" y="256" fill="#64748b" font-size="11">value equality:</text>
+              <text x="130" y="256" fill="#c3e88d" font-size="11.5" font-family="JetBrains Mono,monospace">new OrderSummary(1L, PAID, ...).equals(new OrderSummary(1L, PAID, ...))</text>
+              <text x="680" y="268" text-anchor="end" fill="#10b981" font-size="11">→ true</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="compare-grid">
+          <div class="compare-block">
+            <div class="compare-label before">❌ Before Records — DTO boilerplate</div>
+            <pre class="code-block"><span class="kw">public final class</span> <span class="cls">OrderSummary</span> {
+  <span class="kw">private final</span> Long id;
+  <span class="kw">private final</span> OrderStatus status;
+  <span class="kw">private final</span> BigDecimal total;
+
+  <span class="kw">public</span> OrderSummary(Long id,
+      OrderStatus status,
+      BigDecimal total) {
+    this.id = id;
+    this.status = status;
+    this.total = total;
+  }
+  <span class="kw">public</span> Long getId() { <span class="kw">return</span> id; }
+  <span class="kw">public</span> OrderStatus getStatus()
+      { <span class="kw">return</span> status; }
+  <span class="kw">public</span> BigDecimal getTotal()
+      { <span class="kw">return</span> total; }
+  <span class="cmt">// + equals(), hashCode(), toString()</span>
+  <span class="cmt">// 40+ lines total</span>
+}</pre>
+          </div>
+          <div class="compare-block">
+            <div class="compare-label after">✅ Java 16 Record — 1 line</div>
+            <pre class="code-block"><span class="kw">record</span> <span class="cls">OrderSummary</span>(
+    Long id,
+    OrderStatus status,
+    BigDecimal total
+) {}
+
+<span class="cmt">// Usage — accessors without "get"</span>
+OrderSummary s = new OrderSummary(
+    1L, PAID, BigDecimal.valueOf(99.99));
+
+s.id();       <span class="cmt">// Long — not getId()</span>
+s.status();   <span class="cmt">// OrderStatus</span>
+s.total();    <span class="cmt">// BigDecimal</span>
+
+System.out.println(s);
+<span class="cmt">// OrderSummary[id=1, status=PAID, total=99.99]</span></pre>
+          </div>
+        </div>
+
+        <pre class="code-block"><span class="cmt">// Compact constructor — add validation, no need to assign fields manually</span>
+<span class="kw">record</span> <span class="cls">MoneyAmount</span>(BigDecimal value, String currency) {
+    MoneyAmount {   <span class="cmt">// no parentheses — compact form, fields auto-assigned after</span>
+        <span class="kw">if</span> (value.compareTo(BigDecimal.ZERO) &lt; 0)
+            <span class="kw">throw new</span> IllegalArgumentException("Amount cannot be negative");
+        currency = currency.toUpperCase();   <span class="cmt">// can normalise before assignment</span>
+    }
+}
+
+<span class="cmt">// Record implementing an interface</span>
+<span class="kw">interface</span> <span class="cls">Exportable</span> { String toCsv(); }
+
+<span class="kw">record</span> <span class="cls">OrderSummary</span>(Long id, OrderStatus status, BigDecimal total)
+        <span class="kw">implements</span> Exportable {
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> String toCsv() {
+        <span class="kw">return</span> id + "," + status + "," + total;
+    }
+
+    <span class="cmt">// Static factory — conventional for records</span>
+    <span class="kw">static</span> OrderSummary from(Order o) {
+        <span class="kw">return new</span> OrderSummary(o.getId(), o.getStatus(), o.totalAmount());
+    }
+}
+
+<span class="cmt">// Used in service to return lightweight projection</span>
+List&lt;OrderSummary&gt; summaries = orders.stream()
+    .map(OrderSummary::from)
+    .collect(Collectors.toList());</pre>
+
+        <div class="callout tip">
+          <strong>Records vs Lombok @Value:</strong> Records are language-level (no annotation processor needed). Lombok's <code>@Value</code> does the same but via compile-time generation. If you're already on Java 16+, prefer records for DTOs — they're more explicit and supported natively by Jackson, Spring, and JPA projections.
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature: Pattern Matching instanceof -->
+    <div class="feature-card open" id="f-pm">
+      <div class="feature-card-header" onclick="toggleCard('f-pm')">
+        <span class="feature-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <div>
+          <div class="feature-name">Pattern Matching for <code>instanceof</code></div>
+          <div class="feature-tagline">Type check + variable binding in one expression — no redundant cast</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="compare-grid">
+          <div class="compare-block">
+            <div class="compare-label before">❌ Before — check then cast</div>
+            <pre class="code-block"><span class="kw">Object</span> event = getEvent();
+
+<span class="kw">if</span> (event <span class="kw">instanceof</span> OrderPlacedEvent) {
+    OrderPlacedEvent e =
+        (OrderPlacedEvent) event;  <span class="cmt">// redundant!</span>
+    processOrder(e.getOrderId());
+} <span class="kw">else if</span> (event <span class="kw">instanceof</span> OrderCancelledEvent) {
+    OrderCancelledEvent e =
+        (OrderCancelledEvent) event;  <span class="cmt">// redundant!</span>
+    refund(e.getOrderId());
+}</pre>
+          </div>
+          <div class="compare-block">
+            <div class="compare-label after">✅ Java 16 — binding variable</div>
+            <pre class="code-block"><span class="kw">Object</span> event = getEvent();
+
+<span class="kw">if</span> (event <span class="kw">instanceof</span> OrderPlacedEvent e) {
+    <span class="cmt">// e is OrderPlacedEvent here — no cast</span>
+    processOrder(e.getOrderId());
+} <span class="kw">else if</span> (event <span class="kw">instanceof</span>
+          OrderCancelledEvent e) {
+    refund(e.getOrderId());
+}</pre>
+          </div>
+        </div>
+
+        <pre class="code-block"><span class="cmt">// Binding variable is scoped to the if-block</span>
+<span class="kw">if</span> (payment <span class="kw">instanceof</span> CreditCardPayment cc
+        &amp;&amp; cc.getLimit().compareTo(order.totalAmount()) &gt;= 0) {
+    <span class="cmt">// cc is CreditCardPayment AND limit is sufficient</span>
+    chargeCard(cc);
+}
+
+<span class="cmt">// Most common in equals() — clean and concise</span>
+<span class="ann">@Override</span>
+<span class="kw">public boolean</span> equals(Object o) {
+    <span class="kw">return</span> o <span class="kw">instanceof</span> OrderSummary other
+        &amp;&amp; Objects.equals(id, other.id)
+        &amp;&amp; Objects.equals(status, other.status);
+}
+
+<span class="cmt">// In a visitor-like handler — dispatch on type</span>
+<span class="kw">public void</span> handleEvent(DomainEvent event) {
+    <span class="kw">if</span>      (event <span class="kw">instanceof</span> OrderPlacedEvent e)    onOrderPlaced(e);
+    <span class="kw">else if</span> (event <span class="kw">instanceof</span> OrderShippedEvent e)   onOrderShipped(e);
+    <span class="kw">else if</span> (event <span class="kw">instanceof</span> PaymentFailedEvent e)   onPaymentFailed(e);
+    <span class="kw">else</span>    log.warn("Unhandled event: {}", event.getClass().getSimpleName());
+}</pre>
+      </div>
+    </div>
+
+    <!-- Feature: Sealed Classes -->
+    <div class="feature-card open" id="f-sealed">
+      <div class="feature-card-header" onclick="toggleCard('f-sealed')">
+        <span class="feature-icon"><i class="fa-solid fa-lock"></i></span>
+        <div>
+          <div class="feature-name">Sealed Classes &amp; Interfaces</div>
+          <div class="feature-tagline">Restrict who can extend — compiler knows all subtypes → exhaustive switch</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">UML — Sealed PaymentResult hierarchy</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 720 345" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs>
+                <marker id="sarr" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto"><polygon points="0,0 12,6 0,12" fill="none" stroke="#8b5cf6" stroke-width="1.5"/></marker>
+              </defs>
+              <!-- PaymentResult sealed interface -->
+              <rect x="210" y="4" width="300" height="90" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="2"/>
+              <rect x="210" y="4" width="300" height="44" rx="5" fill="#1e1040"/>
+              <text x="360" y="22" text-anchor="middle" fill="#a5b4fc" font-size="11.5" font-style="italic">«sealed interface»</text>
+              <text x="360" y="40" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">PaymentResult</text>
+              <line x1="210" y1="48" x2="510" y2="48" stroke="#2d2060"/>
+              <text x="220" y="66" fill="#64748b" font-size="11">permits:</text>
+              <text x="290" y="66" fill="#a5b4fc" font-size="11.5" font-family="JetBrains Mono,monospace">Success, Failure, Pending</text>
+              <text x="220" y="84" fill="#64748b" font-size="11">compiler enforces exhaustive switch on all 3</text>
+              <!-- Vertical line down from interface -->
+              <line x1="360" y1="94" x2="360" y2="128" stroke="#8b5cf6" stroke-width="1.5"/>
+              <!-- Horizontal line -->
+              <line x1="100" y1="128" x2="620" y2="128" stroke="#8b5cf6" stroke-width="1.5"/>
+              <!-- Three verticals down to records -->
+              <line x1="100" y1="128" x2="100" y2="155" stroke="#8b5cf6" stroke-width="1.5"/>
+              <line x1="360" y1="128" x2="360" y2="155" stroke="#8b5cf6" stroke-width="1.5"/>
+              <line x1="620" y1="128" x2="620" y2="155" stroke="#8b5cf6" stroke-width="1.5"/>
+              <!-- implements arrow heads -->
+              <polygon points="100,150 105,165 95,165" fill="#8b5cf6"/>
+              <polygon points="360,150 365,165 355,165" fill="#8b5cf6"/>
+              <polygon points="620,150 625,165 615,165" fill="#8b5cf6"/>
+              <!-- Success record -->
+              <rect x="4" y="162" width="192" height="130" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="4" y="162" width="192" height="42" rx="5" fill="#0d2618"/>
+              <text x="100" y="179" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">«record»</text>
+              <text x="100" y="196" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Success</text>
+              <line x1="4" y1="204" x2="196" y2="204" stroke="#103020"/>
+              <text x="14" y="221" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">String transactionId</text>
+              <text x="14" y="238" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">BigDecimal amount</text>
+              <text x="14" y="255" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Instant paidAt</text>
+              <line x1="4" y1="264" x2="196" y2="264" stroke="#103020" stroke-dasharray="3,3"/>
+              <text x="100" y="281" text-anchor="middle" fill="#10b981" font-size="11" font-weight="600">final</text>
+              <text x="100" y="296" text-anchor="middle" fill="#64748b" font-size="10">nobody extends</text>
+              <!-- Failure record -->
+              <rect x="264" y="162" width="192" height="110" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+              <rect x="264" y="162" width="192" height="42" rx="5" fill="#280808"/>
+              <text x="360" y="179" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">«record»</text>
+              <text x="360" y="196" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Failure</text>
+              <line x1="264" y1="204" x2="456" y2="204" stroke="#380808"/>
+              <text x="274" y="221" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">String reason</text>
+              <text x="274" y="238" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">String errorCode</text>
+              <line x1="264" y1="248" x2="456" y2="248" stroke="#380808" stroke-dasharray="3,3"/>
+              <text x="360" y="265" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="600">final</text>
+              <text x="360" y="280" text-anchor="middle" fill="#64748b" font-size="10">nobody extends</text>
+              <!-- Pending record -->
+              <rect x="524" y="162" width="192" height="130" rx="5" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+              <rect x="524" y="162" width="192" height="42" rx="5" fill="#2a2008"/>
+              <text x="620" y="179" text-anchor="middle" fill="#a5b4fc" font-size="10.5" font-style="italic">«record»</text>
+              <text x="620" y="196" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Pending</text>
+              <line x1="524" y1="204" x2="716" y2="204" stroke="#3a2808"/>
+              <text x="534" y="221" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Duration estimatedTime</text>
+              <text x="534" y="238" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Instant retryAfter</text>
+              <line x1="524" y1="248" x2="716" y2="248" stroke="#3a2808" stroke-dasharray="3,3"/>
+              <text x="620" y="265" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="600">non-sealed</text>
+              <text x="620" y="280" text-anchor="middle" fill="#64748b" font-size="10">can be subclassed</text>
+              <!-- Benefit banner -->
+              <rect x="4" y="308" width="712" height="34" rx="5" fill="#0a1525" stroke="#8b5cf6" stroke-width="1"/>
+              <text x="360" y="329" text-anchor="middle" fill="#a5b4fc" font-size="11.5">Compiler knows all 3 subtypes → switch on PaymentResult requires no default case — missing case = compile error</text>
+            </svg>
+          </div>
+        </div>
+
+        <pre class="code-block"><span class="cmt">// Sealed interface — only these 3 records can implement it</span>
+<span class="kw">sealed interface</span> <span class="cls">PaymentResult</span>
+    <span class="kw">permits</span> Success, Failure, Pending {}
+
+<span class="kw">record</span> <span class="cls">Success</span>(String transactionId, BigDecimal amount, Instant paidAt)
+    <span class="kw">implements</span> PaymentResult {}
+
+<span class="kw">record</span> <span class="cls">Failure</span>(String reason, String errorCode)
+    <span class="kw">implements</span> PaymentResult {}
+
+<span class="kw">record</span> <span class="cls">Pending</span>(Duration estimatedTime, Instant retryAfter)
+    <span class="kw">implements</span> PaymentResult {}
+
+<span class="cmt">// Pattern switch — exhaustive because compiler knows all 3 cases (Java 21 stable)</span>
+<span class="kw">public</span> OrderStatus toOrderStatus(PaymentResult result) {
+    <span class="kw">return switch</span> (result) {
+        <span class="kw">case</span> Success s  -&gt; {
+            log.info("Payment {} confirmed: €{}", s.transactionId(), s.amount());
+            <span class="kw">yield</span> OrderStatus.PAID;
+        }
+        <span class="kw">case</span> Failure f  -&gt; {
+            log.error("Payment failed: {} ({})", f.reason(), f.errorCode());
+            <span class="kw">yield</span> OrderStatus.CANCELLED;
+        }
+        <span class="kw">case</span> Pending p  -&gt; {
+            log.info("Payment pending, retry after {}", p.retryAfter());
+            <span class="kw">yield</span> OrderStatus.PENDING;
+        }
+        <span class="cmt">// No default needed! Compiler knows all 3 subtypes.</span>
+        <span class="cmt">// If you add Refunded to permits, this switch becomes a compile error.</span>
+    };
+}
+
+<span class="cmt">// The 3 subtype modifiers</span>
+<span class="kw">sealed class</span>    Vehicle <span class="kw">permits</span> Car, Truck {}   <span class="cmt">// continues restricting</span>
+<span class="kw">final class</span>     Car     <span class="kw">extends</span> Vehicle {}       <span class="cmt">// nobody can extend Car</span>
+<span class="kw">non-sealed class</span> Truck  <span class="kw">extends</span> Vehicle {}       <span class="cmt">// anyone can extend Truck</span></pre>
+
+        <div class="callout tip">
+          <strong>Sealed + Records + Pattern switch = the new Visitor pattern.</strong> Before Java 17 you'd implement the Visitor design pattern (double dispatch, lots of boilerplate) to safely handle a closed type hierarchy. Now: declare a <code>sealed interface</code>, make each case a <code>record</code>, use <code>switch</code> with patterns. Same safety guarantee, 80% less code.
+        </div>
+
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">Before vs After — handling a closed type hierarchy</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 700 248" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <!-- BEFORE panel -->
+              <rect x="4" y="4" width="334" height="240" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+              <rect x="4" y="4" width="334" height="32" rx="5" fill="#280808"/>
+              <text x="171" y="20" text-anchor="middle" fill="#ef4444" font-size="11.5" font-weight="700">BEFORE — Visitor pattern</text>
+              <text x="171" y="34" text-anchor="middle" fill="#fca5a5" font-size="10">60+ lines of boilerplate</text>
+              <line x1="4" y1="36" x2="338" y2="36" stroke="#380808"/>
+              <text x="14" y="54" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">interface PaymentVisitor {</text>
+              <text x="14" y="70" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Success s);</text>
+              <text x="14" y="86" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Failure f);</text>
+              <text x="14" y="102" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Pending p);</text>
+              <text x="14" y="118" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
+              <text x="14" y="138" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">abstract class PaymentResult {</text>
+              <text x="14" y="154" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  abstract void accept(Visitor v);</text>
+              <text x="14" y="170" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
+              <text x="14" y="190" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">class Success extends PaymentResult {</text>
+              <text x="14" y="206" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void accept(Visitor v) {</text>
+              <text x="14" y="222" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">    v.visit(this); }</text>
+              <text x="14" y="238" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
+              <!-- VS divider -->
+              <text x="350" y="128" text-anchor="middle" fill="#475569" font-size="22" font-weight="700">→</text>
+              <!-- AFTER panel -->
+              <rect x="366" y="4" width="330" height="240" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="366" y="4" width="330" height="32" rx="5" fill="#0d2618"/>
+              <text x="531" y="20" text-anchor="middle" fill="#10b981" font-size="11.5" font-weight="700">AFTER — Sealed + switch</text>
+              <text x="531" y="34" text-anchor="middle" fill="#34d399" font-size="10">~20 lines · same guarantee</text>
+              <line x1="366" y1="36" x2="696" y2="36" stroke="#103020"/>
+              <text x="376" y="54" fill="#c792ea" font-size="11" font-family="JetBrains Mono,monospace">sealed interface PaymentResult</text>
+              <text x="376" y="70" fill="#c792ea" font-size="11" font-family="JetBrains Mono,monospace">  permits Success, Failure, Pending {}</text>
+              <text x="376" y="90" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Success(...)</text>
+              <text x="376" y="106" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
+              <text x="376" y="122" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Failure(...)</text>
+              <text x="376" y="138" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
+              <text x="376" y="154" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Pending(...)</text>
+              <text x="376" y="170" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
+              <text x="376" y="190" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">return switch (result) {</text>
+              <text x="376" y="206" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Success s  → PAID;</text>
+              <text x="376" y="222" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Failure f  → CANCELLED;</text>
+              <text x="376" y="238" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Pending p  → PENDING; }; ← exhaustive</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="related-pages" style="margin: 32px 32px 16px;">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="java-spring.html">Java &amp; Spring Boot</a>
+      <a href="patterns.html">Design Patterns</a>
+      <a href="general.html">General &amp; Interview Tips</a>
+    </div>
+
+    <div class="page-end"></div>
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script src="js/app.js?v=9"></script>
+<script>
+  function toggleCard(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  // Make all cards open by default — they're already in HTML with class "open"
+  // Clicking the header toggles
+</script>
+</body>
+</html>

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
+        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
+        <a class="nav-link active" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
+        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
+        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
+        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
+      </div>
+      <div class="nav-section">
+        <a class="nav-link" href="#components"><i class="fa-solid fa-puzzle-piece icon-fw"></i> Components</a>
+        <a class="nav-link" href="#rxjs"><i class="fa-solid fa-rotate icon-fw"></i> RxJS</a>
+        <a class="nav-link" href="#change-detection"><i class="fa-solid fa-bolt icon-fw"></i> Change Detection</a>
+        <a class="nav-link" href="#routing"><i class="fa-solid fa-map icon-fw"></i> Routing</a>
+        <a class="nav-link" href="#forms"><i class="fa-solid fa-file-lines icon-fw"></i> Forms</a>
+        <a class="nav-link" href="#performance"><i class="fa-solid fa-rocket icon-fw"></i> Performance</a>      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Exam</div>
+        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-brands fa-angular"></i> Angular <span>28 Interview Questions</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <div class="progress-wrap">
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 28 reviewed</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="pillar-row">
+        <button class="pillar-chip active" data-pillar="">All</button>
+        <button class="pillar-chip" data-pillar="components">Components</button>
+        <button class="pillar-chip" data-pillar="rxjs">RxJS</button>
+        <button class="pillar-chip" data-pillar="detection">Change Detection</button>
+        <button class="pillar-chip" data-pillar="routing">Routing</button>
+        <button class="pillar-chip" data-pillar="forms">Forms</button>
+        <button class="pillar-chip" data-pillar="performance">Performance</button>
+      </div>
+
+      <!-- ════ COMPONENTS ════ -->
+      <div class="section-header" id="components">
+        <div class="section-icon" style="background:rgba(221,0,49,.15);color:#dd0031"><i class="fa-solid fa-puzzle-piece"></i></div>
+        <div><h2>Components &amp; Lifecycle</h2><p>Architecture, decorators, lifecycle hooks</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="components">
+          <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">What are the Angular component lifecycle hooks and in what order do they run?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Hook</th><th>When</th><th>Use for</th></tr></thead>
+              <tbody>
+                <tr><td>ngOnChanges</td><td>Before ngOnInit, then whenever @Input changes</td><td>React to parent input changes; SimpleChanges holds prev/current</td></tr>
+                <tr><td>ngOnInit</td><td>Once, after first ngOnChanges</td><td>Component initialization, HTTP calls, set up subscriptions</td></tr>
+                <tr><td>ngDoCheck</td><td>Every change detection run</td><td>Custom change detection (avoid — expensive)</td></tr>
+                <tr><td>ngAfterContentInit</td><td>Once, after ng-content projected</td><td>Access ContentChild/ContentChildren</td></tr>
+                <tr><td>ngAfterContentChecked</td><td>After each check of projected content</td><td>Rarely needed</td></tr>
+                <tr><td>ngAfterViewInit</td><td>Once, after component view is initialised</td><td>Access ViewChild/ViewChildren; interact with DOM</td></tr>
+                <tr><td>ngAfterViewChecked</td><td>After every view check</td><td>Rarely needed; avoid modifying state here</td></tr>
+                <tr><td>ngOnDestroy</td><td>Just before component is destroyed</td><td>Unsubscribe, clear timers, cancel HTTP requests</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Component</span>({ selector: <span class="str">'app-user'</span>, template: <span class="str">'...'</span> })
+<span class="kw">export class</span> <span class="typ">UserComponent</span> <span class="kw">implements</span> <span class="typ">OnInit</span>, <span class="typ">OnDestroy</span> {
+  <span class="ann">@Input</span>() userId!: <span class="kw">number</span>;
+  <span class="kw">private</span> sub!: <span class="typ">Subscription</span>;
+
+  ngOnInit() {
+    <span class="cmt">// safe to use userId here — inputs are set by this point</span>
+    <span class="kw">this</span>.sub = <span class="kw">this</span>.userService.get(<span class="kw">this</span>.userId).subscribe(...);
+  }
+
+  ngOnDestroy() {
+    <span class="kw">this</span>.sub.unsubscribe(); <span class="cmt">// prevent memory leak</span>
+  }
+}</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="components">
+          <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">What are Standalone Components introduced in Angular 14+ and how do they change module architecture?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Standalone components declare <code>standalone: true</code> and import their own dependencies directly — no NgModule required. Angular 17+ makes standalone the default.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Standalone component — self-contained, no NgModule</span>
+<span class="ann">@Component</span>({
+  selector: <span class="str">'app-product-card'</span>,
+  standalone: <span class="kw">true</span>,
+  imports: [<span class="typ">CommonModule</span>, <span class="typ">RouterModule</span>, <span class="typ">CurrencyPipe</span>], <span class="cmt">// direct imports</span>
+  template: <span class="str">`
+    &lt;div *ngIf="product"&gt;{{ product.price | currency }}&lt;/div&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="typ">ProductCardComponent</span> { ... }
+
+<span class="cmt">// Bootstrapping (main.ts)</span>
+<span class="fn">bootstrapApplication</span>(<span class="typ">AppComponent</span>, {
+  providers: [
+    <span class="fn">provideRouter</span>(routes),
+    <span class="fn">provideHttpClient</span>(<span class="fn">withInterceptors</span>([authInterceptor])),
+    <span class="fn">provideAnimations</span>()
+  ]
+});</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Modern Angular</span><div class="callout-body">New Angular projects should use standalone by default. NgModules still work and are still common in existing large codebases — you'll need to know both for interviews.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="components">
+          <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">Explain @Input() and @Output() with EventEmitter. How does two-way binding work with [(ngModel)]?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Child component</span>
+<span class="ann">@Component</span>({ selector: <span class="str">'app-counter'</span>, template: <span class="str">`
+  &lt;button (click)="increment()"&gt;Count: {{ count }}&lt;/button&gt;
+`</span>})
+<span class="kw">export class</span> <span class="typ">CounterComponent</span> {
+  <span class="ann">@Input</span>()  count = <span class="num">0</span>;                  <span class="cmt">// receives from parent</span>
+  <span class="ann">@Output</span>() countChange = <span class="kw">new</span> <span class="typ">EventEmitter</span>&lt;<span class="kw">number</span>&gt;(); <span class="cmt">// emits to parent</span>
+
+  increment() { <span class="kw">this</span>.countChange.emit(<span class="kw">this</span>.count + <span class="num">1</span>); }
+}
+
+<span class="cmt">// Parent template
+// [(count)] = banana-in-a-box = [count]="val" (countChange)="val=$event"
+</span>&lt;app-counter [(count)]="myCount"&gt;&lt;/app-counter&gt;
+
+<span class="cmt">// ngModel two-way binding — requires FormsModule
+// [ngModel] sets value, (ngModelChange) reads changes</span>
+&lt;input [(ngModel)]="username"&gt;
+<span class="cmt">// equivalent to:</span>
+&lt;input [ngModel]="username" (ngModelChange)="username=$event"&gt;</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="components">
+          <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">What is Content Projection (ng-content) and when do you use multiple slots?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">HTML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">&lt;!-- Card component with multiple named slots --&gt;</span>
+&lt;!-- card.component.html --&gt;
+&lt;div class="card"&gt;
+  &lt;div class="card-header"&gt;
+    &lt;ng-content select="[card-title]"&gt;&lt;/ng-content&gt;  &lt;!-- named slot --&gt;
+  &lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;ng-content&gt;&lt;/ng-content&gt;  &lt;!-- default slot --&gt;
+  &lt;/div&gt;
+  &lt;div class="card-footer"&gt;
+    &lt;ng-content select="[card-actions]"&gt;&lt;/ng-content&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Usage --&gt;
+&lt;app-card&gt;
+  &lt;h2 card-title&gt;User Profile&lt;/h2&gt;     &lt;!-- goes to header --&gt;
+  &lt;p&gt;This is the body content.&lt;/p&gt;     &lt;!-- goes to default --&gt;
+  &lt;button card-actions&gt;Save&lt;/button&gt;   &lt;!-- goes to footer --&gt;
+&lt;/app-card&gt;</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ RXJS ════ -->
+      <div class="section-header" id="rxjs">
+        <div class="section-icon" style="background:rgba(219,68,55,.15);color:#db4437"><i class="fa-solid fa-rotate"></i></div>
+        <div><h2>RxJS &amp; Observables</h2><p>Operators, subjects, error handling, patterns</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="rxjs">
+          <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">Explain the difference between map, switchMap, mergeMap, concatMap, and exhaustMap.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>All four flatten an Observable-of-Observables, but they differ in how they handle concurrent inner observables:</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Operator</th><th>Concurrency</th><th>Use case</th></tr></thead>
+              <tbody>
+                <tr><td><strong>map</strong></td><td>n/a (synchronous transform)</td><td>Transform each value — no inner Observable</td></tr>
+                <tr><td><strong>switchMap</strong></td><td>Cancels previous inner obs on new emission</td><td>Typeahead search — only care about latest request</td></tr>
+                <tr><td><strong>mergeMap</strong></td><td>All inner obs run concurrently</td><td>Upload multiple files in parallel</td></tr>
+                <tr><td><strong>concatMap</strong></td><td>Queues — waits for previous to complete</td><td>Sequential actions where order matters (shopping cart steps)</td></tr>
+                <tr><td><strong>exhaustMap</strong></td><td>Ignores new emissions while inner obs is active</td><td>Login button — ignore re-clicks while request is in flight</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Typeahead — switchMap cancels stale requests</span>
+<span class="kw">this</span>.searchControl.valueChanges.pipe(
+  <span class="rx">debounceTime</span>(<span class="num">300</span>),
+  <span class="rx">distinctUntilChanged</span>(),
+  <span class="rx">switchMap</span>(term => <span class="kw">this</span>.api.search(term))  <span class="cmt">// cancels previous HTTP call</span>
+).subscribe(results => <span class="kw">this</span>.results = results);
+
+<span class="cmt">// Login button — exhaustMap ignores double-click</span>
+<span class="kw">this</span>.loginClick$.pipe(
+  <span class="rx">exhaustMap</span>(() => <span class="kw">this</span>.authService.login(<span class="kw">this</span>.form.value))
+).subscribe(...);</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="rxjs">
+          <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">What is the difference between Subject, BehaviorSubject, ReplaySubject, and AsyncSubject?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Type</th><th>Initial value?</th><th>Late subscribers get?</th><th>Use when</th></tr></thead>
+              <tbody>
+                <tr><td>Subject</td><td>No</td><td>Nothing (miss past values)</td><td>Events (button clicks, notifications)</td></tr>
+                <tr><td>BehaviorSubject</td><td>Yes (required)</td><td>Current value immediately</td><td>State (user session, theme, cart count)</td></tr>
+                <tr><td>ReplaySubject(n)</td><td>No</td><td>Last n values replayed</td><td>Caching N last emissions for late subscribers</td></tr>
+                <tr><td>AsyncSubject</td><td>No</td><td>Only the last value, on complete</td><td>Async operations that emit one final result</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// BehaviorSubject for state — common pattern in services</span>
+<span class="ann">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">CartService</span> {
+  <span class="kw">private</span> items$ = <span class="kw">new</span> <span class="typ">BehaviorSubject</span>&lt;<span class="typ">CartItem</span>[]&gt;([]);
+  <span class="kw">readonly</span> items = <span class="kw">this</span>.items$.asObservable(); <span class="cmt">// expose read-only</span>
+
+  addItem(item: <span class="typ">CartItem</span>) {
+    <span class="kw">this</span>.items$.next([...<span class="kw">this</span>.items$.getValue(), item]);
+  }
+}
+
+<span class="cmt">// Component subscribes and always gets current state immediately</span>
+cartService.items.subscribe(items => <span class="kw">this</span>.cartItems = items);</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="rxjs">
+          <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">How do you handle errors in RxJS? What is the difference between catchError, retry, and retryWhen?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// catchError — recover and return fallback or rethrow</span>
+<span class="kw">this</span>.http.get&lt;<span class="typ">User</span>[]&gt;(<span class="str">'/api/users'</span>).pipe(
+  <span class="rx">catchError</span>(err => {
+    <span class="kw">if</span> (err.status === <span class="num">404</span>) <span class="kw">return</span> of([]);          <span class="cmt">// return empty array</span>
+    <span class="kw">return</span> throwError(() => <span class="kw">new</span> <span class="typ">Error</span>(err.message)); <span class="cmt">// rethrow</span>
+  })
+);
+
+<span class="cmt">// retry(n) — resubscribes n times on error (no delay)</span>
+<span class="kw">this</span>.api.get().pipe(<span class="rx">retry</span>(<span class="num">3</span>)).subscribe(...);
+
+<span class="cmt">// retryWhen with exponential backoff (RxJS 6)</span>
+<span class="kw">this</span>.api.get().pipe(
+  <span class="rx">retryWhen</span>(errors$ => errors$.pipe(
+    <span class="rx">scan</span>((count, err) => {
+      <span class="kw">if</span> (count >= <span class="num">3</span>) <span class="kw">throw</span> err; <span class="cmt">// give up after 3</span>
+      <span class="kw">return</span> count + <span class="num">1</span>;
+    }, <span class="num">0</span>),
+    <span class="rx">delayWhen</span>(count => timer(count * <span class="num">1000</span>)) <span class="cmt">// 1s, 2s, 3s delay</span>
+  ))
+);</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="rxjs">
+          <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">How do you prevent memory leaks from subscriptions? Compare takeUntil, async pipe, and takeUntilDestroyed.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Option 1: async pipe — cleanest, auto-unsubscribes, triggers CD</span>
+<span class="cmt">// template: {{ users$ | async }}</span>
+users$ = <span class="kw">this</span>.userService.getAll(); <span class="cmt">// no subscribe needed</span>
+
+<span class="cmt">// Option 2: takeUntilDestroyed (Angular 16+) — inject in constructor</span>
+<span class="kw">private</span> destroyRef = inject(<span class="typ">DestroyRef</span>);
+
+ngOnInit() {
+  <span class="kw">this</span>.data$.pipe(
+    <span class="rx">takeUntilDestroyed</span>(<span class="kw">this</span>.destroyRef)
+  ).subscribe(data => <span class="kw">this</span>.data = data);
+}
+
+<span class="cmt">// Option 3: takeUntil pattern (pre Angular 16)</span>
+<span class="kw">private</span> destroy$ = <span class="kw">new</span> <span class="typ">Subject</span>&lt;<span class="kw">void</span>&gt;();
+
+ngOnInit() {
+  interval(<span class="num">1000</span>).pipe(<span class="rx">takeUntil</span>(<span class="kw">this</span>.destroy$)).subscribe(...);
+}
+ngOnDestroy() { <span class="kw">this</span>.destroy$.next(); <span class="kw">this</span>.destroy$.complete(); }</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Modern best practice</span><div class="callout-body">In Angular 16+ with standalone components, prefer <code>takeUntilDestroyed()</code> — it's the cleanest pattern. <code>async</code> pipe is best for templates. Avoid manual <code>Subscription</code> arrays.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ CHANGE DETECTION ════ -->
+      <div class="section-header" id="change-detection">
+        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-bolt"></i></div>
+        <div><h2>Change Detection</h2><p>Zone.js, OnPush, Signals</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="detection">
+          <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">How does Angular's change detection work? What is Zone.js's role?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Angular uses <strong>Zone.js</strong> which monkey-patches async APIs (setTimeout, Promise, XHR, DOM events). When any async task completes, Zone.js notifies Angular, which then runs change detection from the root component down the tree — comparing current and previous template expressions. Any change triggers DOM updates.</p>
+            <p><strong>Default strategy</strong> — checks every component, every time. Simple but can be slow with large trees.</p>
+            <p><strong>OnPush strategy</strong> — component is checked only when:</p>
+            <ul>
+              <li>An <code>@Input()</code> reference changes (not mutation)</li>
+              <li>An event originates from the component or its children</li>
+              <li>An Observable used with <code>async</code> pipe emits</li>
+              <li>You manually call <code>markForCheck()</code> or <code>detectChanges()</code></li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Component</span>({
+  selector: <span class="str">'app-list'</span>,
+  changeDetection: <span class="typ">ChangeDetectionStrategy</span>.OnPush, <span class="cmt">// opt-in to OnPush</span>
+  template: <span class="str">`&lt;li *ngFor="let item of items"&gt;{{ item.name }}&lt;/li&gt;`</span>
+})
+<span class="kw">export class</span> <span class="typ">ListComponent</span> {
+  <span class="ann">@Input</span>() items: <span class="typ">Item</span>[] = [];
+  <span class="cmt">// Must pass new array reference to trigger re-check:</span>
+  <span class="cmt">// ✅ this.items = [...this.items, newItem]</span>
+  <span class="cmt">// 🚫 this.items.push(newItem)  ← doesn't trigger OnPush</span>
+}</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="detection">
+          <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">What are Angular Signals (Angular 16+) and how do they differ from traditional change detection?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Signals are reactive primitives that track their value and notify consumers when it changes — <em>without Zone.js</em>. Angular can update only the exact DOM nodes affected by a changed signal, enabling truly granular updates.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Component</span>({
+  template: <span class="str">`
+    &lt;p&gt;Count: {{ count() }}&lt;/p&gt;          &lt;!-- signal read = function call --&gt;
+    &lt;p&gt;Double: {{ doubled() }}&lt;/p&gt;
+    &lt;button (click)="increment()"&gt;+&lt;/button&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="typ">CounterComponent</span> {
+  count   = <span class="fn">signal</span>(<span class="num">0</span>);                          <span class="cmt">// writable signal</span>
+  doubled = <span class="fn">computed</span>(() => <span class="kw">this</span>.count() * <span class="num">2</span>); <span class="cmt">// derived, auto-updates</span>
+
+  increment() { <span class="kw">this</span>.count.update(v => v + <span class="num">1</span>); }
+
+  <span class="cmt">// effect() — side effects when signals change</span>
+  <span class="kw">constructor</span>() {
+    <span class="fn">effect</span>(() => console.log(<span class="str">'Count changed:'</span>, <span class="kw">this</span>.count()));
+  }
+}
+
+<span class="cmt">// Convert Observable to Signal</span>
+users = <span class="fn">toSignal</span>(<span class="kw">this</span>.userService.getAll(), { initialValue: [] });</code></pre></div>
+            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">Direction of Angular</span><div class="callout-body">Angular is moving toward a Zoneless future — Signals + <code>provideExperimentalZonelessChangeDetection()</code> (Angular 17+). Knowing Signals is increasingly important in interviews for Angular 16+ shops.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ ROUTING ════ -->
+      <div class="section-header" id="routing">
+        <div class="section-icon" class="chip-info"><i class="fa-solid fa-map"></i></div>
+        <div><h2>Routing</h2><p>Lazy loading, guards, resolvers</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="routing">
+          <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">How does lazy loading work in Angular? What is a Route Guard?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Lazy loading — loadComponent/loadChildren defer the bundle</span>
+<span class="kw">const</span> routes: <span class="typ">Routes</span> = [
+  {
+    path: <span class="str">'admin'</span>,
+    canActivate: [<span class="fn">authGuard</span>],     <span class="cmt">// guard runs before loading</span>
+    loadChildren: () => import(<span class="str">'./admin/admin.routes'</span>)
+                        .then(m => m.ADMIN_ROUTES)
+  },
+  {
+    path: <span class="str">'profile'</span>,
+    loadComponent: () => import(<span class="str">'./profile/profile.component'</span>)
+                         .then(m => m.ProfileComponent),
+    resolve: { user: <span class="fn">userResolver</span> }  <span class="cmt">// pre-fetch data before activation</span>
+  }
+];
+
+<span class="cmt">// Functional guard (Angular 15+ — preferred over class guards)</span>
+<span class="kw">export const</span> <span class="fn">authGuard</span>: <span class="typ">CanActivateFn</span> = (route, state) => {
+  <span class="kw">const</span> auth = inject(<span class="typ">AuthService</span>);
+  <span class="kw">const</span> router = inject(<span class="typ">Router</span>);
+  <span class="kw">return</span> auth.isLoggedIn()
+    ? <span class="kw">true</span>
+    : router.createUrlTree([<span class="str">'/login'</span>], { queryParams: { returnUrl: state.url } });
+};
+
+<span class="cmt">// Functional resolver — pre-fetches data before component activates</span>
+<span class="kw">export const</span> <span class="fn">userResolver</span>: <span class="typ">ResolveFn</span>&lt;<span class="typ">User</span>&gt; = (route) => {
+  <span class="kw">return</span> inject(<span class="typ">UserService</span>).findById(+route.paramMap.get(<span class="str">'id'</span>)!);
+};</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="routing">
+          <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">What is the difference between ActivatedRoute params, queryParams, and data? How do you read route parameters?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Route: /products/:id?filter=active</span>
+<span class="ann">@Component</span>({...})
+<span class="kw">export class</span> <span class="typ">ProductComponent</span> {
+  <span class="kw">private</span> route = inject(<span class="typ">ActivatedRoute</span>);
+
+  <span class="kw">constructor</span>() {
+    <span class="cmt">// params — path variables (:id) — Observable for dynamic changes</span>
+    <span class="kw">this</span>.route.params.subscribe(p => <span class="kw">this</span>.productId = +p[<span class="str">'id'</span>]);
+
+    <span class="cmt">// queryParams — ?filter=active</span>
+    <span class="kw">this</span>.route.queryParamMap.subscribe(q => <span class="kw">this</span>.filter = q.get(<span class="str">'filter'</span>));
+
+    <span class="cmt">// data — static data from route config or resolver result</span>
+    <span class="kw">this</span>.route.data.subscribe(d => <span class="kw">this</span>.user = d[<span class="str">'user'</span>]); <span class="cmt">// from resolver</span>
+
+    <span class="cmt">// Snapshot — use only if you know param won't change during component lifetime</span>
+    <span class="kw">const</span> id = <span class="kw">this</span>.route.snapshot.paramMap.get(<span class="str">'id'</span>);
+  }
+}</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ FORMS ════ -->
+      <div class="section-header" id="forms">
+        <div class="section-icon" class="chip-success"><i class="fa-solid fa-file-lines"></i></div>
+        <div><h2>Forms</h2><p>Reactive forms vs template-driven, validation, dynamic forms</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="forms">
+          <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">What is the difference between Template-Driven and Reactive Forms? When do you use each?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th></th><th>Template-Driven</th><th>Reactive</th></tr></thead>
+              <tbody>
+                <tr><td>Setup</td><td>NgModel in template</td><td>FormGroup/FormControl in TypeScript</td></tr>
+                <tr><td>Validation</td><td>HTML attributes (required, minlength)</td><td>Validators.compose() in code</td></tr>
+                <tr><td>Testing</td><td>Requires DOM; harder</td><td>Unit testable without DOM</td></tr>
+                <tr><td>Async validation</td><td>Limited</td><td>AsyncValidatorFn first-class support</td></tr>
+                <tr><td>Dynamic fields</td><td>Very hard</td><td>FormArray — add/remove controls at runtime</td></tr>
+                <tr><td>Use when</td><td>Simple contact forms, prototyping</td><td>Complex forms, wizard, dynamic fields — default choice</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Reactive form with FormBuilder</span>
+<span class="kw">export class</span> <span class="typ">RegisterComponent</span> {
+  form = <span class="kw">this</span>.fb.group({
+    name:     [<span class="str">''</span>, [<span class="typ">Validators</span>.required, <span class="typ">Validators</span>.minLength(2)]],
+    email:    [<span class="str">''</span>, [<span class="typ">Validators</span>.required, <span class="typ">Validators</span>.email], [<span class="fn">uniqueEmailValidator</span>]],
+    password: [<span class="str">''</span>, [<span class="typ">Validators</span>.required, <span class="typ">Validators</span>.minLength(8)]],
+    phones:   <span class="kw">this</span>.fb.array([])  <span class="cmt">// dynamic list</span>
+  });
+
+  get phones() { <span class="kw">return this</span>.form.get(<span class="str">'phones'</span>) <span class="kw">as</span> <span class="typ">FormArray</span>; }
+
+  addPhone() {
+    <span class="kw">this</span>.phones.push(<span class="kw">this</span>.fb.control(<span class="str">''</span>, <span class="typ">Validators</span>.pattern(<span class="str">/^\+?[\d\s-]+$/</span>)));
+  }
+
+  submit() {
+    <span class="kw">if</span> (<span class="kw">this</span>.form.invalid) <span class="kw">return</span>;
+    <span class="kw">this</span>.authService.register(<span class="kw">this</span>.form.value).subscribe(...);
+  }
+}</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="forms">
+          <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">How do you implement a custom async validator (e.g. check if email is unique)?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Functional async validator — preferred (Angular 14+)</span>
+<span class="kw">export function</span> <span class="fn">uniqueEmailValidator</span>(userService: <span class="typ">UserService</span>): <span class="typ">AsyncValidatorFn</span> {
+  <span class="kw">return</span> (control: <span class="typ">AbstractControl</span>): <span class="typ">Observable</span>&lt;<span class="typ">ValidationErrors</span> | <span class="kw">null</span>&gt; => {
+    <span class="kw">return</span> userService.checkEmail(control.value).pipe(
+      <span class="rx">debounceTime</span>(<span class="num">300</span>),         <span class="cmt">// don't fire on every keystroke</span>
+      <span class="rx">switchMap</span>(isTaken =>
+        isTaken ? of({ emailTaken: <span class="kw">true</span> }) : of(<span class="kw">null</span>)
+      )
+    );
+  };
+}
+
+<span class="cmt">// Usage in FormBuilder — 3rd param is async validators array</span>
+email: [<span class="str">''</span>,
+  [<span class="typ">Validators</span>.required, <span class="typ">Validators</span>.email],
+  [<span class="fn">uniqueEmailValidator</span>(<span class="kw">this</span>.userService)]
+]
+
+<span class="cmt">&lt;!-- Template: show error during/after async check --&gt;</span>
+&lt;mat-error *ngIf="form.get('email')?.errors?.['emailTaken']"&gt;
+  Email is already registered
+&lt;/mat-error&gt;
+&lt;mat-spinner *ngIf="form.get('email')?.pending" diameter="16"&gt;&lt;/mat-spinner&gt;</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ PERFORMANCE ════ -->
+      <div class="section-header" id="performance">
+        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-rocket"></i></div>
+        <div><h2>Performance &amp; Best Practices</h2><p>Bundle size, lazy loading, trackBy, SSR</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="performance">
+          <div class="qa-question"><div class="qa-num">15</div><div class="qa-question-text">How do you optimise Angular application performance? List at least 5 techniques.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <ol>
+              <li><strong>OnPush change detection</strong> — reduces the number of component checks; combine with immutable data</li>
+              <li><strong>Lazy load routes</strong> — split code by route so initial bundle is small</li>
+              <li><strong>trackBy in *ngFor</strong> — prevents Angular from destroying and re-creating DOM elements on list update</li>
+              <li><strong>Signals</strong> (Angular 16+) — fine-grained reactivity without Zone.js overhead</li>
+              <li><strong>Defer blocks</strong> (Angular 17) — <code>@defer</code> lazily loads component when it enters the viewport</li>
+              <li><strong>async pipe</strong> — auto-unsubscribes, triggers CD precisely when needed</li>
+              <li><strong>Pure pipes</strong> — cached; only re-runs when input reference changes</li>
+              <li><strong>Bundle optimisation</strong> — Angular's esbuild builder (default in v17), tree-shaking, removing unused imports</li>
+            </ol>
+            <div class="code-block"><div class="code-header"><span class="code-lang">HTML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">&lt;!-- trackBy prevents full list re-render --&gt;</span>
+&lt;li *ngFor="let user of users; trackBy: trackByUserId"&gt;
+  {{ user.name }}
+&lt;/li&gt;
+
+<span class="cmt">&lt;!-- @defer (Angular 17) — loads when in viewport --&gt;</span>
+@defer (on viewport) {
+  &lt;app-heavy-chart [data]="chartData" /&gt;
+} @placeholder {
+  &lt;div class="skeleton"&gt;&lt;/div&gt;
+}</code></pre></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code>trackByUserId(index: <span class="kw">number</span>, user: <span class="typ">User</span>) { <span class="kw">return</span> user.id; }</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="performance">
+          <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">What is Angular Universal (SSR)? What problems does it solve?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Angular Universal renders the app on a Node.js server, sending fully-formed HTML to the client. Solves:</p>
+            <ul>
+              <li><strong>SEO</strong> — search crawlers see complete HTML instead of an empty shell</li>
+              <li><strong>First Contentful Paint (FCP)</strong> — user sees content before JavaScript executes</li>
+              <li><strong>Social sharing</strong> — Open Graph / Twitter Card meta tags are in the initial response</li>
+            </ul>
+            <p><strong>Hydration</strong> (Angular 17) — the server renders HTML; the client "hydrates" by attaching event listeners without re-rendering from scratch, eliminating the flash of blank content.</p>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">SSR gotchas</span><div class="callout-body">No <code>window</code>, <code>document</code>, or <code>localStorage</code> on the server. Wrap browser-only code with <code>isPlatformBrowser()</code>. HTTP calls made during SSR are cached via <code>withHttpTransferCache()</code> so the client doesn't re-fetch on hydration.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="performance">
+          <div class="qa-question"><div class="qa-num">17</div><div class="qa-question-text">What is Angular's Dependency Injection hierarchy? Explain providedIn: 'root' vs component-level providers.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Angular has a tree of injectors. When a class requests a dependency, Angular walks up the injector tree until it finds a provider.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Provider location</th><th>Scope / instances</th><th>When to use</th></tr></thead>
+              <tbody>
+                <tr><td><code>providedIn: 'root'</code></td><td>Singleton for entire app; tree-shakeable</td><td>Stateless shared services (HttpClient, AuthService)</td></tr>
+                <tr><td>Component providers</td><td>New instance per component; destroyed with component</td><td>Stateful services scoped to a feature (wizard step state)</td></tr>
+                <tr><td>Module providers</td><td>Singleton within module scope</td><td>Legacy NgModule apps; rarely needed in standalone</td></tr>
+                <tr><td><code>viewProviders</code></td><td>Like component providers but not visible to projected content</td><td>Prevent ng-content from accessing internal services</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="performance">
+          <div class="qa-question"><div class="qa-num">18</div><div class="qa-question-text">How do you write unit tests for Angular components and services? What testing tools do you use?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Tools:</strong> Jasmine (test framework) + Karma (test runner) — default. Jest is increasingly popular as a replacement. Angular Testing Library for behaviour-focused tests.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Component test with TestBed</span>
+describe(<span class="str">'UserCardComponent'</span>, () => {
+  <span class="kw">let</span> fixture: <span class="typ">ComponentFixture</span>&lt;<span class="typ">UserCardComponent</span>&gt;;
+  <span class="kw">let</span> component: <span class="typ">UserCardComponent</span>;
+  <span class="kw">let</span> userService: jasmine.SpyObj&lt;<span class="typ">UserService</span>&gt;;
+
+  beforeEach(<span class="kw">async</span> () => {
+    userService = jasmine.createSpyObj(<span class="str">'UserService'</span>, [<span class="str">'getUser'</span>]);
+    userService.getUser.and.returnValue(of({ name: <span class="str">'Alice'</span>, email: <span class="str">'a@b.com'</span> }));
+
+    <span class="kw">await</span> TestBed.configureTestingModule({
+      imports: [<span class="typ">UserCardComponent</span>],   <span class="cmt">// standalone component</span>
+      providers: [{ provide: <span class="typ">UserService</span>, useValue: userService }]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(<span class="typ">UserCardComponent</span>);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it(<span class="str">'displays user name'</span>, () => {
+    <span class="kw">const</span> el = fixture.nativeElement.querySelector(<span class="str">'h2'</span>);
+    expect(el.textContent).toContain(<span class="str">'Alice'</span>);
+  });
+});</code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="components">
+          <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">What is the difference between a structural directive (*ngIf, *ngFor) and an attribute directive?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Structural directives</strong> — change the DOM structure by adding/removing elements. Prefixed with <code>*</code> (syntactic sugar for <code>&lt;ng-template&gt;</code>). Examples: <code>*ngIf</code>, <code>*ngFor</code>, <code>*ngSwitch</code>. Angular 17+ offers built-in control flow: <code>@if</code>, <code>@for</code>, <code>@switch</code> — faster and no import needed.</p>
+            <p><strong>Attribute directives</strong> — modify the appearance or behaviour of an existing element without changing DOM structure. Examples: <code>NgClass</code>, <code>NgStyle</code>, custom tooltip directive.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Custom attribute directive — highlight on hover</span>
+<span class="ann">@Directive</span>({ selector: <span class="str">'[appHighlight]'</span>, standalone: <span class="kw">true</span> })
+<span class="kw">export class</span> <span class="typ">HighlightDirective</span> {
+  <span class="ann">@Input</span>(<span class="str">'appHighlight'</span>) color = <span class="str">'yellow'</span>;
+
+  <span class="kw">constructor</span>(<span class="kw">private</span> el: <span class="typ">ElementRef</span>) {}
+
+  <span class="ann">@HostListener</span>(<span class="str">'mouseenter'</span>) onEnter() {
+    <span class="kw">this</span>.el.nativeElement.style.backgroundColor = <span class="kw">this</span>.color;
+  }
+  <span class="ann">@HostListener</span>(<span class="str">'mouseleave'</span>) onLeave() {
+    <span class="kw">this</span>.el.nativeElement.style.backgroundColor = <span class="str">''</span>;
+  }
+}
+<span class="cmt">&lt;!-- Usage: &lt;p appHighlight="lightblue"&gt;Hover me&lt;/p&gt; --&gt;</span></code></pre></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="rxjs">
+          <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">How do you implement HTTP interceptors in Angular? What common use cases do they solve?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">TypeScript</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Functional interceptor (Angular 15+ — preferred)</span>
+<span class="kw">export const</span> <span class="fn">authInterceptor</span>: <span class="typ">HttpInterceptorFn</span> = (req, next) => {
+  <span class="kw">const</span> token = inject(<span class="typ">AuthService</span>).getToken();
+  <span class="kw">if</span> (!token) <span class="kw">return</span> next(req);
+
+  <span class="kw">const</span> authReq = req.clone({
+    headers: req.headers.set(<span class="str">'Authorization'</span>, <span class="str">`Bearer ${token}`</span>)
+  });
+  <span class="kw">return</span> next(authReq).pipe(
+    <span class="rx">catchError</span>(err => {
+      <span class="kw">if</span> (err.status === <span class="num">401</span>) inject(<span class="typ">AuthService</span>).logout();
+      <span class="kw">return</span> throwError(() => err);
+    })
+  );
+};
+
+<span class="cmt">// Register in bootstrapApplication</span>
+<span class="fn">provideHttpClient</span>(<span class="fn">withInterceptors</span>([authInterceptor, loggingInterceptor]))</code></pre></div>
+            <p><strong>Common interceptor use cases:</strong> attach auth token, retry on 503, show/hide global loading spinner, log all requests, add correlation ID header, handle 401 token refresh.</p>
+          </div>
+        </div>
+
+      </div>
+
+    <div class="related-pages">
+      <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+      <a href="java-spring.html">Java &amp; Spring Boot</a>
+      <a href="general.html">General &amp; Interview Tips</a>
+    </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>
