@@ -462,7 +462,7 @@ events table:
               <line x1="400" y1="192" x2="495" y2="103" stroke="#475569" stroke-width="1.5" marker-end="url(#cbm)"/>
               <text x="455" y="130" font-size="11" fill="#fca5a5" text-anchor="end">trials fail</text>
               <line x1="238" y1="205" x2="121" y2="103" stroke="#475569" stroke-width="1.5" marker-end="url(#cbm)"/>
-              <text x="30" y="170" font-size="11" fill="#6ee7b7">trials succeed</text>
+              <text x="166" y="160" font-size="11" fill="#6ee7b7" text-anchor="end">trials succeed</text>
             </svg></div>
             <p>The failure rate is only evaluated once the sliding window holds at least <code>minimumNumberOfCalls</code> calls, so a single failed request at startup does not trip the breaker. Resilience4j defaults: <code>failureRateThreshold</code> 50%, <code>slidingWindowSize</code> 100 calls, <code>minimumNumberOfCalls</code> 100, <code>waitDurationInOpenState</code> 60s, <code>permittedNumberOfCallsInHalfOpenState</code> 10 — far too slow to react for low-traffic services, so always tune them.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Circuit Breaker</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@CircuitBreaker</span>(name = <span class="str">"inventoryService"</span>, fallbackMethod = <span class="str">"inventoryFallback"</span>)

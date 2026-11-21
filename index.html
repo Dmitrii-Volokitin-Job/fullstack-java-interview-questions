@@ -579,6 +579,54 @@
               <td>The low-overhead profiler built into the JVM; record with jcmd &lt;pid&gt; JFR.start and open the file in JDK Mission Control.</td>
               <td><span class="tag">Java</span></td>
             </tr>
+            <tr data-g="KRaft Kafka Raft metadata mode">
+              <td><strong>KRaft</strong></td>
+              <td>Kafka Raft metadata mode</td>
+              <td>Kafka&#x27;s built-in Raft quorum of controllers that stores cluster metadata; it replaced ZooKeeper, which Kafka 4.0 removed.</td>
+              <td><span class="tag">Kafka</span></td>
+            </tr>
+            <tr data-g="ISR In-Sync Replicas">
+              <td><strong>ISR</strong></td>
+              <td>In-Sync Replicas</td>
+              <td>The replicas of a partition that are caught up with the leader. With acks=all a write succeeds only when min.insync.replicas of them have it.</td>
+              <td><span class="tag">Kafka</span></td>
+            </tr>
+            <tr data-g="EOS Exactly-Once Semantics">
+              <td><strong>EOS</strong></td>
+              <td>Exactly-Once Semantics</td>
+              <td>Kafka idempotent producers plus transactions: read-process-write between Kafka topics happens once. Side effects outside Kafka still need an idempotent consumer.</td>
+              <td><span class="tag">Kafka</span></td>
+            </tr>
+            <tr data-g="JWKS JSON Web Key Set">
+              <td><strong>JWKS</strong></td>
+              <td>JSON Web Key Set</td>
+              <td>The public keys an identity provider publishes (usually at /.well-known/jwks.json) so services can verify JWT signatures.</td>
+              <td><span class="tag">Security</span></td>
+            </tr>
+            <tr data-g="OTLP OpenTelemetry Protocol">
+              <td><strong>OTLP</strong></td>
+              <td>OpenTelemetry Protocol</td>
+              <td>The wire protocol for sending traces, metrics and logs to an OpenTelemetry collector or backend.</td>
+              <td><span class="tag">DevOps</span></td>
+            </tr>
+            <tr data-g="CRI Container Runtime Interface">
+              <td><strong>CRI</strong></td>
+              <td>Container Runtime Interface</td>
+              <td>The kubelet&#x27;s plug-in API for container runtimes such as containerd and CRI-O.</td>
+              <td><span class="tag">K8s</span></td>
+            </tr>
+            <tr data-g="CNI Container Network Interface">
+              <td><strong>CNI</strong></td>
+              <td>Container Network Interface</td>
+              <td>The plug-in standard that gives Pods their network (Calico, Cilium, Antrea).</td>
+              <td><span class="tag">K8s</span></td>
+            </tr>
+            <tr data-g="CSI Container Storage Interface">
+              <td><strong>CSI</strong></td>
+              <td>Container Storage Interface</td>
+              <td>The plug-in standard that lets Kubernetes provision and attach volumes from any storage vendor.</td>
+              <td><span class="tag">K8s</span></td>
+            </tr>
           </tbody>
         </table>
       </div>

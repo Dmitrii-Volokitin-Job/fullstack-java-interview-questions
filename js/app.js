@@ -41,7 +41,7 @@ const NAV = [
     desc: 'Brokers, partitions, producers, consumer groups, delivery guarantees, Streams, Spring Kafka.' },
   { href: 'system-design.html',     label: 'System Design',                  icon: 'fa-solid fa-diagram-project',      count: 20,
     desc: 'Scalability, databases, caching, messaging and the classic design questions.' },
-  { href: 'kubernetes-devops.html', label: 'Kubernetes & DevOps',            icon: 'fa-solid fa-dharmachakra',         count: 23,
+  { href: 'kubernetes-devops.html', label: 'Kubernetes & DevOps',            icon: 'fa-solid fa-dharmachakra',         count: 26,
     desc: 'Pods to Helm: networking, config, scaling, containers and CI/CD.' },
   { href: 'angular.html',           label: 'Angular & Web',                  icon: 'fa-brands fa-angular',             count: 30,
     desc: 'Components, signals, RxJS, change detection, routing, forms and web fundamentals.' },
@@ -556,6 +556,14 @@ const ABBR_DICT = {
   'TLAB':  'Thread-Local Allocation Buffer — A slice of Eden owned by one thread, so most new objects are allocated by bumping a pointer without any locking.',
   'ZGC':   'Z Garbage Collector — A low-latency, concurrent, region-based collector with pauses well under a millisecond; generational since Java 21 and the only mode since Java 23.',
   'JFR':   'Java Flight Recorder — The low-overhead profiler built into the JVM; record with jcmd <pid> JFR.start and open the file in JDK Mission Control.',
+  'KRaft': 'Kafka Raft metadata mode — Kafka\'s built-in Raft quorum of controllers that stores cluster metadata; it replaced ZooKeeper, which Kafka 4.0 removed.',
+  'ISR':   'In-Sync Replicas — The replicas of a partition that are caught up with the leader. With acks=all a write succeeds only when min.insync.replicas of them have it.',
+  'EOS':   'Exactly-Once Semantics — Kafka idempotent producers plus transactions: read-process-write between Kafka topics happens once. Side effects outside Kafka still need an idempotent consumer.',
+  'JWKS':  'JSON Web Key Set — The public keys an identity provider publishes (usually at /.well-known/jwks.json) so services can verify JWT signatures.',
+  'OTLP':  'OpenTelemetry Protocol — The wire protocol for sending traces, metrics and logs to an OpenTelemetry collector or backend.',
+  'CRI':   'Container Runtime Interface — The kubelet\'s plug-in API for container runtimes such as containerd and CRI-O.',
+  'CNI':   'Container Network Interface — The plug-in standard that gives Pods their network (Calico, Cilium, Antrea).',
+  'CSI':   'Container Storage Interface — The plug-in standard that lets Kubernetes provision and attach volumes from any storage vendor.',
   'SRS':   'Spaced Repetition System — A study method that repeats a card at growing intervals; this site uses five Leitner boxes (1, 3, 7, 14, 30 days).',
 };
 
