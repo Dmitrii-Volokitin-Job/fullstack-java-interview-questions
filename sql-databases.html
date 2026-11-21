@@ -27,7 +27,7 @@
       <div class="hero">
         <div class="hero-badge"><i class="fa-solid fa-database"></i> SQL &amp; Databases</div>
         <h1>SQL &amp; Databases</h1>
-        <p>Queries, indexes, transactions and locking, and running a relational database from a Java service.</p>
+        <p>Queries, indexes, transactions and locking, and running a relational database from a Java service. PostgreSQL 16/17 is the reference engine; differences in MySQL InnoDB and others are called out where they matter.</p>
         <div class="hero-stats">
           <div class="hero-stat"><div class="num" data-qcount></div><div class="lbl">Questions</div></div>
           <div class="hero-stat"><div class="num" data-scount></div><div class="lbl">Topic Areas</div></div>
@@ -41,9 +41,620 @@
 
       <div class="pillar-row">
         <button class="pillar-chip active" data-pillar="">All</button>
+        <button class="pillar-chip" data-pillar="queries">Queries</button>
+        <button class="pillar-chip" data-pillar="indexes">Indexes</button>
+        <button class="pillar-chip" data-pillar="transactions">Transactions</button>
+        <button class="pillar-chip" data-pillar="operations">Operations</button>
       </div>
 
-      <!-- Sections go here (Package B) -->
+      <!-- ════ QUERIES ════ -->
+      <div class="section-header" id="queries" data-nav="Queries">
+        <div class="section-icon chip-info"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div><h2>Queries</h2><p>Joins, grouping, window functions, pagination</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="queries" data-new>
+          <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">INNER, LEFT, FULL, semi- and anti-joins — what does each return, and why can NOT IN return no rows at all?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Join</th><th>Returns</th><th>Typical use</th></tr></thead>
+              <tbody>
+                <tr><td><code>INNER JOIN</code></td><td>Only row pairs that match the <code>ON</code> condition</td><td>Orders with their customer</td></tr>
+                <tr><td><code>LEFT JOIN</code></td><td>Every left row; right columns are <code>NULL</code> when nothing matches</td><td>Customers with their orders, including customers without any</td></tr>
+                <tr><td><code>FULL JOIN</code></td><td>Every row of both sides, matched where possible</td><td>Reconciling two data sets (what is missing on either side)</td></tr>
+                <tr><td><code>CROSS JOIN</code></td><td>Every combination (cartesian product)</td><td>Generating a calendar × product grid</td></tr>
+                <tr><td>Semi-join (<code>EXISTS</code>)</td><td>Left rows that have at least one match, each row once</td><td>Customers who ordered something — no duplicates, unlike a join</td></tr>
+                <tr><td>Anti-join (<code>NOT EXISTS</code>)</td><td>Left rows that have no match</td><td>Customers who never ordered</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- Anti-join: customers without orders (safe with NULLs, planner turns it into a Hash Anti Join)</span>
+<span class="kw">SELECT</span> c.id, c.name
+<span class="kw">FROM</span> customer c
+<span class="kw">WHERE</span> <span class="kw">NOT</span> <span class="kw">EXISTS</span> (<span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> orders o <span class="kw">WHERE</span> o.customer_id = c.id);
+
+<span class="cmt">-- Trap 1: NOT IN + one NULL in the subquery = zero rows</span>
+<span class="kw">SELECT</span> id <span class="kw">FROM</span> customer
+<span class="kw">WHERE</span> id <span class="kw">NOT</span> <span class="kw">IN</span> (<span class="kw">SELECT</span> customer_id <span class="kw">FROM</span> orders);   <span class="cmt">-- customer_id NULL anywhere -&gt; empty result</span>
+
+<span class="cmt">-- Trap 2: filtering the right table in WHERE turns a LEFT JOIN into an INNER JOIN</span>
+<span class="kw">SELECT</span> c.name, o.id
+<span class="kw">FROM</span> customer c
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> orders o <span class="kw">ON</span> o.customer_id = c.id <span class="kw">AND</span> o.status = <span class="str">'PAID'</span>;   <span class="cmt">-- keep the filter in ON</span>
+<span class="cmt">-- WHERE o.status = 'PAID'   would drop every customer without a paid order</span></code></pre></div>
+            <p><strong>Why NOT IN fails:</strong> <code>x NOT IN (1, NULL)</code> means <code>x &lt;&gt; 1 AND x &lt;&gt; NULL</code>. The second comparison is <code>UNKNOWN</code>, so the whole predicate is never true. <code>NOT EXISTS</code> has no such problem, which is why it is the default for anti-joins.</p>
+            <p><strong>Physically</strong>, PostgreSQL executes any logical join as a <em>Nested Loop</em> (small outer side plus an index on the inner side), a <em>Hash Join</em> (large unsorted inputs, equality only) or a <em>Merge Join</em> (both inputs already sorted). You choose the logical join; the planner chooses the algorithm from statistics.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="queries" data-new>
+          <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">In what order is a SELECT logically evaluated, and what is the difference between WHERE and HAVING?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Logical order (the planner may reorder physically, but the result must be as if it ran in this order):</p>
+            <ol>
+              <li><code>FROM</code> / <code>JOIN</code> — build the row set</li>
+              <li><code>WHERE</code> — filter <em>rows</em> (no aggregates allowed, can use indexes)</li>
+              <li><code>GROUP BY</code> — collapse rows into groups</li>
+              <li><code>HAVING</code> — filter <em>groups</em> (aggregates allowed)</li>
+              <li><code>SELECT</code> — compute expressions, then window functions</li>
+              <li><code>DISTINCT</code> → <code>ORDER BY</code> → <code>LIMIT</code> / <code>OFFSET</code></li>
+            </ol>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">SELECT</span> customer_id,
+       count(*)                                     <span class="kw">AS</span> orders,
+       count(*) <span class="kw">FILTER</span> (<span class="kw">WHERE</span> status = <span class="str">'REFUNDED'</span>)  <span class="kw">AS</span> refunds,
+       sum(total)                                   <span class="kw">AS</span> revenue
+<span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> created_at &gt;= now() - <span class="kw">INTERVAL</span> <span class="str">'30 days'</span>   <span class="cmt">-- row filter, before grouping</span>
+<span class="kw">GROUP</span> <span class="kw">BY</span> customer_id
+<span class="kw">HAVING</span> sum(total) &gt; <span class="num">1000</span>                          <span class="cmt">-- group filter, after aggregation</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> revenue <span class="kw">DESC</span>;                            <span class="cmt">-- the alias is visible here</span></code></pre></div>
+            <ul>
+              <li>Put every condition that does not need an aggregate in <code>WHERE</code>: fewer rows reach the grouping step and an index can help.</li>
+              <li>This order explains the classic errors: a <code>SELECT</code> alias is not visible in <code>WHERE</code>, and a window function cannot be filtered in <code>WHERE</code> (wrap it in a subquery or CTE).</li>
+              <li><code>count(*)</code> counts rows, <code>count(col)</code> counts non-NULL values, <code>count(DISTINCT col)</code> counts distinct non-NULL values.</li>
+              <li>PostgreSQL lets you select other columns of a table when you <code>GROUP BY</code> its primary key (functional dependency); other engines may demand every column in the <code>GROUP BY</code>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="queries" data-new>
+          <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">What are window functions? Show top-N per group and a running total, and explain the default frame trap.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A window function computes a value over a set of rows related to the current row <em>without collapsing them</em> (unlike <code>GROUP BY</code>). <code>PARTITION BY</code> splits the rows into groups, <code>ORDER BY</code> orders rows inside each partition, and the <em>frame</em> says which rows around the current one take part.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- Top 3 orders per customer</span>
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> o.*,
+         row_number() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> customer_id <span class="kw">ORDER</span> <span class="kw">BY</span> total <span class="kw">DESC</span>) <span class="kw">AS</span> rn
+  <span class="kw">FROM</span> orders o
+) t
+<span class="kw">WHERE</span> rn &lt;= <span class="num">3</span>;      <span class="cmt">-- filter outside: window functions run after WHERE</span>
+
+<span class="cmt">-- Running total and change against the previous day</span>
+<span class="kw">SELECT</span> day, revenue,
+       sum(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER</span> <span class="kw">BY</span> day <span class="kw">ROWS</span> <span class="kw">BETWEEN</span> <span class="kw">UNBOUNDED</span> <span class="kw">PRECEDING</span> <span class="kw">AND</span> <span class="kw">CURRENT</span> <span class="kw">ROW</span>) <span class="kw">AS</span> running,
+       revenue - lag(revenue) <span class="kw">OVER</span> (<span class="kw">ORDER</span> <span class="kw">BY</span> day)                                        <span class="kw">AS</span> delta
+<span class="kw">FROM</span> daily_revenue;</code></pre></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Score</th><th>row_number()</th><th>rank()</th><th>dense_rank()</th></tr></thead>
+              <tbody>
+                <tr><td>100</td><td>1</td><td>1</td><td>1</td></tr>
+                <tr><td>90</td><td>2</td><td>2</td><td>2</td></tr>
+                <tr><td>90</td><td>3</td><td>2</td><td>2</td></tr>
+                <tr><td>80</td><td>4</td><td>4</td><td>3</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout warning"><span class="callout-icon"></span><div class="callout-body"><strong>Default frame trap:</strong> With an <code>ORDER BY</code> and no explicit frame, the frame is <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>. <code>RANGE</code> includes all <em>peers</em> (rows with the same sort value), so two orders on the same day get the same "running" total. Write <code>ROWS BETWEEN …</code> when you mean row by row. The same default is why <code>last_value()</code> seems to return the current row.</div></div>
+            <div class="callout tip"><span class="callout-icon"></span><div class="callout-body"><strong>Senior detail:</strong> For "top N per group" on a big table with an index on <code>(customer_id, total DESC)</code>, a <code>LATERAL</code> join with <code>LIMIT 3</code> per customer reads only 3 index entries per group, while <code>row_number()</code> numbers every row first.</div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="queries" data-new>
+          <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">OFFSET vs keyset (seek) pagination — why does OFFSET get slow on deep pages, and how do you implement keyset pagination?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><code>LIMIT 20 OFFSET 100000</code> makes the database produce 100,020 rows and throw 100,000 away, so every page is slower than the one before. Rows inserted or deleted between two requests also shift the window, and the user sees duplicates or misses rows.</p>
+            <p><strong>Keyset pagination</strong> remembers the sort key of the last row shown and asks for rows "after" it. With an index on the sort columns each page costs the same, no matter how deep.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">CREATE</span> <span class="kw">INDEX</span> orders_created_id_idx <span class="kw">ON</span> orders (created_at <span class="kw">DESC</span>, id <span class="kw">DESC</span>);
+
+<span class="cmt">-- first page</span>
+<span class="kw">SELECT</span> id, created_at, total <span class="kw">FROM</span> orders
+<span class="kw">ORDER</span> <span class="kw">BY</span> created_at <span class="kw">DESC</span>, id <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">20</span>;
+
+<span class="cmt">-- next page: pass the last row's (created_at, id) back as the cursor</span>
+<span class="kw">SELECT</span> id, created_at, total <span class="kw">FROM</span> orders
+<span class="kw">WHERE</span> (created_at, id) &lt; (:last_created_at, :last_id)   <span class="cmt">-- row-value comparison, uses the index</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> created_at <span class="kw">DESC</span>, id <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">20</span>;</code></pre></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Data JPA (3.1+) scrolling API</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">interface</span> <span class="typ">OrderRepository</span> <span class="kw">extends</span> <span class="typ">JpaRepository</span>&lt;<span class="typ">Order</span>, <span class="typ">Long</span>&gt; {
+    <span class="typ">Window</span>&lt;<span class="typ">Order</span>&gt; findFirst20ByOrderByCreatedAtDescIdDesc(<span class="typ">ScrollPosition</span> position);
+}
+
+<span class="typ">Window</span>&lt;<span class="typ">Order</span>&gt; page = repo.findFirst20ByOrderByCreatedAtDescIdDesc(<span class="typ">ScrollPosition</span>.keyset());
+<span class="kw">if</span> (page.hasNext()) {
+    <span class="typ">Window</span>&lt;<span class="typ">Order</span>&gt; next = repo.findFirst20ByOrderByCreatedAtDescIdDesc(page.positionAt(page.size() - <span class="num">1</span>));
+}</code></pre></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th></th><th>OFFSET</th><th>Keyset</th></tr></thead>
+              <tbody>
+                <tr><td>Cost of page N</td><td>Grows with N</td><td>Constant (index seek)</td></tr>
+                <tr><td>Jump to page 57</td><td>Yes</td><td>No — only next / previous</td></tr>
+                <tr><td>Stable under concurrent inserts</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Fits</td><td>Small admin tables</td><td>Feeds, infinite scroll, API cursors, batch exports</td></tr>
+              </tbody>
+            </table></div>
+            <ul>
+              <li>The sort key must be unique — add the primary key as a tie-breaker (<code>created_at, id</code>), otherwise rows with equal timestamps are skipped.</li>
+              <li>The row-value comparison <code>(a, b) &lt; (x, y)</code> only works when all sort columns go in the same direction; mixed directions need the expanded form <code>a &lt; x OR (a = x AND b &gt; y)</code>.</li>
+              <li>A total page count still needs <code>count(*)</code>, which is a full scan on large PostgreSQL tables — many APIs drop it and return only "has next".</li>
+            </ul>
+            <p><a class="deep-dive" href="java-spring.html#spring-mvc">Deep dive: Pageable and sorting in Spring Data on the Java &amp; Spring page <i class="fa-solid fa-arrow-right"></i></a></p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ INDEXES ════ -->
+      <div class="section-header" id="indexes" data-nav="Indexes">
+        <div class="section-icon chip-warning"><i class="fa-solid fa-gauge-high"></i></div>
+        <div><h2>Indexes &amp; Performance</h2><p>B-trees, composite and partial indexes, reading query plans</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="indexes" data-new>
+          <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">How does a B-tree index find a row, and how do you choose the column order of a composite index?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A B-tree is a balanced tree of fixed-size pages (8 kB in PostgreSQL). Each inner page holds hundreds of keys, so even hundreds of millions of rows need only 3–4 levels. Leaf pages hold the sorted keys plus a pointer to the row (in PostgreSQL the <code>ctid</code>, a physical address in the table heap), and leaves are linked to their neighbours, which makes range scans and <code>ORDER BY</code> cheap.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="btArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#f59e0b"/></marker>
+                <marker id="btLink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+                <text x="300" y="43" text-anchor="end" fill="#94a3b8" font-size="12">Root page</text>
+                <rect x="310" y="20" width="140" height="36" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="380" y="43" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">40 | 80</text>
+                <line x1="330" y1="56" x2="140" y2="100" stroke="#475569" stroke-width="1.5"/>
+                <line x1="380" y1="56" x2="380" y2="100" stroke="#f59e0b" stroke-width="2" marker-end="url(#btArr)"/>
+                <line x1="430" y1="56" x2="620" y2="100" stroke="#475569" stroke-width="1.5"/>
+                <rect x="60" y="100" width="140" height="36" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="130" y="123" text-anchor="middle" fill="#e2e8f0" font-size="13">10 | 25</text>
+                <rect x="310" y="100" width="140" height="36" rx="5" fill="#1e2d45" stroke="#f59e0b" stroke-width="2"/>
+                <text x="380" y="123" text-anchor="middle" fill="#e2e8f0" font-size="13">50 | 65</text>
+                <rect x="560" y="100" width="140" height="36" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="630" y="123" text-anchor="middle" fill="#e2e8f0" font-size="13">90 | 120</text>
+                <line x1="110" y1="136" x2="80" y2="190" stroke="#475569" stroke-width="1.5"/>
+                <line x1="340" y1="136" x2="235" y2="190" stroke="#475569" stroke-width="1.5"/>
+                <line x1="380" y1="136" x2="380" y2="190" stroke="#f59e0b" stroke-width="2" marker-end="url(#btArr)"/>
+                <line x1="420" y1="136" x2="525" y2="190" stroke="#475569" stroke-width="1.5"/>
+                <line x1="650" y1="136" x2="680" y2="190" stroke="#475569" stroke-width="1.5"/>
+                <rect x="20" y="190" width="120" height="36" rx="5" fill="#101528" stroke="#10b981" stroke-width="1.5"/>
+                <text x="80" y="213" text-anchor="middle" fill="#e2e8f0" font-size="12">… 31 · 38</text>
+                <rect x="170" y="190" width="120" height="36" rx="5" fill="#101528" stroke="#10b981" stroke-width="1.5"/>
+                <text x="230" y="213" text-anchor="middle" fill="#e2e8f0" font-size="12">41 · 44 · 48</text>
+                <rect x="320" y="190" width="120" height="36" rx="5" fill="#101528" stroke="#f59e0b" stroke-width="2"/>
+                <text x="380" y="213" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">50 · 55 · 57</text>
+                <rect x="470" y="190" width="120" height="36" rx="5" fill="#101528" stroke="#10b981" stroke-width="1.5"/>
+                <text x="530" y="213" text-anchor="middle" fill="#e2e8f0" font-size="12">65 · 70 · 79</text>
+                <rect x="620" y="190" width="120" height="36" rx="5" fill="#101528" stroke="#10b981" stroke-width="1.5"/>
+                <text x="680" y="213" text-anchor="middle" fill="#e2e8f0" font-size="12">90 · 104 …</text>
+                <line x1="141" y1="208" x2="168" y2="208" stroke="#475569" stroke-width="1.5" marker-end="url(#btLink)"/>
+                <line x1="291" y1="208" x2="318" y2="208" stroke="#475569" stroke-width="1.5" marker-end="url(#btLink)"/>
+                <line x1="441" y1="208" x2="468" y2="208" stroke="#475569" stroke-width="1.5" marker-end="url(#btLink)"/>
+                <line x1="591" y1="208" x2="618" y2="208" stroke="#475569" stroke-width="1.5" marker-end="url(#btLink)"/>
+                <line x1="380" y1="226" x2="380" y2="254" stroke="#f59e0b" stroke-width="2" marker-end="url(#btArr)"/>
+                <rect x="310" y="256" width="140" height="32" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+                <text x="380" y="277" text-anchor="middle" fill="#e2e8f0" font-size="12">heap row (ctid)</text>
+                <text x="480" y="266" fill="#f59e0b" font-size="12">WHERE id = 57: 4 page reads</text>
+                <text x="480" y="284" fill="#94a3b8" font-size="12">Range scan: follow leaf links →</text>
+              </svg>
+            </div>
+            <p><strong>Composite index <code>(a, b, c)</code></strong> is sorted by <code>a</code>, then <code>b</code> inside equal <code>a</code>, then <code>c</code>. It can be used like a phone book sorted by last name, then first name:</p>
+            <ul>
+              <li>Efficient: <code>a = ?</code>; <code>a = ? AND b = ?</code>; <code>a = ? AND b &gt; ?</code>; <code>a = ? ORDER BY b</code>.</li>
+              <li>Not efficient: <code>b = ?</code> alone — there is no sorted entry point. (PostgreSQL 18 added B-tree <em>skip scan</em>, which helps when <code>a</code> has few distinct values; on 16/17 plan for the leading column.)</li>
+              <li>A range condition on a column stops later columns from narrowing the search: in <code>a = ? AND b &gt; ? AND c = ?</code> the <code>c</code> condition is checked inside the scanned range, not used to seek.</li>
+            </ul>
+            <p><strong>Rule of thumb:</strong> equality columns first, then the column you sort by or filter with a range. Among the equality columns, prefer the order that lets other queries reuse the prefix — one index <code>(tenant_id, status, created_at)</code> can serve several queries.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- serves: WHERE customer_id = ? ORDER BY created_at DESC LIMIT 20</span>
+<span class="kw">CREATE</span> <span class="kw">INDEX</span> <span class="kw">CONCURRENTLY</span> orders_customer_created_idx <span class="kw">ON</span> orders (customer_id, created_at);</code></pre></div>
+            <div class="callout info"><span class="callout-icon"></span><div class="callout-body"><strong>PostgreSQL vs MySQL InnoDB:</strong> A PostgreSQL table is a heap and every index points into it. InnoDB stores the table <em>inside</em> the primary-key B-tree (clustered index) and secondary indexes store the primary key, so a secondary lookup is two tree walks and a long random primary key (UUIDv4) bloats every index and splits pages. Either way every extra index slows inserts and updates — index for the queries you actually run.</div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="indexes" data-new>
+          <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">What are covering, partial and expression indexes, and when can PostgreSQL answer a query with an index-only scan?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Index</th><th>What it does</th><th>Example</th></tr></thead>
+              <tbody>
+                <tr><td>Covering (<code>INCLUDE</code>, PG 11+)</td><td>Stores extra non-key columns in the leaves so the query never visits the table</td><td><code>(customer_id) INCLUDE (status, total)</code></td></tr>
+                <tr><td>Partial</td><td>Indexes only rows matching a predicate — small and hot</td><td><code>(created_at) WHERE status = 'PENDING'</code></td></tr>
+                <tr><td>Partial unique</td><td>Uniqueness for a subset of rows</td><td>unique <code>email</code> among non-deleted users</td></tr>
+                <tr><td>Expression</td><td>Indexes a computed value; the query must use the same expression</td><td><code>(lower(email))</code></td></tr>
+                <tr><td>GIN</td><td>Many keys per row</td><td><code>jsonb</code>, arrays, full-text, <code>pg_trgm</code> for <code>LIKE '%x%'</code></td></tr>
+                <tr><td>BRIN</td><td>Tiny summary per block range</td><td>Append-only time series sorted by insert time</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">CREATE</span> <span class="kw">INDEX</span> orders_pending_idx <span class="kw">ON</span> orders (created_at) <span class="kw">WHERE</span> status = <span class="str">'PENDING'</span>;
+<span class="cmt">-- used by:      WHERE status = 'PENDING' AND created_at &lt; now() - INTERVAL '1 hour'</span>
+<span class="cmt">-- not used by:  WHERE status = :status   (the planner cannot prove :status = 'PENDING' for a generic plan)</span>
+
+<span class="kw">CREATE</span> <span class="kw">UNIQUE</span> <span class="kw">INDEX</span> users_email_live_uq <span class="kw">ON</span> users (lower(email)) <span class="kw">WHERE</span> deleted_at <span class="kw">IS</span> <span class="kw">NULL</span>;
+
+<span class="kw">CREATE</span> <span class="kw">INDEX</span> orders_customer_cov_idx <span class="kw">ON</span> orders (customer_id) <span class="kw">INCLUDE</span> (status, total);
+<span class="kw">EXPLAIN</span> (<span class="kw">ANALYZE</span>) <span class="kw">SELECT</span> status, total <span class="kw">FROM</span> orders <span class="kw">WHERE</span> customer_id = <span class="num">42</span>;
+<span class="cmt">--  Index Only Scan using orders_customer_cov_idx on orders ...</span>
+<span class="cmt">--    Heap Fetches: 0        &lt;- every page was all-visible, the heap was never touched</span></code></pre></div>
+            <p><strong>Index-only scan</strong> needs two things: every column the query uses is in the index, and the table page is marked <em>all-visible</em> in the visibility map. Because of MVCC the index does not know whether a row version is visible to your snapshot; only pages that <code>VACUUM</code> has marked all-visible can skip the heap. A table with lots of recent updates and lagging autovacuum shows a high <code>Heap Fetches</code> count and loses the benefit.</p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="indexes" data-new>
+          <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">How do you read EXPLAIN (ANALYZE, BUFFERS) output? What do you look at first?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">Text — EXPLAIN (ANALYZE, BUFFERS) output</span><button class="copy-btn">Copy</button></div><pre><code>EXPLAIN (ANALYZE, BUFFERS)
+SELECT * FROM orders WHERE customer_id = 42 ORDER BY created_at DESC LIMIT 20;
+
+Limit  (cost=0.43..18.61 rows=20 width=64) (actual time=0.041..0.093 rows=20 loops=1)
+  Buffers: shared hit=24
+  -&gt;  Index Scan Backward using orders_customer_created_idx on orders  (cost=0.43..905.12 rows=996 width=64) (actual time=0.039..0.088 rows=20 loops=1)
+        Index Cond: (customer_id = 42)
+        Buffers: shared hit=24
+Planning Time: 0.180 ms
+Execution Time: 0.118 ms</code></pre></div>
+            <ul>
+              <li><strong>Read inside-out</strong>: the most indented node runs first and feeds its parent.</li>
+              <li><strong>cost=</strong> is the planner's estimate in arbitrary units (startup..total); <strong>actual time=</strong> is milliseconds <em>per loop</em>. Multiply time and rows by <code>loops</code> — a cheap inner node with <code>loops=50000</code> is the real problem.</li>
+              <li><strong>Estimated vs actual rows</strong> is the first thing to compare. Off by 10× or more → stale or missing statistics (<code>ANALYZE</code>), or correlated columns the planner treats as independent (<code>CREATE STATISTICS</code>). Bad estimates cause bad join choices.</li>
+              <li><strong>Rows Removed by Filter</strong> large compared to rows returned → the filter is applied after reading; an index on that column may help.</li>
+              <li><strong>Sort Method: external merge Disk</strong> → the sort spilled to disk; raise <code>work_mem</code> for that query or avoid the sort with an index.</li>
+              <li><strong>Buffers</strong>: <code>shared hit</code> came from cache, <code>read</code> from disk/OS cache. A query that is fast only when the cache is warm shows many <code>read</code>s on the first run.</li>
+              <li>Node names: <em>Seq Scan</em>, <em>Index Scan</em>, <em>Index Only Scan</em>, <em>Bitmap Heap Scan</em> (many matching rows, read in physical order); <em>Nested Loop</em>, <em>Hash Join</em>, <em>Merge Join</em>.</li>
+            </ul>
+            <div class="callout danger"><span class="callout-icon"></span><div class="callout-body"><strong>ANALYZE runs the statement:</strong> <code>EXPLAIN ANALYZE</code> really executes the query. For <code>UPDATE</code>/<code>DELETE</code>, wrap it: <code>BEGIN; EXPLAIN ANALYZE UPDATE …; ROLLBACK;</code></div></div>
+            <div class="callout tip"><span class="callout-icon"></span><div class="callout-body"><strong>Finding the query in production:</strong> Enable <code>pg_stat_statements</code> to rank queries by total time, and <code>auto_explain</code> (with <code>log_min_duration</code>) to log plans of slow statements as they actually ran with production data and parameters.</div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="indexes" data-new>
+          <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">You created an index but PostgreSQL still does a sequential scan. What are the usual reasons?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Cause</th><th>Example</th><th>Fix</th></tr></thead>
+              <tbody>
+                <tr><td>Function or cast on the column</td><td><code>WHERE lower(email) = ?</code>, <code>WHERE created_at::date = ?</code></td><td>Expression index, or rewrite as a range: <code>created_at &gt;= :d AND created_at &lt; :d + 1</code></td></tr>
+                <tr><td>Type mismatch forces a cast on the column</td><td><code>bigint</code> column compared with a <code>numeric</code> parameter</td><td>Bind the parameter with the column's type</td></tr>
+                <tr><td>Leading wildcard</td><td><code>LIKE '%son'</code></td><td><code>pg_trgm</code> GIN index or full-text search</td></tr>
+                <tr><td>Prefix <code>LIKE</code> with a non-C collation</td><td><code>LIKE 'abc%'</code> on a plain index</td><td>Index with <code>text_pattern_ops</code> (or a C collation)</td></tr>
+                <tr><td>Low selectivity</td><td><code>WHERE active = true</code> matching 70% of rows</td><td>Nothing — a seq scan is cheaper; a partial index for the rare value</td></tr>
+                <tr><td>Leading column missing</td><td>Index <code>(a, b)</code>, query <code>WHERE b = ?</code></td><td>Index with <code>b</code> first, or reorder</td></tr>
+                <tr><td>Stale statistics</td><td>Table grew 100× since the last <code>ANALYZE</code></td><td><code>ANALYZE orders;</code>, tune autovacuum/analyze thresholds</td></tr>
+                <tr><td>Tiny table</td><td>A few pages</td><td>Nothing — reading 3 pages beats an index walk</td></tr>
+                <tr><td>Generic plan for a prepared statement</td><td>Skewed column, plan chosen without the real value</td><td>Check with <code>EXPLAIN EXECUTE</code>; <code>plan_cache_mode = force_custom_plan</code> for that query</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>The prepared-statement case matters for Java</strong>: the PostgreSQL JDBC driver switches to a server-side prepared statement after <code>prepareThreshold</code> executions (default 5), and PostgreSQL may then switch to a generic plan that does not look at the actual parameter value. A query that is fast in <code>psql</code> with a literal but slow from the application is often this.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- Diagnose in your own session only: is the index usable at all?</span>
+<span class="kw">SET</span> enable_seqscan = off;
+<span class="kw">EXPLAIN</span> <span class="kw">SELECT</span> * <span class="kw">FROM</span> orders <span class="kw">WHERE</span> lower(email) = <span class="str">'a@b.com'</span>;
+RESET enable_seqscan;</code></pre></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ TRANSACTIONS ════ -->
+      <div class="section-header" id="transactions" data-nav="Transactions">
+        <div class="section-icon chip-success"><i class="fa-solid fa-lock"></i></div>
+        <div><h2>Transactions &amp; Locking</h2><p>Isolation levels, MVCC, optimistic and pessimistic locking, deadlocks</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="transactions" data-new>
+          <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">What does each isolation level guarantee, and which anomalies does each one allow (PostgreSQL vs MySQL)?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>ACID's <strong>I</strong> is a dial, not a switch: weaker levels allow more anomalies and give more concurrency. The anomalies:</p>
+            <ul>
+              <li><strong>Dirty read</strong> — you read another transaction's uncommitted change.</li>
+              <li><strong>Non-repeatable read</strong> — you read the same row twice and get different values because someone committed in between.</li>
+              <li><strong>Phantom</strong> — the same <code>WHERE</code> returns a different set of rows the second time.</li>
+              <li><strong>Lost update</strong> — two transactions read a value, both write back a value computed from it, one write disappears.</li>
+              <li><strong>Write skew</strong> — two transactions read an overlapping set, each updates a <em>different</em> row, together they break a rule (two doctors both go off call because each saw the other on call).</li>
+            </ul>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Level (PostgreSQL)</th><th>Dirty read</th><th>Non-repeatable read</th><th>Phantom</th><th>Lost update</th><th>Write skew</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Read Uncommitted</strong> — behaves as Read Committed in PG</td><td>Prevented</td><td>Possible</td><td>Possible</td><td>Possible</td><td>Possible</td></tr>
+                <tr><td><strong>Read Committed</strong> — PG default; new snapshot per statement</td><td>Prevented</td><td>Possible</td><td>Possible</td><td>Possible (read-modify-write in app code)</td><td>Possible</td></tr>
+                <tr><td><strong>Repeatable Read</strong> — snapshot isolation; one snapshot per transaction</td><td>Prevented</td><td>Prevented</td><td>Prevented in PG (the SQL standard allows it)</td><td>Prevented — the second writer gets error 40001</td><td>Possible</td></tr>
+                <tr><td><strong>Serializable</strong> — Serializable Snapshot Isolation (SSI)</td><td>Prevented</td><td>Prevented</td><td>Prevented</td><td>Prevented</td><td>Prevented — one transaction gets error 40001</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>Defaults differ per engine:</strong> PostgreSQL, Oracle and SQL Server use Read Committed; MySQL InnoDB uses Repeatable Read. Same Java code, different behaviour.</p>
+            <ul>
+              <li><strong>MySQL InnoDB Repeatable Read</strong>: plain <code>SELECT</code>s read a snapshot, but <code>UPDATE</code>, <code>DELETE</code> and <code>SELECT … FOR UPDATE</code> read the latest committed row and take next-key (gap) locks, which block inserts into the scanned range. InnoDB does not raise an error for a lost update in a read-modify-write — it silently uses the latest value. Gap locks also make InnoDB deadlocks more common.</li>
+              <li><strong>Oracle</strong> has no Repeatable Read; its Serializable is snapshot isolation (write skew still possible).</li>
+              <li><strong>In PostgreSQL Read Committed</strong>, a single statement <code>UPDATE account SET balance = balance - 100 WHERE id = 1</code> is safe: the update re-checks the newest row version. The lost update happens when Java reads the balance, computes, and writes it back — fix with a single atomic <code>UPDATE</code>, <code>@Version</code>, or <code>SELECT … FOR UPDATE</code>.</li>
+            </ul>
+            <div class="callout warning"><span class="callout-icon"></span><div class="callout-body"><strong>Serializable means retries:</strong> At Repeatable Read and Serializable PostgreSQL aborts instead of blocking: <code>ERROR: could not serialize access</code> (SQLSTATE <code>40001</code>). The application must retry the <em>whole</em> transaction, so these levels only work with a retry loop around the transactional method.</div></div>
+            <p><a class="deep-dive" href="java-spring.html#spring-core">Deep dive: @Transactional propagation and isolation in Spring on the Java &amp; Spring page <i class="fa-solid fa-arrow-right"></i></a></p>
+            <p><a class="deep-dive" href="system-design.html#databases">Deep dive: ACID vs BASE and eventual consistency on the System Design page <i class="fa-solid fa-arrow-right"></i></a></p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="transactions" data-new>
+          <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">How does MVCC work in PostgreSQL? What are xmin and xmax, dead tuples, and why does VACUUM matter?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>PostgreSQL never overwrites a row in place. Every row version (tuple) carries <code>xmin</code> (the transaction that created it) and <code>xmax</code> (the transaction that deleted or replaced it, 0 if none). An <code>UPDATE</code> writes a new version and sets <code>xmax</code> on the old one; a <code>DELETE</code> only sets <code>xmax</code>. Each statement (Read Committed) or transaction (Repeatable Read and above) works with a <em>snapshot</em> that says which transaction IDs count as committed, and sees only the versions visible to that snapshot.</p>
+            <div class="pat-svg">
+              <svg viewBox="0 0 720 255" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+                <defs><marker id="mvArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#94a3b8"/></marker></defs>
+                <text x="360" y="22" text-anchor="middle" fill="#e2e8f0" font-size="12">Transaction 105 runs: UPDATE accounts SET balance = 400 WHERE id = 1</text>
+                <rect x="200" y="40" width="320" height="150" rx="6" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,4"/>
+                <text x="212" y="58" fill="#94a3b8" font-size="11">heap page of accounts</text>
+                <rect x="220" y="70" width="280" height="44" rx="5" fill="#101528" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="232" y="88" fill="#e2e8f0" font-size="12" font-family="JetBrains Mono,monospace">v1  xmin=100  xmax=105</text>
+                <text x="232" y="106" fill="#94a3b8" font-size="11">balance 500 — dead once 105 commits</text>
+                <line x1="470" y1="114" x2="470" y2="128" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#mvArr)"/>
+                <rect x="220" y="130" width="280" height="44" rx="5" fill="#101528" stroke="#10b981" stroke-width="1.5"/>
+                <text x="232" y="148" fill="#e2e8f0" font-size="12" font-family="JetBrains Mono,monospace">v2  xmin=105  xmax=0</text>
+                <text x="232" y="166" fill="#94a3b8" font-size="11">balance 400 — the live version</text>
+                <rect x="20" y="70" width="150" height="44" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="32" y="88" fill="#e2e8f0" font-size="12" font-weight="700">Reader Tx 103</text>
+                <text x="32" y="106" fill="#94a3b8" font-size="11">snapshot before 105</text>
+                <line x1="170" y1="92" x2="218" y2="92" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#mvArr)"/>
+                <rect x="550" y="130" width="150" height="44" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+                <text x="562" y="148" fill="#e2e8f0" font-size="12" font-weight="700">Reader Tx 110</text>
+                <text x="562" y="166" fill="#94a3b8" font-size="11">snapshot after 105</text>
+                <line x1="550" y1="152" x2="502" y2="152" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#mvArr)"/>
+                <text x="360" y="215" text-anchor="middle" fill="#f59e0b" font-size="12">VACUUM may remove v1 only when no running snapshot can still see it</text>
+                <text x="360" y="238" text-anchor="middle" fill="#94a3b8" font-size="12">A transaction left open for hours keeps every dead version alive: table and index bloat</text>
+              </svg>
+            </div>
+            <ul>
+              <li><strong>Readers never block writers and writers never block readers.</strong> Two writers on the <em>same row</em> still block each other: the second waits for the first to commit or roll back.</li>
+              <li><strong>Dead tuples</strong> are versions no snapshot can see any more. <code>VACUUM</code> (normally autovacuum) marks their space reusable and updates the visibility map; it does not shrink the file. <code>VACUUM FULL</code> rewrites the table under an exclusive lock — avoid it on a live system (use <code>pg_repack</code>).</li>
+              <li><strong>HOT updates</strong>: if no indexed column changes and the page has free space, the new version stays on the same page and no index entry is written. Another reason not to index every column.</li>
+              <li><strong>Long transactions are the enemy</strong>: an <code>idle in transaction</code> session holds back the cleanup horizon for the whole database. Set <code>idle_in_transaction_session_timeout</code> and keep transactions short.</li>
+              <li><strong>Transaction ID wraparound</strong>: transaction IDs are 32-bit, so old rows must be <em>frozen</em> by vacuum; autovacuum forces an anti-wraparound vacuum on tables that get close.</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">SELECT</span> xmin, xmax, ctid, * <span class="kw">FROM</span> accounts <span class="kw">WHERE</span> id = <span class="num">1</span>;
+
+<span class="cmt">-- tables with the most dead tuples</span>
+<span class="kw">SELECT</span> relname, n_live_tup, n_dead_tup, last_autovacuum
+<span class="kw">FROM</span> pg_stat_user_tables <span class="kw">ORDER</span> <span class="kw">BY</span> n_dead_tup <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="num">10</span>;
+
+<span class="cmt">-- sessions that block cleanup</span>
+<span class="kw">SELECT</span> pid, state, xact_start, left(query, <span class="num">60</span>)
+<span class="kw">FROM</span> pg_stat_activity <span class="kw">WHERE</span> state = <span class="str">'idle in transaction'</span> <span class="kw">ORDER</span> <span class="kw">BY</span> xact_start;</code></pre></div>
+            <div class="callout info"><span class="callout-icon"></span><div class="callout-body"><strong>MySQL InnoDB:</strong> InnoDB updates the row in place and keeps the old versions in the <em>undo log</em>; a purge thread removes them. Same idea (snapshots, long transactions cause growth), different storage — there is no VACUUM, but a long transaction grows the undo log instead.</div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="transactions" data-new>
+          <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">Optimistic locking with @Version vs pessimistic locking with SELECT … FOR UPDATE — how does each work, and when do you choose which?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th></th><th>Optimistic (<code>@Version</code>)</th><th>Pessimistic (<code>FOR UPDATE</code>)</th></tr></thead>
+              <tbody>
+                <tr><td>Mechanism</td><td>No lock while reading; the <code>UPDATE</code> checks the version it read</td><td>Row lock taken at read time, held until commit</td></tr>
+                <tr><td>On conflict</td><td>0 rows updated → exception → retry or tell the user</td><td>Second transaction waits (or fails with <code>NOWAIT</code>)</td></tr>
+                <tr><td>Best when</td><td>Conflicts are rare; long "think time" (user edits a form for minutes, across HTTP requests)</td><td>Conflicts are frequent and short: counters, stock, balances, job queues</td></tr>
+                <tr><td>Risks</td><td>Many retries under contention</td><td>Lock waits, deadlocks, connection held while waiting</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Entity</span>
+<span class="kw">class</span> <span class="typ">Product</span> {
+    <span class="ann">@Id</span> <span class="typ">Long</span> id;
+    <span class="kw">int</span> stock;
+    <span class="ann">@Version</span> <span class="kw">long</span> version;   <span class="cmt">// Hibernate: UPDATE product SET stock=?, version=? WHERE id=? AND version=?  (new = old + 1)</span>
+}
+
+<span class="kw">interface</span> <span class="typ">ProductRepository</span> <span class="kw">extends</span> <span class="typ">JpaRepository</span>&lt;<span class="typ">Product</span>, <span class="typ">Long</span>&gt; {
+    <span class="ann">@Lock</span>(<span class="typ">LockModeType</span>.PESSIMISTIC_WRITE)            <span class="cmt">// Hibernate on PostgreSQL: SELECT ... FOR UPDATE</span>
+    <span class="ann">@Query</span>(<span class="str">"select p from Product p where p.id = :id"</span>)
+    <span class="typ">Optional</span>&lt;<span class="typ">Product</span>&gt; findForUpdate(<span class="typ">Long</span> id);
+}
+
+<span class="cmt">// Optimistic conflict -&gt; ObjectOptimisticLockingFailureException. Retry OUTSIDE the transaction:</span>
+<span class="ann">@Retryable</span>(retryFor = <span class="typ">ObjectOptimisticLockingFailureException</span>.<span class="kw">class</span>, maxAttempts = <span class="num">3</span>)  <span class="cmt">// spring-retry</span>
+<span class="kw">public</span> <span class="kw">void</span> reserve(<span class="kw">long</span> productId, <span class="kw">int</span> qty) {
+    stockService.reserveInNewTransaction(productId, qty);   <span class="cmt">// @Transactional on another bean</span>
+}</code></pre></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL — job queue with SKIP LOCKED</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- Many workers take different jobs without blocking each other</span>
+<span class="kw">SELECT</span> id, payload <span class="kw">FROM</span> job
+<span class="kw">WHERE</span> status = <span class="str">'NEW'</span>
+<span class="kw">ORDER</span> <span class="kw">BY</span> id
+<span class="kw">LIMIT</span> <span class="num">10</span>
+<span class="kw">FOR</span> <span class="kw">UPDATE</span> <span class="kw">SKIP</span> <span class="kw">LOCKED</span>;</code></pre></div>
+            <ul>
+              <li>The retry must wrap the whole transaction: after the exception the persistence context and transaction are unusable. A <code>@Retryable</code> and a <code>@Transactional</code> on the same method only work if the retry advice runs first — putting the transaction on a separate bean makes the order obvious.</li>
+              <li>For a web form, send the <code>version</code> to the client and back. Then the check also covers the minutes the user spent editing, which no database lock can do.</li>
+              <li>Pessimistic: always set a lock timeout (<code>NOWAIT</code>, or <code>SET lock_timeout</code> in PostgreSQL) so a stuck transaction does not drain the connection pool.</li>
+              <li>Often the best option is neither: one atomic statement <code>UPDATE product SET stock = stock - :q WHERE id = :id AND stock &gt;= :q</code> and check the update count.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="transactions" data-new>
+          <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">How does a deadlock happen in a relational database, how does PostgreSQL resolve it, and how do you prevent it?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- Transaction A</span>
+<span class="kw">BEGIN</span>;
+<span class="kw">UPDATE</span> account <span class="kw">SET</span> balance = balance - <span class="num">10</span> <span class="kw">WHERE</span> id = <span class="num">1</span>;   <span class="cmt">-- step 1: A locks row 1</span>
+<span class="cmt">-- Transaction B</span>
+<span class="kw">BEGIN</span>;
+<span class="kw">UPDATE</span> account <span class="kw">SET</span> balance = balance - <span class="num">20</span> <span class="kw">WHERE</span> id = <span class="num">2</span>;   <span class="cmt">-- step 2: B locks row 2</span>
+<span class="cmt">-- Transaction A</span>
+<span class="kw">UPDATE</span> account <span class="kw">SET</span> balance = balance + <span class="num">10</span> <span class="kw">WHERE</span> id = <span class="num">2</span>;   <span class="cmt">-- step 3: A waits for B</span>
+<span class="cmt">-- Transaction B</span>
+<span class="kw">UPDATE</span> account <span class="kw">SET</span> balance = balance + <span class="num">20</span> <span class="kw">WHERE</span> id = <span class="num">1</span>;   <span class="cmt">-- step 4: B waits for A: a cycle</span>
+<span class="cmt">-- After deadlock_timeout (default 1s) PostgreSQL checks for a cycle and aborts one:</span>
+<span class="cmt">-- ERROR: deadlock detected (SQLSTATE 40P01)</span></code></pre></div>
+            <ul>
+              <li><strong>PostgreSQL</strong> waits <code>deadlock_timeout</code> (default 1 s) before running the deadlock check, then aborts one of the transactions; the other continues. The server log shows both statements.</li>
+              <li><strong>MySQL InnoDB</strong> detects deadlocks immediately by default and rolls back the "smaller" transaction (fewest rows changed).</li>
+              <li>Spring translates deadlocks and serialization failures into subclasses of <code>PessimisticLockingFailureException</code> (a <code>TransientDataAccessException</code>) — these are safe to retry.</li>
+            </ul>
+            <p><strong>Prevention</strong></p>
+            <ol>
+              <li><strong>Lock in a consistent order</strong> — e.g. always by ascending id: <code>SELECT … WHERE id IN (1, 2) ORDER BY id FOR UPDATE</code> before updating.</li>
+              <li><strong>Keep transactions short</strong> — no HTTP calls, no user input, no message sending inside a transaction.</li>
+              <li><strong>Index foreign keys and the columns you update by</strong> — without an index the database scans and locks more than needed (especially InnoDB, which locks every scanned row).</li>
+              <li><strong>Fail fast</strong> — <code>lock_timeout</code> turns an endless wait into an error you can retry.</li>
+              <li><strong>Retry</strong> — a deadlock is not a bug you can always remove; a bounded retry with jitter is part of the design.</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ OPERATIONS ════ -->
+      <div class="section-header" id="operations" data-nav="Operations">
+        <div class="section-icon chip-accent"><i class="fa-solid fa-server"></i></div>
+        <div><h2>Running a Database from Java</h2><p>Connection pools, migrations, schema design, replicas</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="operations" data-new>
+          <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">How do you size a HikariCP connection pool, and why is a bigger pool often slower?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A database can only execute as many queries truly in parallel as it has CPU cores and I/O capacity. More connections beyond that add context switching, lock contention and memory (each PostgreSQL connection is a separate OS process), so throughput drops while latency rises. A small pool with a short queue in front of it is usually faster than a big one.</p>
+            <ul>
+              <li><strong>Starting point</strong> (HikariCP's "About Pool Sizing" page): <code>connections = (core_count × 2) + effective_spindle_count</code> for the database server — then measure.</li>
+              <li><strong>Little's law</strong> for the application side: connections needed ≈ requests per second × seconds each request holds a connection. 500 req/s × 0.02 s = 10.</li>
+              <li><strong>Count the whole fleet</strong>: pods × pool size must stay below PostgreSQL <code>max_connections</code> (default 100) minus admin and replication slots. 20 pods × 10 = 200 already does not fit — use PgBouncer or smaller pools.</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — application.yml (HikariCP defaults in comments)</span><button class="copy-btn">Copy</button></div><pre><code>spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 10        <span class="cmt"># default 10</span>
+      minimum-idle: 10             <span class="cmt"># default = maximum-pool-size (fixed-size pool, recommended)</span>
+      connection-timeout: 3000     <span class="cmt"># default 30000 ms; fail fast instead of piling up threads</span>
+      max-lifetime: 1800000        <span class="cmt"># default 30 min; keep it below any DB/firewall idle cut-off</span>
+      leak-detection-threshold: 20000   <span class="cmt"># log a stack trace if a connection is held &gt; 20 s</span>
+  jpa:
+    open-in-view: false            <span class="cmt"># default true: holds a connection for the whole web request</span></code></pre></div>
+            <p><strong>What makes a pool too small in practice</strong> is usually not traffic but connections held for too long:</p>
+            <ul>
+              <li>Open Session in View (<code>spring.jpa.open-in-view</code>, on by default; Spring Boot logs a warning) keeps the connection through view rendering and JSON serialization.</li>
+              <li>Remote calls (HTTP, Kafka send with acks) inside a <code>@Transactional</code> method hold the connection while waiting on the network.</li>
+              <li>Slow queries — fix the query, not the pool.</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon"></span><div class="callout-body"><strong>Virtual threads:</strong> With virtual threads (Java 21, <code>spring.threads.virtual.enabled=true</code>) you can have thousands of concurrent requests, but still only 10 connections. The pool becomes the natural throttle: watch <code>hikaricp.connections.pending</code> and <code>hikaricp.connections.acquire</code> in Micrometer, and keep <code>connection-timeout</code> short so overload fails fast.</div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="operations" data-new>
+          <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">How do you run Flyway migrations on PostgreSQL without downtime?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>During a rolling deployment the old and the new application version run <em>at the same time</em> against the same schema. So every migration must work with both versions — the <strong>expand → migrate → contract</strong> pattern, spread over several releases.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Release</th><th>Schema change</th><th>Application</th></tr></thead>
+              <tbody>
+                <tr><td>1 — expand</td><td>Add <code>email_address</code> (nullable)</td><td>Writes both columns, reads the old one</td></tr>
+                <tr><td>2 — migrate</td><td>Backfill in batches</td><td>Reads the new column, still writes both</td></tr>
+                <tr><td>3 — contract</td><td>Drop <code>email</code></td><td>Uses only the new column</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>Locks are the real danger.</strong> Most <code>ALTER TABLE</code> forms take an <code>ACCESS EXCLUSIVE</code> lock. Even a change that takes 1 ms must first wait behind every running query on the table — and while it waits, every new query queues behind it. One slow report can turn a "fast" migration into an outage. Always set a <code>lock_timeout</code> and retry.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Change</th><th>On a big table</th><th>Safe way</th></tr></thead>
+              <tbody>
+                <tr><td><code>ADD COLUMN</code> nullable, or with a constant default</td><td>Fast (PG 11+ stores the default in the catalog)</td><td>Fine</td></tr>
+                <tr><td><code>ADD COLUMN … DEFAULT gen_random_uuid()</code> (volatile)</td><td>Rewrites the whole table</td><td>Add nullable, backfill in batches</td></tr>
+                <tr><td><code>CREATE INDEX</code></td><td>Blocks writes for the whole build</td><td><code>CREATE INDEX CONCURRENTLY</code>, alone in its own migration</td></tr>
+                <tr><td><code>SET NOT NULL</code></td><td>Full scan under exclusive lock</td><td><code>CHECK (col IS NOT NULL) NOT VALID</code> → <code>VALIDATE</code> → <code>SET NOT NULL</code> (PG 12+ skips the scan)</td></tr>
+                <tr><td><code>ADD FOREIGN KEY</code></td><td>Scans the table under a lock</td><td><code>NOT VALID</code>, then <code>VALIDATE CONSTRAINT</code> in a later step</td></tr>
+                <tr><td><code>ALTER COLUMN TYPE</code> (e.g. <code>int</code> → <code>bigint</code>)</td><td>Usually rewrites table and indexes</td><td>New column + backfill + switch (expand/contract)</td></tr>
+                <tr><td>Rename column/table</td><td>Instant, but breaks the old app version</td><td>Expand/contract, never a direct rename</td></tr>
+              </tbody>
+            </table></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL — V42__orders_add_not_null_safely.sql</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">SET</span> lock_timeout = <span class="str">'5s'</span>;
+
+<span class="kw">ALTER</span> <span class="kw">TABLE</span> orders <span class="kw">ADD</span> <span class="kw">CONSTRAINT</span> orders_customer_nn <span class="kw">CHECK</span> (customer_id <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>) <span class="kw">NOT</span> <span class="kw">VALID</span>;
+<span class="kw">ALTER</span> <span class="kw">TABLE</span> orders <span class="kw">VALIDATE</span> <span class="kw">CONSTRAINT</span> orders_customer_nn;   <span class="cmt">-- scans, but allows reads and writes</span>
+<span class="kw">ALTER</span> <span class="kw">TABLE</span> orders <span class="kw">ALTER</span> <span class="kw">COLUMN</span> customer_id <span class="kw">SET</span> <span class="kw">NOT</span> <span class="kw">NULL</span>;   <span class="cmt">-- PG 12+: uses the valid CHECK, no scan</span>
+<span class="kw">ALTER</span> <span class="kw">TABLE</span> orders <span class="kw">DROP</span> <span class="kw">CONSTRAINT</span> orders_customer_nn;</code></pre></div>
+            <ul>
+              <li><strong>Flyway basics</strong>: <code>V&lt;version&gt;__name.sql</code> runs once, <code>R__name.sql</code> re-runs when its checksum changes, history lives in <code>flyway_schema_history</code>. Never edit an applied migration — validation fails on the checksum; write a new one.</li>
+              <li>Spring Boot runs Flyway on startup before JPA initializes. Use <code>spring.jpa.hibernate.ddl-auto=validate</code> (never <code>update</code>) in production so Hibernate checks the schema instead of changing it.</li>
+              <li>Several pods starting together are safe: Flyway takes a lock so only one applies migrations.</li>
+              <li>Flyway 10+ needs the extra module <code>org.flywaydb:flyway-database-postgresql</code> on the classpath.</li>
+              <li>Large backfills do not belong in a startup migration: they hold the deployment and a long transaction. Run them as a batched job.</li>
+            </ul>
+            <div class="callout warning"><span class="callout-icon"></span><div class="callout-body"><strong>CREATE INDEX CONCURRENTLY:</strong> It cannot run inside a transaction block. Flyway detects it on PostgreSQL and runs it outside a transaction, but keep it alone in its own file — mixing it with transactional statements fails. If the build fails it leaves an <code>INVALID</code> index behind: drop it and retry.</div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="operations" data-new>
+          <div class="qa-question"><div class="qa-num">15</div><div class="qa-question-text">Normalization vs denormalization — what are the normal forms for, and when is denormalizing the right call?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Normalization stores <strong>each fact exactly once</strong>, so an update cannot leave two copies disagreeing (update, insert and delete anomalies).</p>
+            <ul>
+              <li><strong>1NF</strong> — atomic values, no repeating groups (no <code>phone1, phone2, phone3</code> columns, no comma lists).</li>
+              <li><strong>2NF</strong> — no column depends on only <em>part</em> of a composite key.</li>
+              <li><strong>3NF</strong> — no column depends on another non-key column (<code>zip → city</code> belongs in its own table). "Every column depends on the key, the whole key, and nothing but the key."</li>
+              <li><strong>BCNF</strong> — a stricter 3NF: every determinant is a candidate key.</li>
+            </ul>
+            <p>For OLTP, start at 3NF. <strong>Denormalize only for a measured read problem</strong>, and decide who keeps the copy correct:</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Technique</th><th>Use when</th><th>Cost</th></tr></thead>
+              <tbody>
+                <tr><td>Stored counter / total (<code>order.total</code>, <code>post.comment_count</code>)</td><td>Hot aggregate read far more often than written</td><td>Update it in the same transaction; contention on the hot row</td></tr>
+                <tr><td>Materialized view</td><td>Expensive report that may be minutes old</td><td><code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code> needs a unique index; data is stale between refreshes</td></tr>
+                <tr><td><code>jsonb</code> column</td><td>Attributes that vary per row and are read as a whole</td><td>Weaker constraints; index with GIN or expression indexes</td></tr>
+                <tr><td>Separate read model / search index</td><td>Read shape very different from write shape</td><td>Eventual consistency, a sync pipeline (outbox, CDC)</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout tip"><span class="callout-icon"></span><div class="callout-body"><strong>Not every copy is denormalization:</strong> An order line's <code>unit_price</code> looks like a copy of <code>product.price</code>, but it is a different fact: the price <em>at the time of the order</em>. It must be stored — joining to today's price would be a bug.</div></div>
+            <p><a class="deep-dive" href="microservices.html#data">Deep dive: CQRS read models and the outbox pattern on the Microservices page <i class="fa-solid fa-arrow-right"></i></a></p>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="operations" data-new>
+          <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">How do read replicas work in PostgreSQL, what is replication lag, and how do you route reads from Spring without breaking read-your-writes?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Streaming replication</strong> ships the primary's write-ahead log (WAL) to standbys, which replay it and can serve read-only queries (hot standby). It is <strong>asynchronous by default</strong>: a commit returns before the standby has the change, so a read on the replica right after a write may not see it — that delay is <em>replication lag</em>.</p>
+            <ul>
+              <li><code>synchronous_standby_names</code> + <code>synchronous_commit = on</code> waits until the standby has flushed the WAL (no data loss on failover); <code>remote_apply</code> waits until it is replayed (read-your-writes on that standby). Each step adds commit latency, and if the synchronous standby is down, commits wait.</li>
+              <li>Measure lag on the primary with <code>pg_stat_replication</code> (<code>write_lag</code>, <code>flush_lag</code>, <code>replay_lag</code>); on a standby, <code>now() - pg_last_xact_replay_timestamp()</code> (misleading when the primary is idle).</li>
+              <li>Long queries on a standby can be cancelled when replay needs to remove rows they still read (<code>max_standby_streaming_delay</code>); <code>hot_standby_feedback = on</code> avoids that at the cost of bloat on the primary.</li>
+              <li>With asynchronous replication, failing over to a replica can lose the last committed transactions.</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — route @Transactional(readOnly = true) to the replica</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">class</span> <span class="typ">ReadWriteRoutingDataSource</span> <span class="kw">extends</span> <span class="typ">AbstractRoutingDataSource</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">protected</span> <span class="typ">Object</span> determineCurrentLookupKey() {
+        <span class="kw">return</span> <span class="typ">TransactionSynchronizationManager</span>.isCurrentTransactionReadOnly() ? <span class="str">"replica"</span> : <span class="str">"primary"</span>;
+    }
+}
+
+<span class="ann">@Bean</span> <span class="ann">@Primary</span>
+<span class="typ">DataSource</span> dataSource(<span class="ann">@Qualifier</span>(<span class="str">"primaryDs"</span>) <span class="typ">DataSource</span> primary, <span class="ann">@Qualifier</span>(<span class="str">"replicaDs"</span>) <span class="typ">DataSource</span> replica) {
+    <span class="kw">var</span> routing = <span class="kw">new</span> <span class="typ">ReadWriteRoutingDataSource</span>();
+    routing.setTargetDataSources(<span class="typ">Map</span>.of(<span class="str">"primary"</span>, primary, <span class="str">"replica"</span>, replica));
+    routing.setDefaultTargetDataSource(primary);
+    routing.afterPropertiesSet();
+    <span class="cmt">// Lazy proxy: the physical connection is fetched on the first statement,</span>
+    <span class="cmt">// after the transaction has set its read-only flag.</span>
+    <span class="kw">return</span> <span class="kw">new</span> <span class="typ">LazyConnectionDataSourceProxy</span>(routing);
+}</code></pre></div>
+            <p><strong>Read-your-writes</strong> options, from simple to precise:</p>
+            <ol>
+              <li>Read from the primary in any flow that just wrote (same transaction, or the request right after).</li>
+              <li>Sticky to primary for a few seconds after a user's write (flag in the session or a cookie).</li>
+              <li>Remember the primary's WAL position after the write (<code>pg_current_wal_lsn()</code>) and use a replica only once its <code>pg_last_wal_replay_lsn()</code> has passed it.</li>
+            </ol>
+            <p><a class="deep-dive" href="system-design.html#databases">Deep dive: Replication, sharding and the CAP theorem on the System Design page <i class="fa-solid fa-arrow-right"></i></a></p>
+          </div>
+        </div>
+
+      </div>
+
+
 
       <div class="related-pages">
         <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
