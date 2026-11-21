@@ -969,7 +969,7 @@ then the real request:  POST /api/orders  with  Origin: https://app.example.com<
             </table></div>
             <p><strong>What a senior answer says:</strong> no storage survives XSS. Even with an HttpOnly cookie, injected script can call your API as the user while the page is open — HttpOnly only stops the token from being <em>stolen</em> and reused elsewhere. So the order is: prevent XSS first, then reduce what a stolen token is worth.</p>
             <ol>
-              <li><strong>Backend-for-Frontend (BFF)</strong> — the option the IETF draft "OAuth 2.0 for Browser-Based Applications" ranks as most secure: the server does the OAuth flow and keeps the tokens; the browser only holds an <code>HttpOnly</code> session cookie (with <code>SameSite</code> and CSRF protection). No token ever reaches JavaScript.</li>
+              <li><strong>Backend-for-Frontend (BFF)</strong> — the option RFC 10017 "OAuth 2.0 for Browser-Based Applications" (BCP 212, 2026) ranks as most secure: the server does the OAuth flow and keeps the tokens; the browser only holds an <code>HttpOnly</code> session cookie (with <code>SameSite</code> and CSRF protection). No token ever reaches JavaScript.</li>
               <li><strong>Pure SPA</strong>: Authorization Code flow with PKCE (never the implicit flow), short-lived access token in memory, refresh token rotation, strict CSP.</li>
               <li><code>localStorage</code> is the weakest option for long-lived tokens: one XSS anywhere on the origin, and the token works from the attacker's machine until it expires.</li>
             </ol>
