@@ -31,113 +31,45 @@
 
       <!-- Hero -->
       <div class="hero">
-        <div class="hero-badge">🚀 Interview Ready</div>
-        <h1>Full Stack Developer<br>Interview Playbook</h1>
-        <p>Comprehensive Q&amp;A, code examples, and insider tips for Java Spring Boot, Angular, Kubernetes, and System Design interviews. Click any topic to start.</p>
+        <div class="hero-badge"><i class="fa-solid fa-rocket"></i> Interview Ready</div>
+        <h1>Full Stack Java<br>Interview Playbook</h1>
+        <p>Questions, answers, code and diagrams for Java 21, Spring Boot 3, SQL, microservices, Kafka, Kubernetes and Angular, with a review schedule that tells you what to repeat each day.</p>
         <div class="hero-stats">
-          <div class="hero-stat"><div class="num">113</div><div class="lbl">Questions</div></div>
-          <div class="hero-stat"><div class="num">4</div><div class="lbl">Topic Areas</div></div>
-          <div class="hero-stat"><div class="num">50+</div><div class="lbl">Code Examples</div></div>
-          <div class="hero-stat"><div class="num">3</div><div class="lbl">Difficulty Levels</div></div>
+          <div class="hero-stat"><div class="num" data-total-questions></div><div class="lbl">Questions</div></div>
+          <div class="hero-stat"><div class="num" data-total-topics></div><div class="lbl">Topics</div></div>
+          <div class="hero-stat"><div class="num" data-due-count></div><div class="lbl">Due today</div></div>
+        </div>
+        <div class="hero-actions">
+          <a class="btn-primary" href="final-exam.html?mode=due"><i class="fa-solid fa-calendar-day"></i> Review due cards (<span data-due-count></span>)</a>
+          <a class="btn-secondary" href="final-exam.html"><i class="fa-solid fa-user-tie"></i> Mock interview</a>
         </div>
       </div>
 
-      <!-- Topic Cards -->
-      <div class="section-header">
-        <div class="section-icon" style="background:rgba(99,102,241,.15)"><i class="fa-solid fa-book-open"></i></div>
+      <!-- How to study -->
+      <div class="section-header" id="how-to-study">
+        <div class="section-icon chip-success"><i class="fa-solid fa-graduation-cap"></i></div>
         <div>
-          <h2>Study Topics</h2>
-          <p>Click a card to open the full question set</p>
+          <h2>How to Study</h2>
+          <p>Five habits that make answers stick</p>
         </div>
       </div>
+      <ol class="study-steps">
+        <li><strong>Answer before you read.</strong> Say the answer out loud, then open the card. Trying to recall is what builds memory; re-reading mostly builds familiarity.</li>
+        <li><strong>Rate every card honestly.</strong> Use <em>Test yourself</em> on any page: "Got it" schedules the card 1, 3, 7, 14 and then 30 days out; "Need practice" brings it back today.</li>
+        <li><strong>Do <em>Due today</em> every day.</strong> Fifteen minutes daily beats three hours on Sunday.</li>
+        <li><strong>Mix topics.</strong> The mock interview pulls 20 questions from different pages, the way a real interviewer jumps around.</li>
+        <li><strong>Redraw the diagrams.</strong> If you can sketch it on a whiteboard from memory, you can explain it under pressure.</li>
+      </ol>
 
-      <div class="topic-grid">
-
-        <a class="topic-card java" href="java-spring.html">
-          <div class="topic-card-icon"><i class="fa-solid fa-mug-hot"></i></div>
-          <h3>Java &amp; Spring Boot</h3>
-          <p>Core Java 17–21, Spring IoC/DI, REST APIs, Security, JPA/Hibernate, transactions, and microservices patterns.</p>
-          <div class="topic-card-meta">
-            <span class="tag java">Java 21</span>
-            <span class="tag java">Spring Boot 3</span>
-            <span class="tag java">35 Q</span>
-            <span class="topic-card-arrow">→</span>
-          </div>
-        </a>
-
-        <a class="topic-card angular" href="angular.html">
-          <div class="topic-card-icon"><i class="fa-brands fa-angular"></i></div>
-          <h3>Angular</h3>
-          <p>Components, lifecycle hooks, RxJS, change detection, lazy loading, standalone components, signals, and testing.</p>
-          <div class="topic-card-meta">
-            <span class="tag angular">Angular 17+</span>
-            <span class="tag angular">RxJS</span>
-            <span class="tag angular">28 Q</span>
-            <span class="topic-card-arrow">→</span>
-          </div>
-        </a>
-
-        <a class="topic-card k8s" href="kubernetes-devops.html">
-          <div class="topic-card-icon"><i class="fa-solid fa-dharmachakra"></i></div>
-          <h3>Kubernetes &amp; DevOps</h3>
-          <p>Pods, deployments, services, Helm, HPA, probes, resource management, CI/CD pipelines, Docker, and GitOps.</p>
-          <div class="topic-card-meta">
-            <span class="tag k8s">K8s</span>
-            <span class="tag k8s">Docker</span>
-            <span class="tag k8s">30 Q</span>
-            <span class="topic-card-arrow">→</span>
-          </div>
-        </a>
-
-        <a class="topic-card system" href="system-design.html">
-          <div class="topic-card-icon"><i class="fa-solid fa-diagram-project"></i></div>
-          <h3>System Design</h3>
-          <p>Scalability, caching, load balancing, database sharding, event-driven architecture, CAP theorem, microservices vs monolith.</p>
-          <div class="topic-card-meta">
-            <span class="tag">Distributed</span>
-            <span class="tag">Microservices</span>
-            <span class="tag">20 Q</span>
-            <span class="topic-card-arrow">→</span>
-          </div>
-        </a>
-
-        <a class="topic-card" style="background:linear-gradient(135deg,rgba(0,188,212,.1),rgba(0,188,212,.04));border-color:rgba(0,188,212,.3)" href="kafka.html">
-          <div class="topic-card-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
-          <h3>Kafka Deep Dive</h3>
-          <p>Brokers, partitions, producers, consumers, Kafka Streams, Schema Registry, Debezium CDC, Spring Kafka, testing patterns.</p>
-          <div class="topic-card-meta">
-            <span class="tag chip-cyan">Kafka</span>
-            <span class="tag chip-cyan">Streams</span>
-            <span class="tag chip-cyan">30 Q</span>
-            <span class="topic-card-arrow">→</span>
-          </div>
-        </a>
-
-        <a class="topic-card" style="background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.04));border-color:rgba(16,185,129,.3)" href="microservices.html">
-          <div class="topic-card-icon"><i class="fa-solid fa-link"></i></div>
-          <h3>Microservices</h3>
-          <p>DDD, Bounded Contexts, Saga pattern, CQRS, Event Sourcing, Circuit Breaker, Strangler Fig migration, observability, security.</p>
-          <div class="topic-card-meta">
-            <span class="tag chip-success">DDD</span>
-            <span class="tag chip-success">Resilience4j</span>
-            <span class="tag chip-success">28 Q</span>
-            <span class="topic-card-arrow">→</span>
-          </div>
-        </a>
-
-        <a class="topic-card" style="background:linear-gradient(135deg,rgba(255,153,0,.1),rgba(66,133,244,.06));border-color:rgba(255,153,0,.3)" href="big-tech.html">
-          <div class="topic-card-icon"><i class="fa-solid fa-building"></i></div>
-          <h3>Amazon &amp; Google</h3>
-          <p>All 16 Amazon Leadership Principles with STAR frameworks. Google Googleyness, cognitive ability, behavioral and technical questions.</p>
-          <div class="topic-card-meta">
-            <span class="tag chip-aws">Amazon LPs</span>
-            <span class="tag chip-gcp">Google</span>
-            <span class="tag">40 Q</span>
-            <span class="topic-card-arrow">→</span>
-          </div>
-        </a>
-
+      <!-- Study path -->
+      <div class="section-header" id="study-path">
+        <div class="section-icon chip-accent"><i class="fa-solid fa-route"></i></div>
+        <div>
+          <h2>Study Path</h2>
+          <p>Work top to bottom; each topic builds on the one before</p>
+        </div>
       </div>
+      <div class="study-path" id="studyPath"></div>
 
       <hr class="divider">
 
@@ -150,42 +82,42 @@
         </div>
       </div>
 
-      <div class="topic-grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))">
+      <div class="tip-grid">
 
-        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
-          <div style="font-size:28px;margin-bottom:10px">🎯</div>
-          <h3 style="font-size:15px;margin-bottom:8px">STAR Method</h3>
-          <p style="font-size:13px;color:var(--text-secondary)"><strong>Situation</strong> → <strong>Task</strong> → <strong>Action</strong> → <strong>Result</strong>. Use this structure for every behavioural question to sound concrete and credible.</p>
+        <div class="tip-card">
+          <div class="tip-emoji">🎯</div>
+          <h3>STAR Method</h3>
+          <p><strong>Situation</strong> → <strong>Task</strong> → <strong>Action</strong> → <strong>Result</strong>. Use this structure for every behavioural question to sound concrete and credible.</p>
         </div>
 
-        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
-          <div style="font-size:28px;margin-bottom:10px">🤔</div>
-          <h3 style="font-size:15px;margin-bottom:8px">Think Aloud</h3>
-          <p style="font-size:13px;color:var(--text-secondary)">Verbalise your reasoning before and during coding. Interviewers hire for thinking process, not just final answer.</p>
+        <div class="tip-card">
+          <div class="tip-emoji">🤔</div>
+          <h3>Think Aloud</h3>
+          <p>Verbalise your reasoning before and during coding. Interviewers hire for thinking process, not just final answer.</p>
         </div>
 
-        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
-          <div style="font-size:28px;margin-bottom:10px">⚖️</div>
-          <h3 style="font-size:15px;margin-bottom:8px">Trade-offs First</h3>
-          <p style="font-size:13px;color:var(--text-secondary)">Senior engineers don't say "use X". They say "X solves A but costs B; given your constraints I'd choose X because…"</p>
+        <div class="tip-card">
+          <div class="tip-emoji">⚖️</div>
+          <h3>Trade-offs First</h3>
+          <p>Senior engineers don't say "use X". They say "X solves A but costs B; given your constraints I'd choose X because…"</p>
         </div>
 
-        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
-          <div style="font-size:28px;margin-bottom:10px">❓</div>
-          <h3 style="font-size:15px;margin-bottom:8px">Ask Clarifying Qs</h3>
-          <p style="font-size:13px;color:var(--text-secondary)">For any system design prompt, spend 2 min asking about scale, SLAs, read/write ratio before proposing anything.</p>
+        <div class="tip-card">
+          <div class="tip-emoji">❓</div>
+          <h3>Ask Clarifying Qs</h3>
+          <p>For any system design prompt, spend 2 min asking about scale, SLAs, read/write ratio before proposing anything.</p>
         </div>
 
-        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
-          <div style="font-size:28px;margin-bottom:10px">🔄</div>
-          <h3 style="font-size:15px;margin-bottom:8px">Iterate Visibly</h3>
-          <p style="font-size:13px;color:var(--text-secondary)">Start with brute force or naive solution, acknowledge limitations, then refine. Shows intellectual honesty.</p>
+        <div class="tip-card">
+          <div class="tip-emoji">🔄</div>
+          <h3>Iterate Visibly</h3>
+          <p>Start with brute force or naive solution, acknowledge limitations, then refine. Shows intellectual honesty.</p>
         </div>
 
-        <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:22px">
-          <div style="font-size:28px;margin-bottom:10px">📝</div>
-          <h3 style="font-size:15px;margin-bottom:8px">Prepare Questions</h3>
-          <p style="font-size:13px;color:var(--text-secondary)">Always have 3 smart questions for the interviewer: team tech debt approach, deployment cadence, on-call culture.</p>
+        <div class="tip-card">
+          <div class="tip-emoji">📝</div>
+          <h3>Prepare Questions</h3>
+          <p>Always have 3 smart questions for the interviewer: team tech debt approach, deployment cadence, on-call culture.</p>
         </div>
 
       </div>

@@ -27,18 +27,28 @@ function toggleTheme() {
 // ─── Navigation: single source of truth, ordered as the study path ───────
 // `count` must equal the page's .qa-card count — scripts/check-site.py enforces it.
 const NAV = [
-  { href: 'java-refresher.html',    label: 'Java 8–21 Refresher',            icon: 'fa-solid fa-book-open',            count: 0 },
-  { href: 'java-spring.html',       label: 'Java & Spring Boot',             icon: 'fa-solid fa-mug-hot',              count: 57 },
-  { href: 'sql-databases.html',     label: 'SQL & Databases',                icon: 'fa-solid fa-database',             count: 0 },
-  { href: 'patterns.html',          label: 'Design Patterns',                icon: 'fa-solid fa-shapes',               count: 31 },
-  { href: 'microservices.html',     label: 'Microservices',                  icon: 'fa-solid fa-link',                 count: 28 },
-  { href: 'kafka.html',             label: 'Kafka Deep Dive',                icon: 'fa-solid fa-envelope-open-text',   count: 35 },
-  { href: 'system-design.html',     label: 'System Design',                  icon: 'fa-solid fa-diagram-project',      count: 20 },
-  { href: 'kubernetes-devops.html', label: 'Kubernetes & DevOps',            icon: 'fa-solid fa-dharmachakra',         count: 23 },
-  { href: 'angular.html',           label: 'Angular',                        icon: 'fa-brands fa-angular',             count: 20 },
-  { href: 'soft-skills.html',       label: 'Soft Skills',                    icon: 'fa-solid fa-brain',                count: 50 },
-  { href: 'general.html',           label: 'General (merging)',              icon: 'fa-solid fa-comments',             count: 27 },
-  { href: 'big-tech.html',          label: 'Amazon & Google',                icon: 'fa-solid fa-building',             count: 20 },
+  { href: 'java-refresher.html',    label: 'Java 8–21 Refresher',            icon: 'fa-solid fa-book-open',            count: 0,
+    desc: 'One running OrderService example, upgraded release by release from Java 8 to 21.' },
+  { href: 'java-spring.html',       label: 'Java & Spring Boot',             icon: 'fa-solid fa-mug-hot',              count: 57,
+    desc: 'Core Java, concurrency, JVM, collections, Spring Core/MVC/Security, JPA and testing.' },
+  { href: 'sql-databases.html',     label: 'SQL & Databases',                icon: 'fa-solid fa-database',             count: 0,
+    desc: 'Joins, window functions, indexes, EXPLAIN, isolation levels, MVCC and locking.' },
+  { href: 'patterns.html',          label: 'Design Patterns',                icon: 'fa-solid fa-shapes',               count: 31,
+    desc: 'SOLID, GoF patterns, architecture styles, load balancing and algorithm basics.' },
+  { href: 'microservices.html',     label: 'Microservices',                  icon: 'fa-solid fa-link',                 count: 28,
+    desc: 'Decomposition, communication, data consistency (Saga, Outbox), resilience, observability.' },
+  { href: 'kafka.html',             label: 'Kafka Deep Dive',                icon: 'fa-solid fa-envelope-open-text',   count: 35,
+    desc: 'Brokers, partitions, producers, consumer groups, delivery guarantees, Streams, Spring Kafka.' },
+  { href: 'system-design.html',     label: 'System Design',                  icon: 'fa-solid fa-diagram-project',      count: 20,
+    desc: 'Scalability, databases, caching, messaging and the classic design questions.' },
+  { href: 'kubernetes-devops.html', label: 'Kubernetes & DevOps',            icon: 'fa-solid fa-dharmachakra',         count: 23,
+    desc: 'Pods to Helm: networking, config, scaling, containers and CI/CD.' },
+  { href: 'angular.html',           label: 'Angular',                        icon: 'fa-brands fa-angular',             count: 20,
+    desc: 'Components, signals, RxJS, change detection, routing, forms and web fundamentals.' },
+  { href: 'soft-skills.html',       label: 'Soft Skills',                    icon: 'fa-solid fa-brain',                count: 60,
+    desc: 'Self-intro, STAR stories, technical communication, traps and offer negotiation.' },
+  { href: 'big-tech.html',          label: 'Amazon & Google',                icon: 'fa-solid fa-building',             count: 20,
+    desc: 'Amazon Leadership Principles and Google-style interview questions.' },
 ];
 const NAV_HOME = [
   { href: 'index.html',      label: 'Dashboard', icon: 'fa-solid fa-house' },
@@ -285,7 +295,7 @@ function updateProgress() {
 // ─── Sidebar Progress Widget ──────────────────────────────────────────────
 function injectSidebarProgress() {
   const nav = document.querySelector('.sidebar-nav');
-  if (!nav || document.querySelector('.sidebar-progress')) return;
+  if (!nav || !document.querySelector('.qa-card') || document.querySelector('.sidebar-progress')) return;
 
   const wrap = document.createElement('div');
   wrap.className = 'sidebar-progress';
@@ -361,6 +371,7 @@ function markCardMastered(card) {
   saveMastery();
   updateProgress();
   updateSectionProgress();
+  updateSectionCounters();
 }
 
 function initMastery() {
@@ -622,7 +633,7 @@ function wrapAbbreviations() {
 function injectTopbarExtras() {
   const topbar = document.querySelector('.topbar');
   const themeBtn = document.getElementById('themeToggle');
-  if (!topbar || !themeBtn) return;
+  if (!topbar || !themeBtn || !document.querySelector('.qa-card')) return;
 
   const stat = document.createElement('span');
   stat.id = 'topbarMasteredStat';
@@ -849,6 +860,7 @@ function updateSectionCounters() {
     var cards    = group.querySelectorAll('.qa-card');
     var mastered = group.querySelectorAll('.qa-card.mastered');
     counter.textContent = mastered.length + ' / ' + cards.length;
+    counter.hidden = !cards.length;
   });
 }
 

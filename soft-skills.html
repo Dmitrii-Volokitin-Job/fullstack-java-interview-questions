@@ -46,6 +46,7 @@
         <button class="pillar-chip" data-pillar="comm">Communication</button>
         <button class="pillar-chip" data-pillar="team">Team</button>
         <button class="pillar-chip" data-pillar="traps">Traps</button>
+        <button class="pillar-chip" data-pillar="negotiation">Negotiation</button>
       </div>
 
       <!-- ════════════════════════════════════════════
@@ -663,6 +664,40 @@ on schedule.
           </div>
         </div>
 
+      
+        <div class="qa-card" data-pillar="star" data-new>
+          <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">How do you handle a production incident? What's your process?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>Incident handling is a proxy for how you perform under pressure. Senior engineers are calm, systematic, and communicate well in a crisis.</p>
+            <p><strong>Incident response framework:</strong></p>
+            <ol>
+              <li><strong>Acknowledge immediately</strong> — "I'm looking at it now" within 2 minutes of alert</li>
+              <li><strong>Scope the impact</strong> — what is broken? How many users? Revenue impact? Is it getting worse?</li>
+              <li><strong>Mitigate first, root-cause second</strong> — rollback, feature flag off, scale up. Fix the symptoms to stop the bleeding before diagnosing the disease</li>
+              <li><strong>Communicate the status</strong> — brief update every 15 minutes to stakeholders, even if it's "still investigating"</li>
+              <li><strong>Don't guess</strong> — measure. Check metrics, traces, logs before drawing conclusions</li>
+              <li><strong>Resolve and document</strong> — once stable, write a post-mortem: timeline, root cause, contributing factors, action items</li>
+            </ol>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Post-mortem culture</span><div class="callout-body">Blameless post-mortems are the sign of a healthy engineering organisation. The goal is to find system improvements, not to punish individuals. If your interviewer describes a "we find who made the mistake" culture in post-mortems, that's a warning sign. Good teams ask "what process could have caught this" not "who did this".</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="star" data-new>
+          <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">How do you deal with a teammate who is significantly underperforming?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>This is a trap if you answer too harshly (sounds like you throw people under the bus) or too softly (sounds like you avoid confrontation).</strong></p>
+            <p><strong>The honest answer — graduated approach:</strong></p>
+            <ol>
+              <li><strong>First: understand</strong> — is it a skill gap, a context gap, a personal problem, or a motivation issue? The answer changes the response</li>
+              <li><strong>Offer help directly</strong> — "I've noticed you seem stuck on X — can I help?" before escalating</li>
+              <li><strong>Be specific and private</strong> — not "your code is bad" but "this specific PR missed the error handling we discussed — let's pair on this pattern"</li>
+              <li><strong>If it continues</strong> — involve the manager. Document specifically what you've observed and tried. Not to get someone fired but to get support for both of you</li>
+              <li><strong>Don't absorb the work silently</strong> — doing someone else's work to cover for them helps nobody and breeds resentment</li>
+            </ol>
+            <div class="good-answer">"I try to start by understanding why, not jumping to judgment. If a teammate is consistently missing estimates or producing buggy code, there might be context they're missing, or they might be struggling personally. I'd approach them directly and privately first — offer pairing sessions, ask what they're finding hard. If that doesn't move the needle after a couple of weeks, I'd involve the manager — not to escalate blame but because it's a management problem at that point, not something I can fix alone."</div>
+          </div>
+        </div>
+
       </div><!-- /qa-list section 2 -->
 
       <!-- ════════════════════════════════════════════
@@ -677,7 +712,7 @@ on schedule.
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">19</div>
+            <div class="qa-num">21</div>
             <div class="qa-question-text">How do you explain a complex technical concept to a non-technical audience?</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -706,7 +741,7 @@ for all stations at once."
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">20</div>
+            <div class="qa-num">22</div>
             <div class="qa-question-text">Walk me through your process for estimating a feature's development time</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -746,7 +781,7 @@ stakeholders make informed trade-offs if priorities shift.
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">21</div>
+            <div class="qa-num">23</div>
             <div class="qa-question-text">How do you handle code review feedback — both giving and receiving?</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -782,7 +817,7 @@ saves a lot of boilerplate."
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">22</div>
+            <div class="qa-num">24</div>
             <div class="qa-question-text">How do you communicate technical debt to product management?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -815,7 +850,7 @@ costs us roughly €15k in support and refunds."
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">23</div>
+            <div class="qa-num">25</div>
             <div class="qa-question-text">Describe your debugging process from symptom to root cause</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -851,7 +886,7 @@ costs us roughly €15k in support and refunds."
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">24</div>
+            <div class="qa-num">26</div>
             <div class="qa-question-text">How do you document code and architecture decisions?</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -893,7 +928,7 @@ Latency requirements allow async processing for all 4 consumers.
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">25</div>
+            <div class="qa-num">27</div>
             <div class="qa-question-text">How do you approach technical disagreements with peers?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -927,7 +962,7 @@ Level 4: Disagree and commit.
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">26</div>
+            <div class="qa-num">28</div>
             <div class="qa-question-text">How do you prioritize when you have 5 tasks and time for 3?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -962,7 +997,7 @@ Level 4: Disagree and commit.
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">27</div>
+            <div class="qa-num">29</div>
             <div class="qa-question-text">How do you handle a situation where requirements are unclear or changing?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1001,7 +1036,7 @@ Step 5: If requirements change mid-implementation, negotiate scope.
 
         <div class="qa-card" data-pillar="comm">
           <div class="qa-question">
-            <div class="qa-num">28</div>
+            <div class="qa-num">30</div>
             <div class="qa-question-text">Walk me through how you onboard to an unfamiliar codebase</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1047,7 +1082,7 @@ Week 3+ — Raise the bar:
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">29</div>
+            <div class="qa-num">31</div>
             <div class="qa-question-text">What does good mentorship look like to you — both receiving and giving?</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1080,7 +1115,7 @@ that only comes from experience.
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">30</div>
+            <div class="qa-num">32</div>
             <div class="qa-question-text">How do you balance technical debt vs feature delivery?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1114,7 +1149,7 @@ work to be embedded in feature work so it can't be easily cut.
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">31</div>
+            <div class="qa-num">33</div>
             <div class="qa-question-text">How do you stay current with technology — what's your learning system?</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1148,7 +1183,7 @@ surfaces gaps in my understanding quickly.
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">32</div>
+            <div class="qa-num">34</div>
             <div class="qa-question-text">How do you handle working with a toxic or difficult colleague?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1182,7 +1217,7 @@ containing it.
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">33</div>
+            <div class="qa-num">35</div>
             <div class="qa-question-text">What does "done" mean to you for a software task?</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1213,7 +1248,7 @@ that nobody could debug in production because there were no logs.
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">34</div>
+            <div class="qa-num">36</div>
             <div class="qa-question-text">How do you handle scope creep during a sprint?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1248,7 +1283,7 @@ the cost visible so the decision is made explicitly.
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">35</div>
+            <div class="qa-num">37</div>
             <div class="qa-question-text">Describe your ideal code review process</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1286,7 +1321,7 @@ Process:
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">36</div>
+            <div class="qa-num">38</div>
             <div class="qa-question-text">How do you approach working across time zones in a distributed team?</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1320,7 +1355,7 @@ Process:
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">37</div>
+            <div class="qa-num">39</div>
             <div class="qa-question-text">How do you handle being the most/least senior person on the team?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1352,7 +1387,7 @@ than any individual on it could produce alone.
 
         <div class="qa-card" data-pillar="team">
           <div class="qa-question">
-            <div class="qa-num">38</div>
+            <div class="qa-num">40</div>
             <div class="qa-question-text">How do you recover your motivation after a failed project?</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1401,7 +1436,7 @@ valid outcomes.
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">39</div>
+            <div class="qa-num">41</div>
             <div class="qa-question-text">"Where else are you interviewing?" — how to answer without losing leverage</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1426,7 +1461,7 @@ be my first choice."
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">40</div>
+            <div class="qa-num">42</div>
             <div class="qa-question-text">"What's your current salary?" / "What's your salary expectation?" — the right response</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1456,7 +1491,7 @@ What's the budgeted range for this position?"
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">41</div>
+            <div class="qa-num">43</div>
             <div class="qa-question-text">"Can you start immediately?" — how to answer without burning bridges</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1480,7 +1515,7 @@ whatever timeline works best for your team."
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">42</div>
+            <div class="qa-num">44</div>
             <div class="qa-question-text">"Are you overqualified for this role?" — reframe without defensive answers</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1511,7 +1546,7 @@ why things are the way they are before suggesting improvements."
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">43</div>
+            <div class="qa-num">45</div>
             <div class="qa-question-text">The illegal question trap (age, family planning, nationality) — how to respond professionally</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1552,7 +1587,7 @@ my background or qualifications?"
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">44</div>
+            <div class="qa-num">46</div>
             <div class="qa-question-text">"What would your previous manager say about you?" — how to answer authentically</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1581,7 +1616,7 @@ would be glad to take a call."
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">45</div>
+            <div class="qa-num">47</div>
             <div class="qa-question-text">Fermi estimation questions ("How many piano tuners in Chicago?") — framework to answer</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1621,7 +1656,7 @@ Step 5 — State your uncertainty:
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">46</div>
+            <div class="qa-num">48</div>
             <div class="qa-question-text">System design in 30 minutes — avoiding the trap of diving too deep too fast</div>
             <span class="qa-difficulty diff-hard">Hard</span>
             <span class="qa-chevron">▼</span>
@@ -1663,7 +1698,7 @@ Minutes 25–30: Questions and open threads
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">47</div>
+            <div class="qa-num">49</div>
             <div class="qa-question-text">"We move fast and break things, are you okay with that?" — probe for culture fit</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1690,7 +1725,7 @@ post-mortem culture, or does it tend to be more fire-drill-and-move-on?"
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">48</div>
+            <div class="qa-num">50</div>
             <div class="qa-question-text">How to ask powerful questions at the end of the interview (that make you memorable)</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1732,7 +1767,7 @@ address it now than leave you with unanswered concerns."
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">49</div>
+            <div class="qa-num">51</div>
             <div class="qa-question-text">Salary negotiation — when they ask "what's your number?" first</div>
             <span class="qa-difficulty diff-medium">Medium</span>
             <span class="qa-chevron">▼</span>
@@ -1772,7 +1807,7 @@ Is there anything you can do to close that gap?"
 
         <div class="qa-card" data-pillar="traps">
           <div class="qa-question">
-            <div class="qa-num">50</div>
+            <div class="qa-num">52</div>
             <div class="qa-question-text">After the interview: follow-up etiquette, timeline expectations, handling rejection</div>
             <span class="qa-difficulty diff-easy">Easy</span>
             <span class="qa-chevron">▼</span>
@@ -1817,12 +1852,172 @@ may refer you to your next role.
           </div>
         </div>
 
+      
+        <div class="qa-card" data-pillar="traps" data-new>
+          <div class="qa-question"><div class="qa-num">53</div><div class="qa-question-text">"We have other strong candidates. You should decide quickly." (artificial urgency)</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To prevent you from using competing offers to negotiate, or to stop you from thinking clearly about the decision. Artificial urgency is a classic sales tactic — it's used to bypass rational decision-making.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> "We have many candidates and need to move fast." This is often false, or even if true, is designed to make you accept terms you'd otherwise negotiate.</div>
+            </div>
+            <p><strong>Counter: stay calm, ask for reasonable time, and never make a major career decision under pressure.</strong></p>
+            <div class="good-answer">"I understand the timeline pressure and I'm genuinely interested in this role. I want to make this decision carefully so that if I accept, I'm fully committed. What's the minimum time you'd need me to decide by? I'll work within that."</div>
+            <div class="good-answer">If you have other processes: "I'm at late stages with two other companies as well. I'd like to complete those processes so I can make a fully informed decision. Could we aim for [specific date, 5-7 days]?"</div>
+            <div class="bad-answer">Accepting immediately to "secure the role" — if the offer is poor, you've locked yourself in.</div>
+            <div class="bad-answer">Panicking and dropping other interview processes that might produce better offers.</div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Reality check</span><div class="callout-body">A company that truly wants you will wait 3–5 business days for you to decide. If they won't, that tells you something about how they treat employees' decisions once you're inside the company. Companies that pressure you into quick decisions tend to also pressure you once employed.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="traps" data-new>
+          <div class="qa-question"><div class="qa-num">54</div><div class="qa-question-text">"We can't match that offer. But the learning opportunities here are amazing." (selling you intangibles)</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>To get you to accept below-market compensation in exchange for vague promises ("amazing learning", "great culture", "exciting projects"). These intangibles are real and valuable — but they're also used to compensate for underpaying.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> Paying you with "exposure", "experience", or "opportunity" instead of money. Rent cannot be paid in learning opportunities.</div>
+            </div>
+            <p><strong>Counter: acknowledge the value of intangibles but don't trade them for compensation you need.</strong></p>
+            <div class="good-answer">"I really value the learning and growth aspects — that's genuinely one of the reasons I'm interested in this role. But I also need compensation that reflects my experience and the market rate for this level. Is there any flexibility on the base, or could we look at other components — annual bonus, extra leave, remote flexibility, equity? I'd like to find a structure that works for both of us."</div>
+            <div class="good-answer">If they truly can't move: "I appreciate the transparency. Could you tell me: what's the typical timeline to reach [next level] here, and what would the compensation look like at that stage?"</div>
+            <div class="bad-answer">Accepting significantly below market because "it's a great learning opportunity" — learning is valuable but it doesn't pay rent. And the learning will end before the underpay does.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="traps" data-new>
+          <div class="qa-question"><div class="qa-num">55</div><div class="qa-question-text">"Tell me about a time you failed." (and they press harder than expected)</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>Self-awareness and growth. But if they press — "what about a bigger failure?", "what did your colleagues think?", "were there consequences?" — they're stress-testing your ability to handle failure without becoming defensive or over-apologetic.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> "Tell me about an even bigger failure" is designed to get you to reveal something genuinely disqualifying under social pressure. Know in advance where your floor is.</div>
+            </div>
+            <p><strong>Prepare two failure stories. One medium (your default). One real (your backup if pressed). Deliver both without shame — you grew from them.</strong></p>
+            <div class="good-answer">"The most significant failure I've been involved in was [real story, specific, with impact]. What I learned from it was [concrete lesson]. The change I made to my process after was [specific change]. That mistake hasn't happened again and I've shared the learning with my team."</div>
+            <p>If they keep pressing: it's OK to say — <em>"I've shared the two most significant failures I've been part of. I don't want to manufacture more serious failures to seem humble. Is there a specific area of failure you're most interested in exploring?"</em></p>
+            <div class="bad-answer">Becoming defensive: "Well it wasn't entirely my fault." — You'll look like someone who doesn't accept accountability.</div>
+            <div class="bad-answer">Revealing something genuinely disqualifying under pressure just because they asked a second time.</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="traps" data-new>
+          <div class="qa-question"><div class="qa-num">56</div><div class="qa-question-text">"This role might be challenging for you. Are you sure you can handle it?" (confidence test / intimidation)</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="trap-card">
+              <h4>What they really want</h4>
+              <p>They're testing resilience and confidence under pressure. Some interviewers do this deliberately — especially for senior roles. They want to see if you fold, get defensive, or stay calm and grounded.</p>
+              <div class="what-they-want"><strong>The manipulation:</strong> This can also be a negotiation tactic — if they can shake your confidence, you'll accept a lower offer or a more junior title.</div>
+            </div>
+            <p><strong>Counter: don't fold, don't get angry, don't oversell. Answer with evidence and curiosity.</strong></p>
+            <div class="good-answer">"What specific aspect of the role are you most concerned about? I'd like to understand what challenge you're referring to — I may have experience that addresses it directly, or it could be a genuine growth area I can speak to."</div>
+            <div class="good-answer">"I'm confident in my ability to take on hard problems. I've navigated [specific comparable challenge] at [Company] — I'd love to understand what's hardest about this role specifically so we can have a concrete conversation."</div>
+            <div class="bad-answer">"You're right, maybe I'm not ready." — This is the response they're looking for if the goal is to underpay you or discount your seniority.</div>
+            <div class="bad-answer">Getting defensive or angry — "I definitely CAN handle it!" without evidence.</div>
+          </div>
+        </div>
+
       </div><!-- /qa-list section 5 -->
+
+
+      <div class="section-header" id="negotiation" data-nav="Negotiation">
+        <div class="section-icon chip-warning"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <div><h2>Offer Negotiation &amp; Choosing a Company</h2><p>Negotiating the offer, using competing offers, and spotting a bad team before you sign</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="negotiation" data-new>
+          <div class="qa-question"><div class="qa-num">57</div><div class="qa-question-text">You've received an offer. How do you negotiate without seeming greedy?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Key insight: negotiating is expected and professional. HR and hiring managers expect candidates to negotiate. A candidate who accepts the first offer immediately is the exception, not the rule at senior level.</strong></p>
+            <p><strong>The negotiation script:</strong></p>
+            <ol>
+              <li><strong>Express genuine enthusiasm first</strong> — you want them confident you're interested</li>
+              <li><strong>Name your number with a reason</strong> — not just "I want more" but "based on my market research and the scope of the role"</li>
+              <li><strong>Use silence</strong> — after naming your number, stop talking. Silence creates pressure on them, not you</li>
+              <li><strong>Be specific</strong> — "€90,000" is more convincing than "somewhere around €90k"</li>
+              <li><strong>Negotiate the full package</strong> — base, bonus, stock/equity, extra vacation, remote days, conference budget, learning budget</li>
+            </ol>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Script — How to respond to an offer</span><button class="copy-btn">Copy</button></div><pre><code>Them: "We'd like to offer you €78,000."
+
+You: "Thank you — I'm genuinely excited about this role and the team.
+     I'd like to take a day to review the full offer package.
+     [next day]
+     I've reviewed everything. I'm very interested in joining.
+     Based on my research into market rates for this level and the scope
+     of the responsibilities, I was targeting closer to €88,000.
+     Is there flexibility on the base?"
+
+Them: "The best we can do is €82,000."
+
+You: [Silence for 3-5 seconds]
+     "I appreciate that. Could we look at other components?
+     Could we add an extra week of vacation, or increase the
+     performance bonus target? I want to make this work."</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">The 10-second rule</span><div class="callout-body">After you name your number, do not speak for at least 5–10 seconds. The discomfort of silence often makes the other person fill it — sometimes by immediately agreeing to your number or revealing more flexibility than they intended. Most people negotiate against themselves by softening their ask immediately: "I was thinking €90k... but €85k is fine too." Don't do this.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="negotiation" data-new>
+          <div class="qa-question"><div class="qa-num">58</div><div class="qa-question-text">How do you use competing offers to negotiate without burning bridges?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>A competing offer is the most powerful negotiation tool you have — but using it poorly feels like a threat and sours the relationship before you've started.</p>
+            <p><strong>How to do it professionally:</strong></p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Script — Using a competing offer</span><button class="copy-btn">Copy</button></div><pre><code>"I want to be transparent with you because I'm genuinely interested
+in joining your team. I've also received an offer from another company
+for €92,000. Your role is actually my first choice — the work and the
+team here are what I'm most excited about. Is there anything you can do
+to close the gap? I'd love to be able to say yes to you."</code></pre></div>
+            <p><strong>Key elements:</strong></p>
+            <ul>
+              <li>Name the number (or a number near it) — "another company" without a figure is weak</li>
+              <li>Affirm that this is your preference — makes it a collaboration not a threat</li>
+              <li>Don't lie about an offer you don't have — they may ask for written confirmation</li>
+              <li>Don't use one company solely as a bargaining chip if you'd never accept them — it's dishonest and can burn relationships in small industries</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="negotiation" data-new>
+          <div class="qa-question"><div class="qa-num">59</div><div class="qa-question-text">They said the salary is fixed. Is it really?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>"The salary is fixed" is often a negotiation tactic, not a fact. Salary bands have ranges. HR has discretion within those ranges. What's actually fixed is often the bonus structure or equity tier — not the base.</p>
+            <p><strong>What to do:</strong></p>
+            <ol>
+              <li>Accept that the base might genuinely be fixed (government jobs, large corporations with rigid bands)</li>
+              <li>Shift to negotiating the full package: signing bonus, annual review timeline, extra vacation days, remote work policy, professional development budget</li>
+              <li>Ask: "Is there a signing bonus that might be possible? Or could we accelerate my first performance review to 6 months instead of 12?"</li>
+            </ol>
+            <div class="good-answer">"I understand the base may be fixed within the band. Could we explore other components? Even a signing bonus or an accelerated first-year review would help me bridge the gap. I want to make this work."</div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="negotiation" data-new>
+          <div class="qa-question"><div class="qa-num">60</div><div class="qa-question-text">Red flag questions — what to ask to identify a toxic company BEFORE you accept</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p>The interview is a two-way evaluation. Many engineers only realise they joined a bad company after 2–3 months. These questions reveal warning signs during the process.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>What to ask</th><th>Red flag answer</th><th>Green flag answer</th></tr></thead>
+              <tbody>
+                <tr><td>"What's the average tenure in the engineering team?"</td><td>"People move around a lot — it's a stepping stone" (high churn)</td><td>"Most of us have been here 2–4 years" (stability)</td></tr>
+                <tr><td>"Why did the last person in this role leave?"</td><td>Evasion, vague answer, or "they weren't a good fit"</td><td>Transparent answer: promotion, personal reasons, career change</td></tr>
+                <tr><td>"How often does the team do unplanned weekend or evening work?"</td><td>"We move fast and sometimes it requires extra effort" (= yes, a lot)</td><td>Specific and honest: "once a quarter for a major deploy, otherwise rarely"</td></tr>
+                <tr><td>"What's the post-mortem process when something goes wrong in production?"</td><td>"We find out what happened and who was responsible"</td><td>"Blameless post-mortems — we look at system improvements"</td></tr>
+                <tr><td>"Can you describe the relationship between engineering and product/management?"</td><td>"Product decides and engineering implements"</td><td>"Engineers are involved in shaping the roadmap and pushing back on scope"</td></tr>
+                <tr><td>"Is there budget for conferences and learning?"</td><td>"We learn on the job here" / long pause</td><td>Specific answer with amount or examples</td></tr>
+              </tbody>
+            </table></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">The most important signal</span><div class="callout-body">How interviewers answer these questions matters more than what they say. Do they answer without hesitation, specifically, with examples? Or do they hedge, look uncomfortable, or pivot? Body language and tone during "red flag questions" reveals more than the content of the answer.</div></div></div>
+          </div>
+        </div>
+
+      </div><!-- /qa-list negotiation -->
 
     <div class="related-pages">
       <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
       <a href="big-tech.html">Big Tech &amp; Companies</a>
-      <a href="general.html">General &amp; Interview Tips</a>
+      <a href="final-exam.html">Practice: mock interview</a>
     </div>
 
     </div><!-- /content -->
