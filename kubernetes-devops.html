@@ -54,7 +54,7 @@
             <div class="table-wrap"><table>
               <thead><tr><th>Object</th><th>Purpose</th><th>Key property</th></tr></thead>
               <tbody>
-                <tr><td><strong>Pod</strong></td><td>Smallest schedulable unit; 1+ containers sharing network/storage</td><td>Ephemeral — if a Pod dies, it's not recreated automatically</td></tr>
+                <tr><td><strong>Pod</strong></td><td>Smallest schedulable unit; 1+ containers sharing network/storage</td><td>Ephemeral — a bare Pod is not recreated if its node dies or it is deleted (the kubelet only restarts its containers); controllers recreate Pods</td></tr>
                 <tr><td><strong>ReplicaSet</strong></td><td>Ensures N copies of a Pod are running</td><td>Managed by Deployment; rarely created directly</td></tr>
                 <tr><td><strong>Deployment</strong></td><td>Manages ReplicaSets; enables rolling updates and rollbacks</td><td>Stateless workloads — use for web apps, APIs</td></tr>
                 <tr><td><strong>StatefulSet</strong></td><td>Like Deployment but Pods get stable identity (pod-0, pod-1)</td><td>Persistent volume per Pod; ordered startup/shutdown; use for DBs, Kafka</td></tr>
@@ -97,19 +97,19 @@ spec:
               <thead><tr><th>Probe</th><th>What happens on failure</th><th>Use for</th></tr></thead>
               <tbody>
                 <tr><td><strong>Liveness</strong></td><td>Container is <strong>restarted</strong></td><td>Detect deadlock/crash that doesn't exit — "is the app still alive?"</td></tr>
-                <tr><td><strong>Readiness</strong></td><td>Pod is <strong>removed from Service endpoints</strong> (not killed)</td><td>Signal "not ready for traffic yet" — warming up cache, DB migration</td></tr>
-                <tr><td><strong>Startup</strong></td><td>Container is <strong>restarted</strong> if startup takes too long</td><td>Slow-starting apps (JVM warm-up) — disables liveness during startup</td></tr>
+                <tr><td><strong>Readiness</strong></td><td>Pod is <strong>removed from Service endpoints</strong> (not killed)</td><td>Signal "not ready for traffic right now" — warming up, or temporarily overloaded. Checked for the whole life of the Pod, not just at start</td></tr>
+                <tr><td><strong>Startup</strong></td><td>Container is <strong>restarted</strong> if startup takes too long</td><td>Slow-starting apps (JVM warm-up) — liveness and readiness checks only start after it succeeds</td></tr>
               </tbody>
             </table></div>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>containers:
 - name: api
   image: myapp:latest
-  startupProbe:            <span class="cmt"># gives app 5*12=60s to start before liveness kicks in</span>
+  startupProbe:            <span class="cmt"># gives app up to 30*5=150s to start; liveness waits until it passes</span>
     httpGet:
-      path: /actuator/health
+      path: /actuator/health/liveness
       port: 8080
-    failureThreshold: 5
-    periodSeconds: 12
+    failureThreshold: 30
+    periodSeconds: 5
 
   livenessProbe:           <span class="cmt"># restart if app crashes/deadlocks</span>
     httpGet:
@@ -125,7 +125,7 @@ spec:
       port: 8080
     periodSeconds: 5
     failureThreshold: 3</code></pre></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Spring Boot integration</span><div class="callout-body">Spring Boot Actuator exposes <code>/actuator/health/liveness</code> and <code>/actuator/health/readiness</code> out of the box. Enable with <code>management.endpoint.health.probes.enabled=true</code>.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Spring Boot integration</span><div class="callout-body">Spring Boot Actuator exposes <code>/actuator/health/liveness</code> and <code>/actuator/health/readiness</code>. They are enabled automatically when the app detects it runs on Kubernetes; elsewhere set <code>management.endpoint.health.probes.enabled=true</code>. Keep external dependencies (database, broker) out of the liveness group: a database outage should not make Kubernetes restart every Pod. Put the startup probe on the liveness endpoint, not the full <code>/actuator/health</code>, for the same reason.</div></div></div>
           </div>
         </div>
 
@@ -133,14 +133,47 @@ spec:
           <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">What happens when you run `kubectl apply -f deployment.yaml`? Walk through the Kubernetes API flow.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <ol>
-              <li><code>kubectl</code> sends an HTTP PUT/PATCH to the <strong>API Server</strong></li>
-              <li>API Server authenticates (certificates/tokens), authorizes (RBAC), validates (admission controllers), and persists the desired state in <strong>etcd</strong></li>
-              <li>The <strong>Deployment Controller</strong> (in control plane) detects the change and creates/updates a ReplicaSet</li>
-              <li>The <strong>ReplicaSet Controller</strong> detects that desired Pod count doesn't match and creates Pod objects</li>
-              <li>The <strong>Scheduler</strong> watches for unscheduled Pods and assigns each to a Node based on resources, affinity, taints</li>
-              <li>The <strong>kubelet</strong> on the assigned Node watches for Pods assigned to it, calls the container runtime (containerd) to pull the image and start the container</li>
-              <li>kubelet reports status back; API Server updates Pod status; Readiness probe gates traffic</li>
+              <li><code>kubectl</code> reads the file, fetches the live object and sends a <strong>PATCH</strong> (or a POST if it does not exist yet) to the <strong>API Server</strong>. Classic client-side apply computes the diff itself using the <code>last-applied-configuration</code> annotation; <code>kubectl apply --server-side</code> lets the API server merge and track field ownership (managed fields)</li>
+              <li>The API Server runs the request through <strong>authentication</strong> (certificates, tokens, OIDC) → <strong>authorization</strong> (RBAC) → <strong>mutating admission</strong> (defaults, injected sidecars) → <strong>schema validation</strong> → <strong>validating admission</strong> (policies), then persists the object in <strong>etcd</strong>. Only the API server talks to etcd</li>
+              <li>The <strong>Deployment controller</strong> (in <code>kube-controller-manager</code>) is watching Deployments; it sees the new spec and creates or updates a ReplicaSet</li>
+              <li>The <strong>ReplicaSet controller</strong> sees fewer Pods than desired and creates Pod objects — with no node assigned yet</li>
+              <li>The <strong>Scheduler</strong> watches for Pods without a node, filters and scores nodes (resources, affinity, taints, topology spread) and writes the binding back to the API server</li>
+              <li>The <strong>kubelet</strong> on that node sees a Pod bound to it and asks the container runtime via <strong>CRI</strong> (containerd or CRI-O; dockershim was removed in 1.24) to pull the image and start containers; <strong>CNI</strong> sets up the Pod network and <strong>CSI</strong> attaches volumes</li>
+              <li>kubelet reports status back; once the readiness probe passes, the Pod's IP is added to the Service's <strong>EndpointSlices</strong> and kube-proxy (or the CNI) starts sending traffic to it</li>
             </ol>
+            <div class="pat-svg"><svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs><marker id="kca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+              <rect x="10" y="20" width="110" height="50" rx="8" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="65" y="50" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">kubectl</text>
+              <rect x="230" y="20" width="180" height="50" rx="8" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="320" y="42" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">API Server</text>
+              <text x="320" y="59" text-anchor="middle" font-size="11" fill="#a5b4fc">authn, authz, admission</text>
+              <rect x="520" y="20" width="110" height="50" rx="8" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+              <text x="575" y="50" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">etcd</text>
+              <line x1="120" y1="45" x2="230" y2="45" stroke="#475569" stroke-width="1.5" marker-end="url(#kca)"/>
+              <text x="175" y="37" text-anchor="middle" font-size="11" fill="#93c5fd">1 PATCH</text>
+              <line x1="410" y1="45" x2="520" y2="45" stroke="#475569" stroke-width="1.5" marker-end="url(#kca)"/>
+              <text x="465" y="37" text-anchor="middle" font-size="11" fill="#93c5fd">2 persist</text>
+              <rect x="10" y="170" width="190" height="70" rx="8" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+              <text x="105" y="198" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">Controllers</text>
+              <text x="105" y="216" text-anchor="middle" font-size="11" fill="#6ee7b7">Deployment, ReplicaSet</text>
+              <rect x="225" y="170" width="190" height="70" rx="8" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+              <text x="320" y="198" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">Scheduler</text>
+              <text x="320" y="216" text-anchor="middle" font-size="11" fill="#6ee7b7">picks a node</text>
+              <rect x="440" y="170" width="190" height="70" rx="8" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+              <text x="535" y="198" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">kubelet</text>
+              <text x="535" y="216" text-anchor="middle" font-size="11" fill="#6ee7b7">runs containers via CRI</text>
+              <line x1="105" y1="170" x2="270" y2="72" stroke="#475569" stroke-width="1.5" marker-end="url(#kca)"/>
+              <line x1="320" y1="170" x2="320" y2="72" stroke="#475569" stroke-width="1.5" marker-end="url(#kca)"/>
+              <line x1="560" y1="170" x2="370" y2="72" stroke="#475569" stroke-width="1.5" marker-end="url(#kca)"/>
+              <text x="16" y="118" font-size="11" fill="#93c5fd">3 watch Deployment,</text>
+              <text x="16" y="133" font-size="11" fill="#93c5fd">create RS and Pods</text>
+              <text x="328" y="118" font-size="11" fill="#93c5fd">4 bind Pod</text>
+              <text x="328" y="133" font-size="11" fill="#93c5fd">to node</text>
+              <text x="505" y="118" font-size="11" fill="#93c5fd">5 watch own Pods,</text>
+              <text x="505" y="133" font-size="11" fill="#93c5fd">report status</text>
+            </svg></div>
+            <p>The diagram shows the key property: components never call each other. Each one <strong>watches</strong> the API server for the objects it cares about and <strong>writes</strong> its result back; the next component reacts to that write. That is why a crashed scheduler or controller simply resumes from the stored state when it comes back.</p>
             <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key interview insight</span><div class="callout-body">Everything in K8s is a reconciliation loop (controller pattern): watch desired state → compare with actual → take action to converge. This is the fundamental design philosophy of Kubernetes.</div></div></div>
           </div>
         </div>
@@ -164,9 +197,10 @@ kubectl rollout undo deployment/user-service
 <span class="cmt"># Rollback to specific revision</span>
 kubectl rollout undo deployment/user-service --to-revision=2
 
-<span class="cmt"># Pause a rollout mid-way (canary check)</span>
+<span class="cmt"># Pause a rollout mid-way (inspect the new Pods before continuing)</span>
 kubectl rollout pause deployment/user-service
 kubectl rollout resume deployment/user-service</code></pre></div>
+            <p>A rollback simply scales an older ReplicaSet back up; Deployments keep <code>revisionHistoryLimit</code> old ReplicaSets (default 10). Rollback only reverts the Pod template — not ConfigMaps, Secrets or database migrations — so schema changes must stay backward compatible (expand, then contract). Zero downtime also needs a readiness probe and graceful shutdown (<code>server.shutdown=graceful</code>, a <code>preStop</code> delay) so old Pods finish in-flight requests after they leave the endpoints.</p>
           </div>
         </div>
 
@@ -193,23 +227,24 @@ kubectl rollout resume deployment/user-service</code></pre></div>
                 <tr><td><strong>Headless</strong> (ClusterIP: None)</td><td>DNS returns Pod IPs directly</td><td>StatefulSets — allows apps to discover individual Pods (Kafka, Cassandra)</td></tr>
               </tbody>
             </table></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Production pattern</span><div class="callout-body">Use <strong>ClusterIP</strong> for everything internal. Expose externally via a single <strong>Ingress controller</strong> (nginx, Traefik) backed by one <strong>LoadBalancer</strong> Service — routing all traffic through one entry point with URL-based rules.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Production pattern</span><div class="callout-body">Use <strong>ClusterIP</strong> for everything internal. Expose externally through one shared entry point — a <strong>Gateway API</strong> or Ingress controller (Envoy Gateway, Istio, Cilium, Traefik, NGINX Gateway Fabric, a cloud load-balancer controller) behind one <strong>LoadBalancer</strong> Service — with host- and path-based rules. Gateway API has been GA since v1.0 (October 2023) and is the recommended API for new setups; the Ingress API is frozen but still supported. Note that the community <strong>Ingress NGINX</strong> controller was retired in March 2026 (no further releases or security fixes), so plan a migration if you run it.</div></div></div>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="networking">
           <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">How does Kubernetes Ingress work? What is an IngressClass?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>Ingress is an API object that defines HTTP routing rules. An Ingress Controller (nginx, Traefik, HAProxy) watches Ingress objects and programs the actual load balancer/reverse proxy.</p>
+            <p>Ingress is an API object that defines HTTP routing rules (host, path, TLS). It does nothing by itself: an <strong>Ingress controller</strong> (Traefik, HAProxy, a cloud controller such as AWS Load Balancer Controller) watches Ingress objects and programs the actual reverse proxy or load balancer.</p>
+            <p>An <strong>IngressClass</strong> names a controller. A cluster can run several controllers (say, a public and an internal one); each Ingress picks one with <code>spec.ingressClassName</code>, and one IngressClass can be marked as the default for Ingresses that name none. Anything beyond host/path/TLS — rewrites, timeouts, auth — is a controller-specific annotation, which is the main weakness Gateway API fixes.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: api-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt-prod  <span class="cmt"># cert-manager issues the TLS cert</span>
+    <span class="cmt"># controller-specific annotations (rewrites, timeouts) would go here</span>
 spec:
-  ingressClassName: nginx        <span class="cmt"># which controller handles this</span>
+  ingressClassName: traefik      <span class="cmt"># which controller handles this</span>
   tls:
   - hosts:
     - api.example.com
@@ -230,6 +265,30 @@ spec:
           service:
             name: order-service
             port: { number: 80 }</code></pre></div>
+            <p>The same routing with <strong>Gateway API</strong>: the platform team owns the <code>Gateway</code> (listeners, TLS), and each app team attaches its own <code>HTTPRoute</code>. Weights, header matches and rewrites are portable fields instead of annotations.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api-routes
+spec:
+  parentRefs:
+  - name: public-gateway         <span class="cmt"># Gateway owned by the platform team</span>
+  hostnames: [api.example.com]
+  rules:
+  - matches:
+    - path: { type: PathPrefix, value: /api/users }
+    backendRefs:
+    - name: user-service
+      port: 80
+  - matches:
+    - path: { type: PathPrefix, value: /api/orders }
+    backendRefs:
+    - name: order-service        <span class="cmt"># 90/10 canary split, no annotations needed</span>
+      port: 80
+      weight: 90
+    - name: order-service-canary
+      port: 80
+      weight: 10</code></pre></div>
           </div>
         </div>
 
@@ -245,17 +304,19 @@ http://user-service.production.svc.cluster.local:8080/api/users
 http://user-service:8080/api/users
 
 <span class="cmt"># From order-service in 'staging' namespace calling user-service in 'production'</span>
-http://user-service.production.svc.cluster.local:8080
+http://user-service.production:8080                    <span class="cmt"># short form, resolved via search domains</span>
+http://user-service.production.svc.cluster.local:8080  <span class="cmt"># fully qualified</span>
 
 <span class="cmt"># Verify DNS from inside a pod</span>
 kubectl exec -it &lt;pod&gt; -- nslookup user-service</code></pre></div>
+            <p>How the short name works: the kubelet writes the Pod's <code>/etc/resolv.conf</code> with search domains (<code>&lt;ns&gt;.svc.cluster.local</code>, <code>svc.cluster.local</code>, <code>cluster.local</code>) and <code>options ndots:5</code>. Any name with fewer than five dots is tried against each search domain first, so a lookup of an external name such as <code>api.stripe.com</code> can cost several failed queries before the real one. For hot external calls use a trailing dot (<code>api.stripe.com.</code>) or lower <code>ndots</code> in the Pod's <code>dnsConfig</code>; NodeLocal DNSCache reduces load on CoreDNS. A normal Service name resolves to its ClusterIP; a headless Service resolves to the Pod IPs.</p>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="networking">
           <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">What are Network Policies and how do you implement micro-segmentation?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>Network Policies are firewall rules at the Pod level. By default, all Pods can talk to each other. A Network Policy enables a default-deny posture for a namespace, then explicitly allows specific traffic.</p>
+            <p>Network Policies are L3/L4 firewall rules at the Pod level, selected by labels. By default, all Pods can talk to each other. As soon as any policy selects a Pod for a direction (ingress or egress), only traffic allowed by some policy is accepted in that direction — so the usual pattern is a namespace-wide default-deny plus narrow allow rules.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Default deny all ingress in a namespace</span>
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -283,7 +344,7 @@ spec:
     ports:
     - protocol: TCP
       port: 8080</code></pre></div>
-            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Requires a CNI plugin</span><div class="callout-body">Network Policies require a CNI plugin that enforces them — Calico, Cilium, or Weave Net. Flannel does NOT enforce NetworkPolicies. Always verify your CNI supports them in interviews about production security.</div></div></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Requires a CNI plugin</span><div class="callout-body">Network Policies require a CNI plugin that enforces them — Calico, Cilium, or Antrea (Weave Net, often listed here, is no longer maintained). Flannel alone does NOT enforce NetworkPolicies, and the API server accepts the objects anyway, so an unenforced policy fails silently. If you also default-deny <strong>egress</strong>, explicitly allow DNS (UDP and TCP port 53 to CoreDNS in <code>kube-system</code>), or every name lookup breaks. Policies are additive: there is no "deny" rule, only allow rules on top of a default deny.</div></div></div>
           </div>
         </div>
 
@@ -341,7 +402,8 @@ spec:
   - name: tls-certs
     secret:
       secretName: app-tls</code></pre></div>
-            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Security note</span><div class="callout-body">Base64 is encoding, not encryption. For production: enable etcd encryption, use external secret managers (AWS Secrets Manager, HashiCorp Vault) with the Secrets Store CSI Driver or External Secrets Operator. Never commit Secret manifests to Git.</div></div></div>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Security note</span><div class="callout-body">Base64 is encoding, not encryption. For production: enable etcd encryption at rest (ideally with a KMS provider), restrict <code>get/list</code> on Secrets with RBAC (anyone who can create a Pod in the namespace can mount them), and use an external secret manager (AWS Secrets Manager, HashiCorp Vault) with the Secrets Store CSI Driver or External Secrets Operator. Never commit plain Secret manifests to Git — if they must live in Git, encrypt them with Sealed Secrets or SOPS.</div></div></div>
+            <p><strong>Updates:</strong> environment variables are read once at container start, so a changed ConfigMap or Secret does <em>not</em> reach <code>envFrom</code> until the Pod restarts. Mounted volumes are refreshed by the kubelet after a delay (its sync period plus cache propagation, typically up to a minute or two), but not when mounted with <code>subPath</code>, and the app still has to re-read the file. A common pattern is to roll the Deployment on change: a checksum annotation in the Helm template, or a controller such as Stakater Reloader. Marking a ConfigMap <code>immutable: true</code> protects against accidental edits and reduces API-server load.</p>
           </div>
         </div>
 
@@ -350,12 +412,12 @@ spec:
           <div class="qa-answer">
             <p>External Secrets Operator (ESO) pulls secrets from external stores (AWS Secrets Manager, Vault, GCP Secret Manager) and creates Kubernetes Secrets automatically. Secrets are never committed to Git.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># ExternalSecret — syncs from AWS Secrets Manager</span>
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1   <span class="cmt"># v1beta1 is no longer served since ESO v0.17</span>
 kind: ExternalSecret
 metadata:
   name: db-credentials
 spec:
-  refreshInterval: 1h          <span class="cmt"># auto-rotate every hour</span>
+  refreshInterval: 1h          <span class="cmt"># re-read the provider every hour; rotation happens in the provider</span>
   secretStoreRef:
     name: aws-secret-store
     kind: ClusterSecretStore
@@ -367,7 +429,8 @@ spec:
     remoteRef:
       key: /production/myapp/db
       property: password</code></pre></div>
-            <p><strong>Alternative: Vault Agent Injector</strong> — HashiCorp Vault injects secrets as files into pods via sidecar container annotations.</p>
+            <p><strong>Rotation end to end:</strong> the secret is rotated in the provider (for example AWS Secrets Manager rotation, or Vault dynamic database credentials with a lease); ESO copies the new value into the Kubernetes Secret on the next refresh; the Pod still needs to pick it up — mounted files update, env vars need a restart (Reloader or a rolling restart). During rotation both the old and new credentials must be valid for a while, or connections fail.</p>
+            <p><strong>Alternatives:</strong> the <strong>Secrets Store CSI Driver</strong> mounts secrets straight from the provider as files (optionally also syncing a K8s Secret); the <strong>Vault Agent Injector</strong> adds a sidecar that writes secrets to a shared volume and renews leases. Both avoid storing the value in etcd at all, which ESO does not.</p>
           </div>
         </div>
 
@@ -410,24 +473,21 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 70       <span class="cmt"># scale up if avg CPU > 70%</span>
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+        averageUtilization: 70       <span class="cmt"># scale up if avg CPU &gt; 70%</span>
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 300  <span class="cmt"># wait 5min before scaling down</span></code></pre></div>
+      stabilizationWindowSeconds: 300  <span class="cmt"># scale down based on the highest recommendation of the last 5 min (this is the default)</span></code></pre></div>
+            <p><strong>How HPA decides:</strong> every 15 seconds it computes <code>desired = ceil(current × currentMetric / target)</code> (with a 10% tolerance). Utilization is measured against the Pod's <em>requests</em>, so HPA on CPU only works when requests are set and realistic. Metrics come from metrics-server (CPU/memory) or a custom/external metrics adapter (Prometheus Adapter, KEDA).</p>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Pitfalls</span><div class="callout-body"><strong>Memory is a poor HPA signal for JVM services:</strong> the heap grows to its limit and rarely shrinks after GC, so memory utilization stays high and the HPA scales up but never back down. Prefer CPU, request rate or queue lag (KEDA). <strong>Don't let VPA and HPA act on the same metric</strong> (both on CPU): VPA raises requests, which lowers utilization, which makes HPA scale in. Use VPA in recommendation mode, or HPA on custom metrics with VPA on resources. KEDA builds on HPA (it creates and drives one) and adds scale-to-zero.</div></div></div>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="scaling">
           <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">What are resource requests and limits? What happens when a Pod exceeds its memory limit?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p><strong>Requests</strong> — the guaranteed resource amount. Used by the scheduler to decide which node to place the Pod on. Pod is always allocated at least this much.</p>
-            <p><strong>Limits</strong> — the maximum. CPU is throttled (not killed). Memory: if exceeded, the container is <strong>OOMKilled</strong> (Out Of Memory Kill) and restarted.</p>
+            <p><strong>Requests</strong> — what the scheduler reserves: a Pod only lands on a node whose unreserved capacity covers its requests. CPU requests also set the container's share of CPU under contention.</p>
+            <p><strong>Limits</strong> — the maximum. CPU over the limit is <strong>throttled</strong> (CFS quota), not killed. Memory over the limit gets the container <strong>OOMKilled</strong> (exit code 137) and restarted according to its restart policy. Separately, when a <em>node</em> runs short of memory, the kubelet evicts Pods — BestEffort first, then Burstable Pods using more than they requested; Guaranteed Pods (requests = limits) go last.</p>
+            <p>Common practice: always set memory requests = limits for JVM services (predictable, no eviction surprises); set CPU requests, and either a generous CPU limit or none, because CPU limits cause throttling and latency spikes even when the node is idle.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>resources:
   requests:
     memory: "256Mi"    <span class="cmt"># scheduler uses this to find a node</span>
@@ -435,7 +495,7 @@ spec:
   limits:
     memory: "512Mi"    <span class="cmt"># OOMKilled if exceeded</span>
     cpu: "1000m"       <span class="cmt"># throttled (not killed) if exceeded</span></code></pre></div>
-            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">JVM tip</span><div class="callout-body">Java doesn't know about container memory limits — it sees the full host RAM and sets heap accordingly. Always set <code>-XX:MaxRAMPercentage=75.0</code> (Java 10+) so the JVM respects the container limit. Without this you'll get OOMKilled.</div></div></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">JVM tip</span><div class="callout-body">Modern JVMs (JDK 10+, and 8u191+) <em>are</em> container-aware and read the cgroup memory limit. The problem is the default: the max heap is only <strong>25%</strong> of that limit, which wastes memory. Set <code>-XX:MaxRAMPercentage</code> (commonly 50–75%) and leave the rest for metaspace, thread stacks, code cache, direct buffers and GC structures — set it too high and the <em>process</em> exceeds the limit and is OOMKilled even though the heap is fine. See the JVM-in-containers question in the Docker section below.</div></div></div>
           </div>
         </div>
 
@@ -445,10 +505,11 @@ spec:
             <p><strong>Taints</strong> — applied to <em>Nodes</em>: "repel all Pods unless they tolerate this taint". Prevents pods from being scheduled on specialist nodes (GPU, high-memory).</p>
             <p><strong>Tolerations</strong> — applied to <em>Pods</em>: "I can run on nodes with this taint".</p>
             <p><strong>Node Affinity</strong> — <em>attracts</em> pods to nodes matching certain labels (required or preferred).</p>
+            <p>You need both for dedicated nodes: a toleration only <em>allows</em> a Pod onto the tainted node, it does not send it there; the affinity does that. Effects: <code>NoSchedule</code> (new Pods stay away), <code>PreferNoSchedule</code> (soft), <code>NoExecute</code> (also evicts running Pods without a toleration — used by node-failure taints). "IgnoredDuringExecution" means a label change does not evict Pods already running. To spread replicas across nodes or zones use <code>podAntiAffinity</code> or <code>topologySpreadConstraints</code>.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Node taint — only GPU-tolerant pods can run here</span>
 kubectl taint nodes gpu-node-1 hardware=gpu:NoSchedule
 
-<span class="cmt"># Pod toleration + affinity to prefer GPU nodes</span>
+<span class="cmt"># Pod toleration + affinity: MUST run on a GPU node, PREFERS zone eu-west-1a</span>
 spec:
   tolerations:
   - key: hardware
@@ -489,10 +550,12 @@ spec:
           <div class="qa-answer">
             <p>Helm is the package manager for Kubernetes. A <strong>Chart</strong> is a templated package of K8s manifests. A <strong>Release</strong> is an installed instance of a chart. <strong>Values</strong> are configuration overrides that parameterise the templates.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># Install a chart from a repository</span>
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install my-postgres bitnami/postgresql \
-  --set auth.postgresPassword=secret \
-  --set primary.persistence.size=20Gi
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring --create-namespace
+
+<span class="cmt"># Charts are also distributed as OCI artifacts (Helm 3.8+)</span>
+helm install my-app oci://registry.example.com/charts/my-app --version 1.2.0
 
 <span class="cmt"># Install your own chart with values file</span>
 helm install user-service ./charts/user-service \
@@ -503,11 +566,17 @@ helm install user-service ./charts/user-service \
 helm upgrade user-service ./charts/user-service \
   --set image.tag=1.4.0 -f values/production.yaml
 
-<span class="cmt"># Rollback to previous version</span>
-helm rollback user-service 1
+<span class="cmt"># Rollback: without a revision number Helm goes to the previous one;</span>
+<span class="cmt"># "1" means revision 1, not "one step back"</span>
+helm history user-service
+helm rollback user-service
+helm rollback user-service 3
 
-<span class="cmt"># Dry run — render templates without applying</span>
-helm template user-service ./charts/user-service -f values/production.yaml</code></pre></div>
+<span class="cmt"># Render templates locally without a cluster</span>
+helm template user-service ./charts/user-service -f values/production.yaml
+<span class="cmt"># Preview an upgrade against the cluster (helm-diff plugin)</span>
+helm diff upgrade user-service ./charts/user-service -f values/production.yaml</code></pre></div>
+            <p>Helm 3 has no server-side component (Tiller was removed); release state is stored as Secrets in the release's namespace, one per revision. Use <code>--atomic</code> with <code>--wait</code> in CI so a failed upgrade rolls itself back. Values passed with <code>--set</code> end up in the stored release, so don't pass real passwords that way.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># templates/deployment.yaml — Helm template syntax</span>
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -564,6 +633,7 @@ resources:
   limits:
     cpu: "2"
     memory: 1Gi</code></pre></div>
+            <p>Keep one chart and layer values files: <code>helm upgrade -f values.yaml -f values/production.yaml</code> — later files win, so environments only state their differences. Pin image tags (or digests) everywhere, including the defaults: <code>latest</code> makes a rollback or a node re-pulling the image silently change what runs. Keep secrets out of values files (External Secrets, or SOPS via helm-secrets). In GitOps setups the per-environment values usually live in a separate config repo that Argo CD or Flux applies, and promotion is a PR that bumps the tag.</p>
           </div>
         </div>
 
@@ -591,34 +661,34 @@ COPY mvnw .
 RUN ./mvnw dependency:go-offline -q
 
 COPY src src
-RUN ./mvnw package -DskipTests -q
+RUN ./mvnw package -DskipTests -q   <span class="cmt"># tests run in CI before the image build</span>
 
-<span class="cmt"># Extract layered jar — enables Docker layer caching for dependencies</span>
-RUN java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
+<span class="cmt"># Extract the jar into layers (Spring Boot 3.3+ "tools" jar mode;</span>
+<span class="cmt"># the older -Djarmode=layertools is deprecated)</span>
+RUN cp target/*.jar application.jar \
+ &amp;&amp; java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
 <span class="cmt"># ── Runtime stage ────────────────────────────────────────</span>
 FROM eclipse-temurin:21-jre-alpine AS runtime
 
 <span class="cmt"># Security: non-root user</span>
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup
 USER appuser
 
 WORKDIR /app
 
-<span class="cmt"># Layered jar: dependencies, spring-boot-loader, snapshot-dependencies, application</span>
-COPY --from=builder /app/target/extracted/dependencies/ ./
-COPY --from=builder /app/target/extracted/spring-boot-loader/ ./
-COPY --from=builder /app/target/extracted/snapshot-dependencies/ ./
-COPY --from=builder /app/target/extracted/application/ ./
+<span class="cmt"># Layers from least to most frequently changed</span>
+COPY --from=builder /app/extracted/dependencies/ ./
+COPY --from=builder /app/extracted/spring-boot-loader/ ./
+COPY --from=builder /app/extracted/snapshot-dependencies/ ./
+COPY --from=builder /app/extracted/application/ ./
 
 EXPOSE 8080
 
-<span class="cmt"># JVM tuned for containers</span>
-ENTRYPOINT ["java",
-  "-XX:MaxRAMPercentage=75.0",
-  "-XX:+UseContainerSupport",
-  "-Djava.security.egd=file:/dev/./urandom",
-  "org.springframework.boot.loader.launch.JarLauncher"]</code></pre></div>
+<span class="cmt"># Exec form on ONE line: java runs as PID 1 and receives SIGTERM directly.</span>
+<span class="cmt"># Container support is on by default; only the heap share needs setting.</span>
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "application.jar"]</code></pre></div>
+            <p>What changed against older versions of this file you may find online: <code>-XX:+UseContainerSupport</code> is the default since JDK 10 and redundant; <code>-Djava.security.egd=file:/dev/./urandom</code> was a workaround for slow startup on old JDKs and is not needed on modern ones; and a JSON <code>ENTRYPOINT</code> split over several lines without <code>\</code> continuations is not valid Dockerfile syntax. The extracted <code>application.jar</code> finds its libraries in <code>lib/</code> next to it, which also makes it ready for Class Data Sharing / AOT cache training to speed up startup.</p>
             <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Layer caching tip</span><div class="callout-body">Layered jar + multi-stage build means Docker only rebuilds the <code>application</code> layer when your code changes (a few MB), not the dependencies layer (hundreds of MB). This dramatically speeds up CI builds.</div></div></div>
           </div>
         </div>
@@ -635,6 +705,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+
+env:
+  IMAGE: registry.example.com/user-service
 
 jobs:
   build-and-test:
@@ -655,15 +728,34 @@ jobs:
     - name: SonarQube analysis    <span class="cmt"># code quality gate</span>
       run: ./mvnw sonar:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
-    - name: Build Docker image
+    - name: Build image
+      run: docker build -t "$IMAGE:${{ github.sha }}" .
+
+    - name: Scan image            <span class="cmt"># fail on HIGH/CRITICAL CVEs; pin the Trivy version in real pipelines</span>
       run: |
-        docker build -t $IMAGE:${{ github.sha }} .
-        docker push $IMAGE:${{ github.sha }}
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL "$IMAGE:${{ github.sha }}"
+
+    - name: Log in to registry
+      if: github.event_name == 'push'   <span class="cmt"># PRs build and test, but never push or deploy</span>
+      uses: docker/login-action@v3
+      with:
+        registry: registry.example.com
+        username: ${{ secrets.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_TOKEN }}
+
+    - name: Push image            <span class="cmt"># immutable tag = commit SHA</span>
+      if: github.event_name == 'push'
+      run: docker push "$IMAGE:${{ github.sha }}"
 
   deploy-staging:
     needs: build-and-test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
     environment: staging
     steps:
+    - uses: actions/checkout@v4   <span class="cmt"># the chart lives in the repo</span>
+    <span class="cmt"># (cluster credentials step omitted — e.g. OIDC to the cloud provider, then get kubeconfig)</span>
     - name: Helm upgrade staging
       run: |
         helm upgrade --install user-service ./charts/user-service \
@@ -676,14 +768,17 @@ jobs:
 
   deploy-production:
     needs: deploy-staging
-    environment: production       <span class="cmt"># requires manual approval</span>
+    runs-on: ubuntu-latest
+    environment: production       <span class="cmt"># approval comes from the environment's protection rules</span>
     steps:
+    - uses: actions/checkout@v4
     - name: Helm upgrade production
       run: |
         helm upgrade --install user-service ./charts/user-service \
           --set image.tag=${{ github.sha }} \
           -f values/production.yaml \
-          --namespace production --wait</code></pre></div>
+          --namespace production --wait --atomic</code></pre></div>
+            <p>Design points worth saying out loud: build the image <strong>once</strong> and promote the same digest through every environment (never rebuild per environment); tag it with the commit SHA, not <code>latest</code>; keep cluster credentials short-lived (OIDC federation instead of a stored kubeconfig); and run DB migrations as a separate, backward-compatible step. In a GitOps setup the last two jobs are replaced by a commit that bumps the image tag in the config repo, and Argo CD or Flux applies it.</p>
           </div>
         </div>
 
@@ -692,6 +787,8 @@ jobs:
           <div class="qa-answer">
             <p><strong>GitOps</strong> — Git is the single source of truth for cluster state. Every change goes through a PR; the cluster automatically reconciles toward the Git-declared state. Benefits: audit trail, easy rollback (git revert), self-healing.</p>
             <p><strong>ArgoCD</strong> watches a Git repo for Kubernetes manifests/Helm charts. When a change is pushed, it applies it to the cluster. If someone manually changes something via <code>kubectl</code>, ArgoCD detects drift and either alerts or auto-syncs back.</p>
+            <p><strong>Flux</strong> does the same with a set of small controllers and CRDs instead of one server with a UI: a <code>GitRepository</code> (or OCI) source, a <code>Kustomization</code> or <code>HelmRelease</code> that applies it, and optional image-automation controllers that commit new image tags back to Git. Argo CD's UI, multi-cluster view and ApplicationSets suit platform teams; Flux is lighter and fully CRD-driven.</p>
+            <p>The key shift is <strong>pull, not push</strong>: the agent inside the cluster pulls from Git, so CI no longer needs cluster credentials. Secrets still cannot go into Git in plain form — use Sealed Secrets, SOPS or External Secrets.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># ArgoCD Application CRD</span>
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -756,6 +853,7 @@ spec:
       analysis:
         templates:
         - templateName: error-rate-check</code></pre></div>
+            <p>Without a traffic router (a service mesh, a Gateway API plugin, an ingress controller), Argo Rollouts can only approximate weights by replica count — 10% needs at least 10 Pods. The analysis step is what makes canaries worthwhile: it queries Prometheus for error rate and latency and aborts the rollout automatically. Both strategies run two versions against the same database at once, so schema changes must be backward compatible (expand, then contract).</p>
           </div>
         </div>
 
@@ -785,6 +883,7 @@ spec:
   - port: http
     path: /actuator/prometheus   <span class="cmt"># Spring Boot Actuator endpoint</span>
     interval: 15s</code></pre></div>
+            <p><code>ServiceMonitor</code> is a CRD from the Prometheus Operator (installed by kube-prometheus-stack), not part of Kubernetes; the operator's Prometheus only picks up monitors whose labels match its selector. For cluster health add kube-state-metrics (object state: restarts, pending Pods) and node-exporter (node CPU, memory, disk). Today traces and often metrics and logs are emitted with <strong>OpenTelemetry</strong> and shipped through an OTel Collector, which keeps the backend replaceable. Alert on symptoms users feel (error rate, latency SLOs) rather than on every CPU spike.</p>
           </div>
         </div>
 
@@ -799,8 +898,16 @@ kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
 kubectl logs &lt;pod-name&gt; --previous     <span class="cmt"># -p = previous container run</span>
 kubectl logs &lt;pod-name&gt; -c &lt;container&gt; --previous
 
-<span class="cmt"># Step 3: exec into running container to investigate</span>
+<span class="cmt"># Step 3: check the exit code and reason (lastState.terminated)</span>
+<span class="cmt">#   137 = SIGKILL, usually OOMKilled; 143 = SIGTERM; 1 = app error</span>
+kubectl get pod &lt;pod-name&gt; -o jsonpath='{.status.containerStatuses[*].lastState.terminated}'
+
+<span class="cmt"># Step 4: exec into the container while it is up, or attach a debug</span>
+<span class="cmt"># container (ephemeral containers, GA since 1.25) — works for distroless</span>
+<span class="cmt"># images without a shell and for containers that crash too fast to exec into</span>
 kubectl exec -it &lt;pod-name&gt; -- /bin/sh
+kubectl debug -it &lt;pod-name&gt; --image=busybox --target=&lt;container&gt;
+kubectl debug &lt;pod-name&gt; -it --copy-to=&lt;pod-name&gt;-debug --container=&lt;container&gt; -- sh  <span class="cmt"># copy with a shell as the command</span>
 
 <span class="cmt"># Pending — pod can't be scheduled</span>
 <span class="cmt"># Check events — common causes:</span>
@@ -811,8 +918,9 @@ kubectl exec -it &lt;pod-name&gt; -- /bin/sh
 kubectl get events -n &lt;namespace&gt; --sort-by='.lastTimestamp'
 kubectl describe node &lt;node-name&gt; | grep -A5 Conditions
 
-<span class="cmt"># ImagePullBackOff — wrong image name, auth issue</span>
+<span class="cmt"># ImagePullBackOff — wrong image name/tag, or missing imagePullSecrets</span>
 kubectl describe pod &lt;pod-name&gt; | grep -A10 Events</code></pre></div>
+            <p>Typical CrashLoopBackOff causes for a Spring Boot service: missing config or Secret key (startup exception in the logs), a liveness probe that fires before the app is up (add a startup probe), OOMKilled because the heap plus non-heap exceeds the limit, or a dependency that is not reachable at startup. The back-off between restarts grows exponentially up to five minutes, so after a fix delete the Pod instead of waiting.</p>
           </div>
         </div>
 
@@ -821,7 +929,7 @@ kubectl describe pod &lt;pod-name&gt; | grep -A10 Events</code></pre></div>
           <div class="qa-answer">
             <p><strong>PersistentVolume (PV)</strong> — a piece of storage provisioned by an admin or dynamically. Lifecycle independent of any Pod.</p>
             <p><strong>PersistentVolumeClaim (PVC)</strong> — a request for storage by a user (size, access mode, StorageClass). K8s binds the PVC to a matching PV.</p>
-            <p><strong>StorageClass</strong> — defines how PVs are dynamically provisioned (AWS EBS, GCP PD, NFS, etc.).</p>
+            <p><strong>StorageClass</strong> — defines how PVs are dynamically provisioned through a CSI driver (AWS EBS, GCP PD, NFS, etc.), plus the <code>reclaimPolicy</code> (<code>Delete</code> by default for dynamic volumes — deleting the PVC deletes the disk; use <code>Retain</code> for data you cannot lose) and <code>volumeBindingMode</code>. With <code>WaitForFirstConsumer</code> the volume is created only once the Pod is scheduled, in the same zone as the node — with <code>Immediate</code> a zonal disk can end up in a zone where the Pod cannot run.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># PVC — request 20Gi SSD storage</span>
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -829,7 +937,7 @@ metadata:
   name: postgres-data
 spec:
   accessModes:
-  - ReadWriteOnce       <span class="cmt"># RWO: one node; RWX: many nodes (NFS)</span>
+  - ReadWriteOnce       <span class="cmt"># RWO: one NODE (several Pods on it may share); RWOP: one Pod; RWX: many nodes (NFS, EFS)</span>
   storageClassName: gp3  <span class="cmt"># AWS EBS gp3 StorageClass</span>
   resources:
     requests:
@@ -845,6 +953,7 @@ volumeClaimTemplates:   <span class="cmt"># each replica gets its own PVC automa
     resources:
       requests:
         storage: 20Gi</code></pre></div>
+            <p><code>ReadWriteOncePod</code> (GA since 1.29, CSI volumes only) guarantees a single writer Pod, which <code>ReadWriteOnce</code> does not. PVCs created by <code>volumeClaimTemplates</code> are not deleted when the StatefulSet is scaled down or deleted, unless you set <code>persistentVolumeClaimRetentionPolicy</code>.</p>
           </div>
         </div>
 
@@ -854,15 +963,119 @@ volumeClaimTemplates:   <span class="cmt"># each replica gets its own PVC automa
             <p>An <strong>image</strong> is a read-only stack of layers (each <code>RUN</code>/<code>COPY</code>/<code>ADD</code> instruction creates a layer). A <strong>container</strong> is a running image with a writable layer on top.</p>
             <p><strong>Security best practices:</strong></p>
             <ul>
-              <li>Use distroless or Alpine base images (smaller attack surface)</li>
+              <li>Use distroless, Alpine or other minimal base images (smaller attack surface; Alpine uses musl libc, which occasionally behaves differently from glibc)</li>
               <li>Run as non-root user (<code>USER appuser</code>)</li>
               <li>Don't install dev tools in production images (multi-stage)</li>
               <li>Use <code>.dockerignore</code> to exclude secrets, <code>.git</code>, test data</li>
-              <li>Pin base image versions (<code>alpine:3.19</code> not <code>alpine:latest</code>)</li>
+              <li>Pin base image versions (<code>alpine:3.19</code> not <code>alpine:latest</code>), or a digest for full reproducibility — and rebuild regularly so the pinned base still gets security patches</li>
               <li>Scan images for CVEs: <code>docker scout cves</code>, Trivy, Snyk</li>
-              <li>Never embed secrets — use runtime environment variables</li>
-              <li>Read-only root filesystem: <code>securityContext.readOnlyRootFilesystem: true</code></li>
+              <li>Never embed secrets in the image — every layer is readable, and a file deleted in a later layer is still in the earlier one. For build-time secrets use BuildKit <code>RUN --mount=type=secret</code>; at runtime prefer mounted secret files over environment variables, which leak more easily (crash dumps, <code>/proc</code>, logs that print the environment)</li>
+              <li>Read-only root filesystem: <code>securityContext.readOnlyRootFilesystem: true</code> (mount an <code>emptyDir</code> for <code>/tmp</code>); also <code>allowPrivilegeEscalation: false</code> and drop all Linux capabilities</li>
+              <li>Enforce this at the cluster level with <strong>Pod Security Admission</strong> (the <code>restricted</code> profile, set per namespace by label) — PodSecurityPolicy was removed in 1.25 — or a policy engine such as Kyverno or OPA Gatekeeper</li>
+              <li>Sign images and generate an SBOM (cosign / Sigstore), and verify signatures at admission</li>
             </ul>
+          </div>
+        </div>
+
+
+        <div class="qa-card" data-pillar="cicd" data-new>
+          <div class="qa-question"><div class="qa-num">24</div><div class="qa-question-text">Git branching strategies vs trunk-based development — which do you choose for continuous delivery, and why?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <div class="table-wrap"><table>
+              <thead><tr><th>Model</th><th>How it works</th><th>Fits</th><th>Cost</th></tr></thead>
+              <tbody>
+                <tr><td><strong>GitFlow</strong></td><td>Long-lived <code>develop</code> and <code>main</code>, plus feature, release and hotfix branches</td><td>Software shipped in versions that must be maintained side by side (installed products, libraries)</td><td>Late, painful merges; work waits in branches; slow feedback — a poor fit for a service deployed many times a day</td></tr>
+                <tr><td><strong>GitHub flow</strong></td><td>One <code>main</code>; short feature branches merged by pull request, then deployed</td><td>Most web services and teams using PR review</td><td>Fine while branches live a day or two; degrades into GitFlow-like merge pain when they live for weeks</td></tr>
+                <tr><td><strong>Trunk-based</strong></td><td>Everyone integrates into <code>main</code> at least daily, directly or through very short-lived branches; <code>main</code> is always releasable</td><td>Continuous delivery / deployment</td><td>Needs fast, trustworthy CI, good automated tests and a way to hide unfinished work</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>Why trunk-based wins for CD:</strong> the cost of a merge grows with the time two lines of work stay apart, so integrating small changes often keeps every merge trivial and every build a real candidate for production. The DORA research (summarised in the book <em>Accelerate</em>) associates trunk-based development — few active branches, merged at least daily, no code freezes — with higher delivery performance.</p>
+            <p><strong>What makes it safe:</strong></p>
+            <ul>
+              <li><strong>Feature flags</strong> separate <em>deploy</em> from <em>release</em>: unfinished code ships switched off. Flags are debt — give each an owner and remove it once it is fully on</li>
+              <li><strong>Branch by abstraction</strong> for large refactorings: introduce an interface, move callers over step by step, delete the old implementation — no long-lived branch</li>
+              <li><strong>Fast CI on every commit</strong> (minutes, not an hour) and a culture of fixing a red <code>main</code> immediately</li>
+              <li><strong>Fast reviews</strong> — small PRs reviewed within hours, or pair/mob programming instead</li>
+            </ul>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Release branches still exist</span><div class="callout-body">If you must support a released version, cut a release branch from trunk at release time and never develop on it. Fix bugs on trunk first and cherry-pick the fix to the release branch — the reverse order is how fixes get lost in the next release.</div></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ DOCKER ════ -->
+      <div class="section-header" id="docker" data-nav="Docker">
+        <div class="section-icon chip-info"><i class="fa-solid fa-box"></i></div>
+        <div><h2>Docker &amp; Containers</h2><p>Image builds, layer caching, the JVM in containers</p></div>
+      </div>
+
+      <div class="qa-list">
+
+        <div class="qa-card" data-pillar="docker" data-new>
+          <div class="qa-question"><div class="qa-num">25</div><div class="qa-question-text">How do multi-stage builds and layer caching work? How do you keep Java image builds fast?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>Layer cache:</strong> each instruction produces a layer, cached by the instruction plus its inputs — for <code>COPY</code>/<code>ADD</code>, a checksum of the copied files. The first instruction whose cache misses is rebuilt, <em>and so is every instruction after it</em>. Hence the rule: order instructions from least to most frequently changing — base image, OS packages, build-tool files and dependency resolution, then source code last.</p>
+            <p><strong>Multi-stage build:</strong> several <code>FROM</code> stages in one Dockerfile. The builder stage has the JDK, Maven and sources; the final stage starts from a small JRE (or distroless) image and only <code>COPY --from=builder</code>s the artifacts. Build tools, sources and caches never reach the shipped image, which is smaller and has fewer CVEs. Stages that the target does not depend on are skipped by BuildKit, and independent stages build in parallel.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Dockerfile</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt"># syntax=docker/dockerfile:1</span>
+FROM eclipse-temurin:21-jdk AS builder
+WORKDIR /app
+
+<span class="cmt"># 1. Build files only: this layer is reused until pom.xml changes</span>
+COPY .mvn .mvn
+COPY mvnw pom.xml ./
+<span class="cmt"># 2. Cache mount: ~/.m2 survives between builds but is NOT stored in a layer</span>
+RUN --mount=type=cache,target=/root/.m2 ./mvnw -q dependency:go-offline
+
+<span class="cmt"># 3. Sources last: a code change only re-runs from here</span>
+COPY src src
+RUN --mount=type=cache,target=/root/.m2 ./mvnw -q package -DskipTests
+
+FROM eclipse-temurin:21-jre AS runtime
+COPY --from=builder /app/target/*.jar /app/app.jar
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]</code></pre></div>
+            <p>This shows the caching idea in its simplest form; the Spring Boot Dockerfile question above adds layered jar extraction, so a code change also produces only a small new <em>image</em> layer to push and pull, not a whole new fat jar.</p>
+            <ul>
+              <li><strong><code>.dockerignore</code></strong> — exclude <code>target/</code>, <code>.git</code>, IDE files. Otherwise any of them changing invalidates the <code>COPY</code> and leaks into the build context</li>
+              <li><strong>CI runners start with an empty cache.</strong> Export and import it, for example <code>docker buildx build --cache-to type=registry,ref=registry.example.com/app:buildcache,mode=max --cache-from type=registry,ref=registry.example.com/app:buildcache</code>, or <code>type=gha</code> on GitHub Actions</li>
+              <li><strong>Pin the base image</strong> (tag or digest), or the cache — and your build — changes whenever the upstream tag moves</li>
+            </ul>
+            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">No Dockerfile at all</span><div class="callout-body"><strong>Jib</strong> (Maven/Gradle plugin) builds OCI images without a Docker daemon and already splits dependencies, resources and classes into separate layers. <strong>Cloud Native Buildpacks</strong> (<code>./mvnw spring-boot:build-image</code>) pick a JRE, apply the memory settings and produce layered images too. Both give reproducible, well-layered images for standard Spring Boot apps; a hand-written Dockerfile is worth it when you need custom OS packages or full control.</div></div></div>
+          </div>
+        </div>
+
+        <div class="qa-card" data-pillar="docker" data-new>
+          <div class="qa-question"><div class="qa-num">26</div><div class="qa-question-text">How does the JVM behave inside a container? How do you size heap and CPU (MaxRAMPercentage, CPU limits)?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+          <div class="qa-answer">
+            <p><strong>The JVM is container-aware</strong> (JDK 10+, backported to 8u191): it reads the cgroup memory and CPU limits instead of the host's values. cgroup v2, the default on current Linux distributions, needs a recent JDK (15+, or an updated 11/8 build). The surprises today come from the defaults, not from missing support.</p>
+            <p><strong>Memory.</strong> The default max heap is only <strong>25%</strong> of the container limit (<code>MaxRAMPercentage=25</code>), so a 2Gi container gets a 512MB heap. But the heap is not the whole process: the limit must also cover metaspace, the JIT code cache, one stack per thread, direct and NIO buffers (Netty), GC data structures and native allocations. Raise <code>-XX:MaxRAMPercentage</code> to about 60–75% for containers of 1–2Gi and up, less for small ones, and measure instead of guessing: <code>-XX:NativeMemoryTracking=summary</code> plus <code>jcmd &lt;pid&gt; VM.native_memory summary</code>.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Symptom</th><th>Meaning</th></tr></thead>
+              <tbody>
+                <tr><td><code>java.lang.OutOfMemoryError: Java heap space</code></td><td>The heap is too small for the live data, or there is a leak. The JVM is still running; a heap dump is possible</td></tr>
+                <tr><td>Pod <code>OOMKilled</code>, exit code 137</td><td>The whole process exceeded the cgroup limit and the kernel killed it — usually heap share too high or non-heap growth. No heap dump, no Java stack trace</td></tr>
+              </tbody>
+            </table></div>
+            <p><strong>CPU.</strong> <code>Runtime.availableProcessors()</code> is derived from the CPU <em>limit</em> (quota ÷ period, rounded up); on current JDKs CPU requests (shares) are ignored for this, so a container with no CPU limit sees every core of the node. That number sizes GC threads, JIT compiler threads, the common <code>ForkJoinPool</code> and Netty event loops, and it drives GC ergonomics: with fewer than 2 CPUs or less than about 1.8GB of memory the JVM does not consider the machine "server class" and silently picks <strong>Serial GC</strong>. Set <code>-XX:ActiveProcessorCount</code> to override the count and choose the collector explicitly.</p>
+            <p><strong>CFS throttling:</strong> a CPU limit is a quota per 100ms period. A JVM that runs many threads at once — at startup (JIT compilation, class loading) or during GC — can use up the quota early in the period and then stand still until the next one, which shows up as slow startup and p99 latency spikes even when the node is idle. Check <code>container_cpu_cfs_throttled_periods_total</code>; common fixes are a higher CPU limit, or CPU requests with no CPU limit plus <code>ActiveProcessorCount</code>.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML</span><button class="copy-btn">Copy</button></div><pre><code>containers:
+- name: order-service
+  image: registry.example.com/order-service:1.4.0
+  resources:
+    requests: { cpu: "1", memory: 2Gi }
+    limits:   { memory: 2Gi }   <span class="cmt"># memory request = limit; no CPU limit -&gt; no CFS throttling</span>
+  env:
+  - name: JAVA_TOOL_OPTIONS     <span class="cmt"># picked up by the JVM without changing the image</span>
+    value: &gt;-
+      -XX:MaxRAMPercentage=70
+      -XX:ActiveProcessorCount=2
+      -XX:+UseG1GC
+      -XX:+ExitOnOutOfMemoryError
+      -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dumps
+
+<span class="cmt"># Verify what the JVM actually sees, inside the container</span>
+<span class="cmt"># java -Xlog:os+container=info -version</span>
+<span class="cmt"># java -XX:+PrintFlagsFinal -version | grep -E 'MaxHeapSize|ActiveProcessorCount|Use.*GC '</span></code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Senior answer in one breath</span><div class="callout-body">Set memory request = limit, give the heap 60–75% of it and leave the rest for native memory; avoid tight CPU limits, or match <code>ActiveProcessorCount</code> to what you really get; choose the GC explicitly; exit on <code>OutOfMemoryError</code> so Kubernetes restarts a broken JVM instead of leaving it half-alive; and watch both heap metrics and container memory, because they fail differently. The resource requests and limits question above covers the Kubernetes side.</div></div></div>
           </div>
         </div>
 

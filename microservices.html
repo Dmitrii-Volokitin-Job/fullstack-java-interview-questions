@@ -140,7 +140,7 @@ What's wrong with splitting too small:
     gateway:
       routes:
         - id: order-service
-          uri: lb://order-service          <span class="cmt"># Kubernetes service DNS via LoadBalancer</span>
+          uri: lb://order-service          <span class="cmt"># lb:// = client-side load balancing: Spring Cloud LoadBalancer picks an instance from the DiscoveryClient (Eureka, Consul, or Spring Cloud Kubernetes). On plain K8s DNS use http://order-service:8080 instead</span>
           predicates:
             - Path=/api/orders/**
           filters:
@@ -154,6 +154,7 @@ What's wrong with splitting too small:
               args:
                 name: orderCB
                 fallbackUri: forward:/fallback/orders</code></pre></div>
+            <p>Newer Spring Cloud Gateway releases moved the server properties under a new prefix (<code>spring.cloud.gateway.server.webflux.*</code>) and keep the old <code>spring.cloud.gateway.*</code> names as deprecated aliases, so check the reference docs of the release train you use. The RequestRateLimiter filter needs Redis (reactive) on the classpath and a <code>KeyResolver</code> bean; without a resolvable key it rejects requests by default.</p>
             <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">BFF pattern</span><div class="callout-body">Backend For Frontend — instead of one generic gateway, you run a separate gateway per client type: mobile BFF aggregates data differently than web BFF or partner API BFF. Avoids the "Swiss army knife" problem where one gateway tries to serve all clients and ends up serving none well.</div></div></div>
           </div>
         </div>
@@ -161,7 +162,7 @@ What's wrong with splitting too small:
         <div class="qa-card" data-pillar="decomp">
           <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">What is a service mesh and when do you actually need one?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>A <strong>service mesh</strong> (Istio, Linkerd) is a dedicated infrastructure layer for service-to-service communication. It deploys a sidecar proxy (Envoy) alongside every service pod that intercepts all inbound/outbound traffic.</p>
+            <p>A <strong>service mesh</strong> (Istio, Linkerd, Cilium) is a dedicated infrastructure layer for service-to-service communication. The classic model deploys a sidecar proxy alongside every service pod that intercepts all inbound/outbound traffic — Envoy in Istio, the Rust-based <code>linkerd2-proxy</code> in Linkerd. Istio's <strong>ambient mode</strong> (GA since Istio 1.24) drops the sidecar: a per-node <code>ztunnel</code> handles mTLS and L4, and optional per-namespace "waypoint" proxies add L7 features, which cuts memory overhead and removes the need to restart pods to inject proxies.</p>
             <p><strong>What the mesh gives you:</strong></p>
             <ul>
               <li>mTLS between every service pair (zero-trust networking) — without any code changes</li>
@@ -250,7 +251,7 @@ On failure: PaymentFailed → OrderService consumes and publishes OrderCancelled
             <p><strong>gRPC advantages over REST:</strong></p>
             <ul>
               <li>Protobuf binary encoding is 3-10x smaller than JSON — less bandwidth, faster serialization</li>
-              <li>HTTP/2 multiplexing — multiple calls on one connection; no head-of-line blocking</li>
+              <li>HTTP/2 multiplexing — many concurrent calls on one connection, with no application-level head-of-line blocking (a lost TCP packet still stalls all streams on that connection; only HTTP/3 over QUIC removes that). Long-lived connections also mean L4 load balancers pin all calls to one backend, so use L7/client-side balancing for gRPC</li>
               <li>Bidirectional streaming — server can push data to client continuously</li>
               <li>Strongly typed contracts — <code>.proto</code> files generate client/server stubs in any language; no swagger drift</li>
               <li>Built-in deadline propagation — client sets a deadline; it flows through all service hops</li>
@@ -281,7 +282,8 @@ message UserResponse {
             <ul>
               <li>Every Service gets a DNS name: <code>order-service.default.svc.cluster.local</code></li>
               <li>kube-dns / CoreDNS resolves this to the ClusterIP</li>
-              <li>kube-proxy handles load balancing at the IP level via iptables rules</li>
+              <li>kube-proxy programs the node (iptables, IPVS, or nftables mode — nftables is GA since 1.33) so traffic to the ClusterIP is spread across ready pod IPs from the EndpointSlices; some CNIs such as Cilium replace kube-proxy with eBPF</li>
+              <li>The balancing is per connection (L4), so long-lived HTTP/2 or gRPC connections stick to one pod</li>
               <li>No sidecar or library needed — just call <code>http://order-service:8080</code></li>
             </ul>
             <p><strong>Eureka (Spring Cloud Netflix):</strong></p>
@@ -335,7 +337,7 @@ message UserResponse {
 <span class="kw">public class</span> <span class="typ">OrderCommandService</span> {
     <span class="kw">public</span> <span class="typ">Order</span> <span class="fn">createOrder</span>(<span class="typ">CreateOrderCmd</span> cmd) {
         <span class="typ">Order</span> order = orderRepository.save(<span class="kw">new</span> <span class="typ">Order</span>(cmd));
-        eventPublisher.publish(<span class="kw">new</span> <span class="typ">OrderCreatedEvent</span>(order)); <span class="cmt">// → Kafka</span>
+        eventPublisher.publish(<span class="kw">new</span> <span class="typ">OrderCreatedEvent</span>(order)); <span class="cmt">// → Kafka; in production via the Outbox (Q12), not a direct dual write</span>
         <span class="kw">return</span> order;
     }
 }
@@ -343,17 +345,19 @@ message UserResponse {
 <span class="cmt">// READ SIDE: denormalised Elasticsearch document, optimised for complex queries</span>
 <span class="ann">@KafkaListener</span>(topics = <span class="str">"order-events"</span>)
 <span class="kw">public void</span> <span class="fn">on</span>(<span class="typ">OrderCreatedEvent</span> e) {
-    <span class="cmt">// Build search document with customer name, product names, etc. — data from multiple services</span>
+    <span class="cmt">// Build search document with customer name, product names, etc. — data from multiple services.</span>
+    <span class="cmt">// Better: keep a local copy of customer data fed by CustomerUpdated events instead of a sync call.</span>
     orderSearchIndex.index(<span class="typ">OrderDocument</span>.from(e, customerService.get(e.customerId())));
 }
 
-<span class="cmt">// Read model queries Elasticsearch, not PostgreSQL → no JOINs, no N+1, O(1) search</span>
+<span class="cmt">// Read model queries Elasticsearch, not PostgreSQL → no JOINs, no N+1, an index shaped for the query</span>
 <span class="ann">@GetMapping</span>(<span class="str">"/orders/search"</span>)
 <span class="kw">public</span> <span class="typ">List</span>&lt;<span class="typ">OrderSummary</span>&gt; <span class="fn">search</span>(<span class="ann">@RequestParam</span> <span class="typ">String</span> q) {
     <span class="kw">return</span> orderSearchIndex.search(q);
 }</code></pre></div>
             <p><strong>When CQRS helps:</strong> complex query requirements that can't be served by the write model efficiently; high read/write ratio with different scaling needs; cross-service read views.</p>
             <p><strong>When it's over-engineering:</strong> simple CRUD app; read queries are cheap on the write DB; team is small and the eventual consistency complexity will cause bugs.</p>
+            <p><strong>The cost to name in an interview:</strong> the read side lags the write side, so a user may not see their own change right away. Common mitigations: return the new state from the command, read-your-writes by routing that user's next query to the write model, or show "processing". CQRS does not require Event Sourcing; a separate read table in the same database is already CQRS.</p>
           </div>
         </div>
 
@@ -377,9 +381,10 @@ events table:
               <li>Audit trail is a hard requirement (banking, healthcare, legal)</li>
               <li>Temporal queries — "what was the account balance on 2023-06-15?"</li>
               <li>Debugging — you can replay events to reproduce any production state</li>
-              <li>Event-driven integrations — the event log IS the Kafka topic</li>
+              <li>Event-driven integrations — domain events are already there to publish</li>
             </ul>
-            <p><strong>Costs:</strong> querying current state requires replaying (use snapshots for large aggregates); eventual consistency in projections; schema evolution for old events is hard.</p>
+            <p><strong>Costs:</strong> querying current state requires replaying (use snapshots for large aggregates); eventual consistency in projections; schema evolution for old events is hard (upcasters); GDPR erasure in an immutable log needs crypto-shredding or similar.</p>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Kafka is not an event store by itself</span><div class="callout-body">An event store must load one aggregate's events quickly and reject a write if someone else appended first (optimistic concurrency on the aggregate version). Kafka cannot read "all events of order 42" without scanning a partition, and has no per-key expected-version check. Typical setups keep the events in a database table or a dedicated store (EventStoreDB, Axon Server) and publish them to Kafka for other services.</div></div></div>
           </div>
         </div>
 
@@ -401,18 +406,19 @@ events table:
     <span class="kw">return</span> order; <span class="cmt">// both committed or both rolled back</span>
 }
 
-<span class="cmt">// Step 2: Outbox poller — separate thread/job reads and publishes</span>
+<span class="cmt">// Step 2: Outbox relay — separate job reads and publishes</span>
 <span class="ann">@Scheduled</span>(fixedDelay = <span class="num">500</span>)
-<span class="kw">public void</span> <span class="fn">pollOutbox</span>() {
-    List&lt;<span class="typ">OutboxEvent</span>&gt; events = outboxRepo.findUnpublished();
-    events.forEach(e -> {
-        kafkaTemplate.send(e.getEventType(), e.getAggregateId(), e.getPayload());
+<span class="kw">public void</span> <span class="fn">pollOutbox</span>() <span class="kw">throws</span> <span class="typ">Exception</span> {
+    <span class="kw">for</span> (<span class="typ">OutboxEvent</span> e : outboxRepo.findUnpublished()) {
+        kafkaTemplate.send(<span class="str">"order-events"</span>, e.getAggregateId(), e.getPayload())
+            .get(<span class="num">10</span>, <span class="typ">TimeUnit</span>.SECONDS); <span class="cmt">// wait for the broker ack</span>
         e.markPublished();
-    });
-    outboxRepo.saveAll(events);
+        outboxRepo.save(e);
+    }
 }
 <span class="cmt">// Or use Debezium CDC — no polling needed, reads PostgreSQL WAL directly</span></code></pre></div>
-            <p><strong>Debezium is the preferred approach</strong> — it reads the DB WAL (write-ahead log) in real time. Zero polling delay, no missed events, works without modifying application code.</p>
+            <p><strong>Guarantee:</strong> at-least-once. If the relay crashes after the send but before marking the row, the event is sent again, so consumers must deduplicate (by event id). Never mark rows as published before the broker has acknowledged them, and make sure only one relay processes a row (single instance, leader election, or <code>FOR UPDATE SKIP LOCKED</code>).</p>
+            <p><strong>Debezium (CDC) is often preferred</strong> — it reads the DB WAL (write-ahead log) in near real time, so there is no polling delay or extra query load. The application still writes the outbox row in its transaction; only the relay is replaced. Debezium's Outbox Event Router SMT (<code>io.debezium.transforms.outbox.EventRouter</code>) turns each outbox row into a Kafka record on a topic derived from the aggregate type, keyed by the aggregate id. Trade-off: you now operate Kafka Connect and replication slots.</p>
           </div>
         </div>
 
@@ -436,8 +442,29 @@ events table:
             <ul>
               <li><strong>CLOSED</strong> — normal operation. Calls pass through; failures counted</li>
               <li><strong>OPEN</strong> — failure threshold exceeded. All calls fail immediately with <code>CallNotPermittedException</code>; no calls reach downstream</li>
-              <li><strong>HALF_OPEN</strong> — after a wait duration, allows a limited number of probe calls. If they succeed → CLOSED. If they fail → OPEN again</li>
+              <li><strong>HALF_OPEN</strong> — after a wait duration, allows a limited number of probe calls. If their failure rate stays below the threshold → CLOSED. Otherwise → OPEN again</li>
             </ul>
+            <div class="pat-svg"><svg viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs><marker id="cbm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+              <rect x="20" y="40" width="160" height="60" rx="5" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+              <text x="100" y="64" font-size="13" font-weight="700" fill="#e2e8f0" text-anchor="middle">CLOSED</text>
+              <text x="100" y="84" font-size="11" fill="#64748b" text-anchor="middle">calls pass through</text>
+              <rect x="460" y="40" width="160" height="60" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+              <text x="540" y="64" font-size="13" font-weight="700" fill="#e2e8f0" text-anchor="middle">OPEN</text>
+              <text x="540" y="84" font-size="11" fill="#64748b" text-anchor="middle">fail fast, no calls</text>
+              <rect x="240" y="190" width="160" height="60" rx="5" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+              <text x="320" y="214" font-size="13" font-weight="700" fill="#e2e8f0" text-anchor="middle">HALF_OPEN</text>
+              <text x="320" y="234" font-size="11" fill="#64748b" text-anchor="middle">N trial calls</text>
+              <line x1="180" y1="62" x2="458" y2="62" stroke="#475569" stroke-width="1.5" marker-end="url(#cbm)"/>
+              <text x="320" y="52" font-size="11" fill="#fca5a5" text-anchor="middle">failure or slow-call rate ≥ threshold</text>
+              <line x1="525" y1="101" x2="405" y2="208" stroke="#475569" stroke-width="1.5" marker-end="url(#cbm)"/>
+              <text x="470" y="170" font-size="11" fill="#fcd34d">wait duration elapsed</text>
+              <line x1="400" y1="192" x2="495" y2="103" stroke="#475569" stroke-width="1.5" marker-end="url(#cbm)"/>
+              <text x="455" y="130" font-size="11" fill="#fca5a5" text-anchor="end">trials fail</text>
+              <line x1="238" y1="205" x2="121" y2="103" stroke="#475569" stroke-width="1.5" marker-end="url(#cbm)"/>
+              <text x="30" y="170" font-size="11" fill="#6ee7b7">trials succeed</text>
+            </svg></div>
+            <p>The failure rate is only evaluated once the sliding window holds at least <code>minimumNumberOfCalls</code> calls, so a single failed request at startup does not trip the breaker. Resilience4j defaults: <code>failureRateThreshold</code> 50%, <code>slidingWindowSize</code> 100 calls, <code>minimumNumberOfCalls</code> 100, <code>waitDurationInOpenState</code> 60s, <code>permittedNumberOfCallsInHalfOpenState</code> 10 — far too slow to react for low-traffic services, so always tune them.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Circuit Breaker</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@CircuitBreaker</span>(name = <span class="str">"inventoryService"</span>, fallbackMethod = <span class="str">"inventoryFallback"</span>)
 <span class="ann">@TimeLimiter</span>(name = <span class="str">"inventoryService"</span>)
 <span class="ann">@Retry</span>(name = <span class="str">"inventoryService"</span>)
@@ -459,12 +486,14 @@ events table:
         slowCallDurationThreshold: 2000ms
         waitDurationInOpenState: 30s
         permittedNumberOfCallsInHalfOpenState: 5
+        slidingWindowType: COUNT_BASED    <span class="cmt"># or TIME_BASED (window size in seconds)</span>
         slidingWindowSize: 20
+        minimumNumberOfCalls: 10          <span class="cmt"># don't judge the rate on fewer calls</span>
   timelimiter:
     instances:
       inventoryService:
         timeoutDuration: 1s</code></pre></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Order matters</span><div class="callout-body">Apply decorators in order: <code>@CircuitBreaker</code> wraps <code>@Retry</code> wraps <code>@TimeLimiter</code>. The CB sees the result of all retries, not individual attempts. Don't retry on <code>CallNotPermittedException</code> — the circuit is open for a reason.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Order matters</span><div class="callout-body">The order of the annotations in the source does not matter; the Spring Boot starter applies a fixed aspect order: <code>Retry ( CircuitBreaker ( RateLimiter ( TimeLimiter ( Bulkhead ( call ) ) ) ) )</code>. Retry is outermost, so the CB counts <em>every attempt</em> (3 retries of one request = 3 recorded calls), and a timeout from the TimeLimiter counts as a CB failure. You can change it with the <code>resilience4j.*.*-aspect-order</code> properties (higher value = applied first), but the default is what most teams want. Don't retry on <code>CallNotPermittedException</code> — the circuit is open for a reason.</div></div></div>
           </div>
         </div>
 
@@ -472,7 +501,7 @@ events table:
           <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">What is the Bulkhead pattern and how does it isolate failures?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>Named after ship bulkheads that prevent one flooded compartment from sinking the whole ship. In software: each downstream service gets its own thread pool or semaphore, so a slow/unavailable service can't exhaust the shared thread pool and block all other operations.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Bulkhead (thread pool isolation)</span><button class="copy-btn">Copy</button></div><pre><code>resilience4j:
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Resilience4j Bulkhead (thread pool isolation)</span><button class="copy-btn">Copy</button></div><pre><code>resilience4j:
   thread-pool-bulkhead:
     instances:
       paymentService:
@@ -485,6 +514,7 @@ events table:
         queueCapacity: 10</code></pre></div>
             <p><strong>Without Bulkhead:</strong> payment service hangs → 200 threads blocked waiting → no threads left for inventory or order calls → entire application unresponsive, even for services that are healthy.</p>
             <p><strong>With Bulkhead:</strong> payment thread pool fills → payment calls queue/reject → inventory threads still free → order service still works. Failure blast radius is contained.</p>
+            <p><strong>Two flavours in Resilience4j:</strong> the <em>semaphore</em> bulkhead (<code>resilience4j.bulkhead</code>, <code>maxConcurrentCalls</code>, <code>maxWaitDuration</code>) just limits concurrent calls on the caller's thread — cheap, works for blocking code and with virtual threads. The <em>thread-pool</em> bulkhead runs the call on its own pool and therefore needs a <code>CompletableFuture</code> return type; it costs context switches and breaks ThreadLocal-based context (security, tracing) unless you propagate it. Default to the semaphore one; size limits from measured latency × target throughput (Little's law), not guesses.</p>
           </div>
         </div>
 
@@ -500,17 +530,18 @@ events table:
   retry:
     instances:
       paymentService:
-        maxAttempts: 3
+        maxAttempts: 3                      <span class="cmt"># total attempts incl. the first call = 2 retries</span>
         waitDuration: 500ms
         enableExponentialBackoff: true
-        exponentialBackoffMultiplier: 2.0   <span class="cmt"># 500ms → 1000ms → 2000ms</span>
+        exponentialBackoffMultiplier: 2.0   <span class="cmt"># waits 500ms, then 1000ms</span>
+        enableRandomizedWait: true          <span class="cmt"># required, or the factor below is ignored</span>
         randomizedWaitFactor: 0.5           <span class="cmt"># jitter: ±50% to spread retries</span>
         retryExceptions:
           - java.net.SocketTimeoutException
           - org.springframework.web.client.ResourceAccessException
         ignoreExceptions:
           - com.example.PaymentDeclinedException  <span class="cmt"># business error, don't retry</span></code></pre></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key rule</span><div class="callout-body">Never retry non-idempotent operations without an idempotency key. Retrying a payment without idempotency can charge the customer twice. Always distinguish between infrastructure errors (retry-safe) and business errors (never retry).</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key rule</span><div class="callout-body">Never retry non-idempotent operations without an idempotency key. Retrying a payment without idempotency can charge the customer twice. Always distinguish between infrastructure errors (retry-safe) and business errors (never retry). Retry at one layer only: 3 retries in each of 4 nested services turns one user request into up to 4<sup>4</sup> = 256 calls on the deepest service. With the default aspect order, Retry wraps the Circuit Breaker, so once the circuit opens the retries fail fast with <code>CallNotPermittedException</code> — exclude it from <code>retryExceptions</code>.</div></div></div>
           </div>
         </div>
 
@@ -530,9 +561,10 @@ events table:
           <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">What are the three pillars of observability and how do you implement them in Spring Boot?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p><strong>1. Logs — structured, correlated:</strong></p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Logback JSON with trace correlation</span><button class="copy-btn">Copy</button></div><pre><code>logging.structured.format.console: ecs   <span class="cmt"># Spring Boot 3.4+ ECS structured logging</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Properties — structured JSON logs with trace correlation</span><button class="copy-btn">Copy</button></div><pre><code>logging.structured.format.console=ecs   <span class="cmt"># Spring Boot 3.4+ built-in structured logging (ecs, logstash, gelf)</span>
 <span class="cmt"># Output: {"@timestamp":"...", "traceId":"abc123", "spanId":"def456", "message":"Order created"}</span>
-<span class="cmt"># traceId + spanId injected by Micrometer Tracing automatically</span></code></pre></div>
+<span class="cmt"># traceId + spanId are put into the MDC by Micrometer Tracing automatically</span>
+<span class="cmt"># Before 3.4: a JSON encoder such as logstash-logback-encoder in logback-spring.xml</span></code></pre></div>
             <p><strong>2. Metrics — Micrometer + Prometheus:</strong></p>
             <div class="code-block"><div class="code-header"><span class="code-lang">Java — Custom business metrics</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Service</span>
 <span class="kw">public class</span> <span class="typ">OrderService</span> {
@@ -545,14 +577,14 @@ events table:
     }
 
     <span class="kw">public</span> <span class="typ">Order</span> <span class="fn">createOrder</span>(<span class="typ">CreateOrderRequest</span> req) {
-        <span class="kw">return</span> orderProcessingTime.record(() -> {
+        <span class="kw">return</span> orderProcessingTime.record(() -&gt; {
             <span class="typ">Order</span> order = persist(req);
             ordersCreated.increment();
             <span class="kw">return</span> order;
         });
     }
 }</code></pre></div>
-            <p><strong>3. Traces — Micrometer Tracing + Zipkin/Tempo:</strong></p>
+            <p><strong>3. Traces — Micrometer Tracing + Zipkin/Tempo:</strong> Spring Cloud Sleuth ended with Spring Boot 2.x; since Boot 3 tracing is part of Micrometer (Observation API + Micrometer Tracing) with a Brave or OpenTelemetry bridge. The OTel route (<code>micrometer-tracing-bridge-otel</code> + an OTLP exporter, <code>management.otlp.tracing.endpoint</code>) sends spans to any OTLP backend: an OpenTelemetry Collector, Tempo, Jaeger.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Distributed tracing config</span><button class="copy-btn">Copy</button></div><pre><code>management:
   tracing:
     sampling:
@@ -562,7 +594,7 @@ events table:
       endpoint: http://zipkin:9411/api/v2/spans
 <span class="cmt"># Add: micrometer-tracing-bridge-brave + zipkin-reporter-brave</span>
 <span class="cmt"># TraceId/SpanId propagate automatically via HTTP headers (B3/W3C Traceparent)</span></code></pre></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Golden signals</span><div class="callout-body">Alert on: Rate (requests/sec), Errors (error rate %), Duration (p99 latency), Saturation (queue depth, CPU%). These four catch 95% of production issues. Don't alert on anything that doesn't require human action.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Golden signals</span><div class="callout-body">Google SRE's four golden signals: Latency (p99, and separately for failed requests), Traffic (requests/sec), Errors (error rate %), Saturation (queue depth, pool usage, CPU%). For request-driven services the RED method (Rate, Errors, Duration) is the same idea in short form. Together they catch most user-facing problems. Alert on symptoms users feel (ideally SLO burn rate), and don't alert on anything that doesn't require human action.</div></div></div>
           </div>
         </div>
 
@@ -577,7 +609,7 @@ events table:
               <li><strong>Look at the tags on that span</strong> — HTTP method, URL, DB query, exception class</li>
               <li><strong>Jump to structured logs</strong> — filter by traceId in your log aggregator (Loki/Elasticsearch); all log lines from all services for that request are now correlated</li>
             </ol>
-            <p><strong>Setup requirement:</strong> every service must propagate the <code>traceparent</code> (W3C) or <code>X-B3-TraceId</code> (B3) header on outbound calls. Micrometer Tracing does this automatically for RestTemplate, WebClient, and Kafka consumers.</p>
+            <p><strong>Setup requirement:</strong> every service must propagate the <code>traceparent</code> (W3C) or <code>X-B3-TraceId</code> (B3) header on outbound calls. Micrometer Tracing does this automatically for RestTemplate, RestClient and WebClient <em>if</em> they are built from the Spring-managed builders (<code>RestTemplateBuilder</code>, <code>RestClient.Builder</code>, <code>WebClient.Builder</code>) — a client created with <code>new RestTemplate()</code> is not instrumented. For Kafka, observation must be switched on (<code>spring.kafka.template.observation-enabled=true</code> and <code>spring.kafka.listener.observation-enabled=true</code>), and <code>@Async</code> or custom thread pools need context propagation (a <code>ContextPropagatingTaskDecorator</code>), or the trace breaks at the thread hop.</p>
           </div>
         </div>
 
@@ -588,14 +620,15 @@ events table:
   endpoint:
     health:
       probes:
-        enabled: true    <span class="cmt"># enables /actuator/health/liveness and /readiness</span>
+        enabled: true    <span class="cmt"># /actuator/health/liveness and /readiness (on by default when Boot detects Kubernetes)</span>
       group:
         readiness:
-          include: db, kafka, redis  <span class="cmt"># pod not ready until dependencies healthy</span>
+          include: readinessState, db  <span class="cmt"># only dependencies this pod truly cannot serve without</span>
         liveness:
-          include: ping              <span class="cmt"># only check app process, not deps</span>
+          include: livenessState       <span class="cmt"># only the app's own state, never dependencies</span>
+<span class="cmt"># Boot has no built-in Kafka health indicator; write a custom one if you need it.</span>
 
-<span class="cmt">// Kubernetes deployment:</span>
+<span class="cmt"># Kubernetes deployment:</span>
 livenessProbe:
   httpGet: { path: /actuator/health/liveness, port: 8080 }
   initialDelaySeconds: 30
@@ -603,11 +636,12 @@ livenessProbe:
 readinessProbe:
   httpGet: { path: /actuator/health/readiness, port: 8080 }
   initialDelaySeconds: 10
-  periodSeconds: 5</code></pre></div>
+  periodSeconds: 5
+<span class="cmt"># For slow JVM starts prefer a startupProbe over a long initialDelaySeconds</span></code></pre></div>
             <p><strong>Why split liveness and readiness:</strong></p>
             <ul>
               <li><strong>Liveness</strong> — is the process alive? If no, K8s restarts the pod. Don't include DB here — if DB is down, don't restart all pods</li>
-              <li><strong>Readiness</strong> — is this pod ready to receive traffic? If no, K8s removes it from Service endpoints. Include DB, Kafka here — if dependencies are unhealthy, stop sending traffic but don't restart</li>
+              <li><strong>Readiness</strong> — is this pod ready to receive traffic? If no, K8s removes it from Service endpoints, but does not restart it. Be careful with shared dependencies: if the one database every pod uses goes down, all pods turn unready at once and the Service has zero endpoints, so callers get connection errors instead of your fast, clear 503. Many teams include only local readiness and let the circuit breaker handle downstream outages</li>
             </ul>
           </div>
         </div>
@@ -632,19 +666,19 @@ readinessProbe:
               <li>Client authenticates with Auth Service → receives JWT signed by auth service private key</li>
               <li>Client sends JWT in <code>Authorization: Bearer &lt;token&gt;</code> header</li>
               <li>API Gateway validates JWT signature (using auth service public key); on failure → 401</li>
-              <li>Gateway passes validated JWT downstream — services trust it without re-validating signature</li>
-              <li>Each service reads claims from JWT: userId, roles, tenantId</li>
+              <li>Gateway passes the JWT downstream unchanged</li>
+              <li>Each service validates it again as an OAuth2 resource server (signature via the cached JWKS public keys, <code>exp</code>, <code>iss</code>, <code>aud</code>) and reads claims: userId, roles, tenantId. Local validation is cheap, and it means a pod reached directly (bypassing the gateway) cannot be fooled by a forged token — zero trust instead of a trusted perimeter</li>
             </ol>
             <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Security Resource Server (validate JWT)</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Configuration</span>
 <span class="kw">public class</span> <span class="typ">SecurityConfig</span> {
     <span class="ann">@Bean</span>
     <span class="kw">public</span> <span class="typ">SecurityFilterChain</span> <span class="fn">filterChain</span>(<span class="typ">HttpSecurity</span> http) <span class="kw">throws</span> <span class="typ">Exception</span> {
         http
-          .authorizeHttpRequests(auth -> auth
+          .authorizeHttpRequests(auth -&gt; auth
               .requestMatchers(<span class="str">"/actuator/health/**"</span>).permitAll()
               .anyRequest().authenticated())
-          .oauth2ResourceServer(oauth2 -> oauth2
-              .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter())));
+          .oauth2ResourceServer(oauth2 -&gt; oauth2
+              .jwt(jwt -&gt; jwt.jwtAuthenticationConverter(jwtConverter())));
         <span class="kw">return</span> http.build();
     }
 }
@@ -705,7 +739,7 @@ readinessProbe:
   → Monolith: email/SMS code removed
 
 Month 3: Extract InventoryService
-  → Dual-write to old DB + new service during transition
+  → Sync old DB → new service DB via CDC (Debezium) during transition, not app-level dual writes
   → Migrate DB data, verify parity, cut over
 
 Month 6: Extract PaymentService (higher risk, more careful)
@@ -713,7 +747,7 @@ Month 6: Extract PaymentService (higher risk, more careful)
   → Gradual canary: 5% → 20% → 50% → 100% traffic
 
 Month 9: Monolith now handles only core orders → becomes OrderService</code></pre></div>
-            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Never do this</span><div class="callout-body">Big Bang rewrite: "we'll freeze the monolith and rewrite everything in microservices in 6 months." This almost always fails. The monolith keeps getting feature requests; the rewrite takes 18 months; you launch with missing features and have to maintain both. Strangler Fig is slower but it always ships.</div></div></div>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Never do this</span><div class="callout-body">Big Bang rewrite: "we'll freeze the monolith and rewrite everything in microservices in 6 months." This almost always fails. The monolith keeps getting feature requests; the rewrite takes 18 months; you launch with missing features and have to maintain both. Strangler Fig is slower, but it ships value every step and every step can be rolled back at the proxy. Its own risk: migrations that stall halfway, leaving you to run both systems for years — so plan and fund the removal of monolith code, not only the extraction.</div></div></div>
           </div>
         </div>
 
@@ -764,7 +798,7 @@ Month 9: Monolith now handles only core orders → becomes OrderService</code></
 
 <span class="ann">@JsonIgnoreProperties</span>(ignoreUnknown = <span class="kw">true</span>)  <span class="cmt">// consumers tolerate extra fields</span>
 <span class="kw">public record</span> <span class="typ">OrderCreatedEvent</span>(<span class="typ">Long</span> orderId, <span class="typ">Long</span> customerId, <span class="typ">BigDecimal</span> totalAmount) {}</code></pre></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Schema Registry</span><div class="callout-body">For Kafka, use Avro + Schema Registry with a <strong>BACKWARD</strong> compatibility setting — new schema must be readable by old consumers. This enforces expand-contract at the tooling level and fails fast at deploy time if you accidentally break compatibility.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Schema Registry</span><div class="callout-body">For Kafka, use Avro/Protobuf + Schema Registry and pick the compatibility mode that matches your rollout order. <strong>BACKWARD</strong> (the Confluent default): consumers on the new schema can read data written with the old one — upgrade consumers first. <strong>FORWARD</strong>: data written with the new schema can be read by consumers still on the old one — upgrade producers first, which is the expand step above. <strong>FULL</strong>: both, so the order no longer matters; adding or removing only optional fields with defaults stays FULL-compatible. Registration of an incompatible schema fails, so the break is caught in CI or at deploy time. The <code>_TRANSITIVE</code> variants check against all old versions, not just the latest.</div></div></div>
           </div>
         </div>
 
@@ -774,7 +808,7 @@ Month 9: Monolith now handles only core orders → becomes OrderService</code></
             <p>Database decomposition is the hardest part of microservice migration — it's irreversible and has no fallback plan once you've split.</p>
             <p><strong>Expand-contract database split pattern:</strong></p>
             <ol>
-              <li><strong>Add dual-write</strong>: monolith writes to both the shared DB and the new service's DB simultaneously</li>
+              <li><strong>Synchronise the data</strong>: stream changes from the shared tables to the new service's DB with CDC (Debezium) rather than having the monolith write to both databases in code — two independent writes are not atomic and will drift on partial failures (the dual-write problem). If you must dual-write, have one side be the source of truth and reconcile continuously</li>
               <li><strong>Verify consistency</strong>: read from both, compare results; log discrepancies; run for 1-2 weeks</li>
               <li><strong>Switch reads</strong>: new service reads from its own DB; stop reading from shared DB</li>
               <li><strong>Remove from shared schema</strong>: once confident, drop the tables from the shared DB</li>
@@ -832,15 +866,15 @@ Month 9: Monolith now handles only core orders → becomes OrderService</code></
             <p><strong>Configuration strategy (by environment sensitivity):</strong></p>
             <ul>
               <li><strong>Non-sensitive config</strong>: Kubernetes ConfigMaps → mounted as env vars or files. Spring Boot picks up via <code>@ConfigurationProperties</code></li>
-              <li><strong>Sensitive config (secrets)</strong>: Kubernetes Secrets (base64 encoded, or better: backed by HashiCorp Vault via External Secrets Operator)</li>
+              <li><strong>Sensitive config (secrets)</strong>: Kubernetes Secrets — base64 is only encoding, not encryption, so enable encryption at rest in etcd and restrict RBAC; better: keep the source of truth in HashiCorp Vault or a cloud secret manager and sync it via External Secrets Operator</li>
               <li><strong>Spring Cloud Config Server</strong>: central Git-backed config server; services pull config at startup and on refresh. Useful for non-K8s or multi-cloud environments</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — External Secrets Operator pulling from Vault</span><button class="copy-btn">Copy</button></div><pre><code>apiVersion: external-secrets.io/v1beta1
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — External Secrets Operator pulling from Vault</span><button class="copy-btn">Copy</button></div><pre><code>apiVersion: external-secrets.io/v1   <span class="cmt"># v1beta1 is no longer served since ESO v0.17</span>
 kind: ExternalSecret
 metadata:
   name: order-service-secrets
 spec:
-  refreshInterval: 15m
+  refreshInterval: 15m   <span class="cmt"># re-sync from Vault; rotation itself happens in Vault</span>
   secretStoreRef:
     name: vault-backend
     kind: ClusterSecretStore
@@ -866,7 +900,7 @@ spec:
               <li><strong>You don't have DevOps capability</strong> — microservices require CI/CD pipelines, container orchestration, distributed tracing, and on-call culture. Without these, deployments become a nightmare</li>
               <li><strong>The problem is a simple CRUD app</strong> — a 3-table app with 100 users doesn't need 5 services</li>
             </ul>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Martin Fowler's rule</span><div class="callout-body">"Don't start with microservices. Start with a monolith, identify the seams of independent deployability, and extract services when the monolith starts hurting your team's ability to work independently." The Modulith pattern (Spring Modulith) gives you internal module isolation without the distributed systems complexity — a good intermediate step.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Martin Fowler's "MonolithFirst"</span><div class="callout-body">In paraphrase: don't start a new system with microservices; start with a monolith, learn where the stable boundaries are, and extract services when the monolith starts hurting your teams' ability to work independently. (Fowler's 2015 article; others, such as Stefan Tilkov, argue the opposite for teams that already know the domain well.) The Modulith pattern (Spring Modulith) gives you internal module isolation without the distributed systems complexity — a good intermediate step.</div></div></div>
           </div>
         </div>
 
