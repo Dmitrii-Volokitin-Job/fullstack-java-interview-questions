@@ -95,8 +95,40 @@
               <li><strong>Topic</strong> — a named, durable, append-only log. Messages are never deleted on consume — retained by time or size policy.</li>
               <li><strong>Partition</strong> — unit of parallelism and ordering. A topic splits into N partitions distributed across brokers. Messages within one partition are strictly ordered. Consumers in a group each own a subset of partitions.</li>
               <li><strong>Replica</strong> — each partition has a leader + N-1 follower replicas on different brokers. Leader handles all reads/writes; followers replicate. If the leader fails, a follower is elected.</li>
-              <li><strong>Controller</strong> — one broker elected as controller; manages partition leader elections and cluster metadata.</li>
+              <li><strong>Controller</strong> — in KRaft mode (the only mode since Kafka 4.0) a small quorum of controller nodes stores the metadata log; the active controller of that quorum runs partition leader elections and pushes metadata to brokers.</li>
             </ul>
+            <div class="pat-svg"><svg viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs><marker id="ka" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+              <rect x="10" y="100" width="110" height="50" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="65" y="122" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">Producer</text>
+              <text x="65" y="139" font-size="11" fill="#93c5fd" text-anchor="middle" font-family="JetBrains Mono,monospace">hash(key) % N</text>
+              <rect x="150" y="10" width="230" height="230" rx="5" fill="#101528" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="265" y="30" font-size="12" font-weight="600" fill="#a5b4fc" text-anchor="middle">Topic orders (3 partitions)</text>
+              <rect x="165" y="50" width="200" height="44" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="265" y="68" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">Partition 0</text>
+              <text x="265" y="84" font-size="11" fill="#64748b" text-anchor="middle">leader: broker 1</text>
+              <rect x="165" y="110" width="200" height="44" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="265" y="128" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">Partition 1</text>
+              <text x="265" y="144" font-size="11" fill="#64748b" text-anchor="middle">leader: broker 2</text>
+              <rect x="165" y="170" width="200" height="44" rx="4" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="265" y="188" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">Partition 2</text>
+              <text x="265" y="204" font-size="11" fill="#64748b" text-anchor="middle">leader: broker 3</text>
+              <rect x="430" y="10" width="200" height="230" rx="5" fill="#101528" stroke="#10b981" stroke-width="1.5"/>
+              <text x="530" y="30" font-size="12" font-weight="600" fill="#6ee7b7" text-anchor="middle">Group billing-svc</text>
+              <rect x="450" y="50" width="160" height="104" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+              <text x="530" y="96" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">Consumer 1</text>
+              <text x="530" y="113" font-size="11" fill="#64748b" text-anchor="middle">owns P0, P1</text>
+              <rect x="450" y="170" width="160" height="44" rx="4" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+              <text x="530" y="188" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">Consumer 2</text>
+              <text x="530" y="204" font-size="11" fill="#64748b" text-anchor="middle">owns P2</text>
+              <line x1="120" y1="125" x2="163" y2="72" stroke="#475569" stroke-width="1.5" marker-end="url(#ka)"/>
+              <line x1="120" y1="125" x2="163" y2="132" stroke="#475569" stroke-width="1.5" marker-end="url(#ka)"/>
+              <line x1="120" y1="125" x2="163" y2="192" stroke="#475569" stroke-width="1.5" marker-end="url(#ka)"/>
+              <line x1="365" y1="72" x2="448" y2="90" stroke="#475569" stroke-width="1.5" marker-end="url(#ka)"/>
+              <line x1="365" y1="132" x2="448" y2="118" stroke="#475569" stroke-width="1.5" marker-end="url(#ka)"/>
+              <line x1="365" y1="192" x2="448" y2="192" stroke="#475569" stroke-width="1.5" marker-end="url(#ka)"/>
+            </svg></div>
+            <p>Records with the same key always land in the same partition, so per-key order holds. Inside one group a partition has exactly one owner; a third consumer here would take a partition from Consumer 1, and a fourth would sit idle. A second group reads the same partitions independently with its own offsets.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">Text — Cluster layout</span><button class="copy-btn">Copy</button></div><pre><code>Topic: orders  (3 partitions, replication-factor 3)
 
 Partition 0:  Leader=Broker1  Replicas=[Broker1, Broker2, Broker3]  ISR=[1,2,3]
@@ -105,37 +137,44 @@ Partition 2:  Leader=Broker3  Replicas=[Broker3, Broker1, Broker2]  ISR=[3,1,2]
 
 ISR = In-Sync Replicas (replicas fully caught up to leader)
 If Broker1 dies → Partition 0 leader election → Broker2 or Broker3 takes over</code></pre></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key interview insight</span><div class="callout-body">Kafka achieves high throughput by writing sequentially to disk (not random I/O) and using zero-copy transfer (sendfile syscall) to deliver messages to consumers. This is why Kafka outperforms systems that use random writes.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key interview insight</span><div class="callout-body">Kafka achieves high throughput by writing sequentially to disk (not random I/O) and using zero-copy transfer (sendfile syscall) to deliver messages to consumers. This is why Kafka outperforms systems that use random writes. Caveat: zero-copy only applies to plaintext listeners; with TLS the broker must copy data into user space to encrypt it, so TLS clusters lose part of that advantage.</div></div></div>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="arch">
           <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">What is ZooKeeper's role in Kafka? What is KRaft mode and why was it introduced?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p><strong>ZooKeeper (legacy, pre-3.3)</strong> stored Kafka cluster metadata: broker registration, topic configs, partition leader elections, controller election, ACLs, consumer offsets (early versions). Every Kafka operation touched ZooKeeper, creating a bottleneck and operational complexity (two systems to manage).</p>
-            <p><strong>KRaft (Kafka Raft, Kafka 3.3+ GA)</strong> — removes ZooKeeper entirely. Kafka brokers themselves implement the Raft consensus protocol to manage metadata. Benefits:</p>
+            <p><strong>ZooKeeper (legacy)</strong> stored Kafka cluster metadata: broker registration, topic configs, partition assignments, controller election, ACLs and, in very old versions, consumer offsets. One broker acted as controller and had to load the whole state from ZooKeeper on failover, so failover time and partition count were bounded by ZooKeeper, and you operated two distributed systems with two security models.</p>
+            <p><strong>KRaft (Kafka Raft)</strong> replaces ZooKeeper with a Raft quorum of controller nodes that keep the metadata as an event log (<code>__cluster_metadata</code>). Brokers replicate that log instead of querying ZooKeeper. Timeline: production-ready in 3.3, ZooKeeper deprecated in 3.5, migration path GA in 3.6, ZooKeeper support <strong>removed in 4.0</strong>. Any 4.x cluster is KRaft-only; a ZK cluster must migrate on 3.x first.</p>
             <ul>
-              <li>Single system to operate (no ZooKeeper cluster to maintain)</li>
-              <li>Controller failover in milliseconds (was seconds with ZK)</li>
-              <li>Scales to millions of partitions (ZK was limited to ~200K)</li>
-              <li>Simpler security model (one auth system)</li>
+              <li>One system to operate and secure (no ZooKeeper ensemble)</li>
+              <li>Fast controller failover: standby controllers already hold the metadata log in memory, so there is no full reload</li>
+              <li>Higher partition ceilings, because metadata changes are log appends rather than ZooKeeper writes</li>
+              <li>Controllers can run as dedicated nodes (recommended for production) or combined with brokers (<code>process.roles=broker,controller</code>, fine for dev)</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Properties — KRaft mode config</span><button class="copy-btn">Copy</button></div><pre><code># server.properties (KRaft mode)
-process.roles=broker,controller   # combined or separate roles
+            <div class="code-block"><div class="code-header"><span class="code-lang">Properties — KRaft mode config</span><button class="copy-btn">Copy</button></div><pre><code># controller.properties (dedicated controller node)
+process.roles=controller
 node.id=1
-controller.quorum.voters=1@host1:9093,2@host2:9093,3@host3:9093
-listeners=PLAINTEXT://:9092,CONTROLLER://:9093
-log.dirs=/var/kafka/logs
+controller.listener.names=CONTROLLER
+listeners=CONTROLLER://:9093
+# Kafka 3.9+ (KIP-853 dynamic quorum): bootstrap servers instead of a fixed voter list
+controller.quorum.bootstrap.servers=host1:9093,host2:9093,host3:9093
+log.dirs=/var/kafka/meta
 
-# Format storage before first start:
-# kafka-storage.sh format -t $(kafka-storage.sh random-uuid) -c server.properties</code></pre></div>
+# Older static quorum style, still supported:
+# controller.quorum.voters=1@host1:9093,2@host2:9093,3@host3:9093
+
+# Format storage before first start (dynamic quorum): either all controllers with
+#   kafka-storage.sh format -t $CLUSTER_ID -c controller.properties --initial-controllers ...
+# or the first one with --standalone and add the others later (kafka-metadata-quorum.sh add-controller)</code></pre></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Interview angle</span><div class="callout-body">Run 3 controllers (tolerates 1 failure) or 5 (tolerates 2), same majority rule as any Raft or ZooKeeper quorum. The "why" behind KRaft is less about speed and more about having one metadata model, one security model and one thing to upgrade.</div></div></div>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="arch">
           <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">How does Kafka handle message retention? What are the retention strategies?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>Kafka retains all messages regardless of consumer state. Consumers track their own position (offset) — re-reading is free. Two retention strategies per topic:</p>
+            <p>Kafka retains all messages regardless of consumer state. Consumers track their own position (offset) — re-reading is free. Three retention strategies per topic (time and size can be combined; <code>cleanup.policy=compact,delete</code> combines compaction with time-based deletion):</p>
             <div class="table-wrap"><table>
               <thead><tr><th>Strategy</th><th>Config</th><th>Behaviour</th></tr></thead>
               <tbody>
@@ -145,14 +184,16 @@ log.dirs=/var/kafka/logs
               </tbody>
             </table></div>
             <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code># Create compacted topic — useful for event sourcing / CDC
-kafka-topics.sh --create --topic user-updates \
+kafka-topics.sh --bootstrap-server kafka:9092 --create --topic user-updates \
+  --partitions 6 --replication-factor 3 \
   --config cleanup.policy=compact \
-  --config min.cleanable.dirty.ratio=0.01 \
-  --config segment.ms=100
+  --config min.cleanable.dirty.ratio=0.1
 
-# Override retention on existing topic
-kafka-configs.sh --alter --topic orders \
-  --add-config retention.ms=86400000  # 1 day</code></pre></div>
+# Override retention on existing topic (1 day)
+kafka-configs.sh --bootstrap-server kafka:9092 --alter \
+  --entity-type topics --entity-name orders \
+  --add-config retention.ms=86400000</code></pre></div>
+            <p>Retention works on whole <strong>segments</strong>: only closed segments are deleted or compacted, so data can live longer than <code>retention.ms</code> until its segment rolls (<code>segment.ms</code>, <code>segment.bytes</code>). Very small segment settings make compaction aggressive but create many files, so keep them for demos only.</p>
             <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Log compaction use case</span><div class="callout-body">Use compacted topics for "latest state" scenarios: user profiles, product inventory, feature flags. New consumers can bootstrap current state by reading the compacted topic — no need for a separate snapshot mechanism.</div></div></div>
           </div>
         </div>
@@ -165,16 +206,16 @@ kafka-configs.sh --alter --topic orders \
               <li><strong>Target throughput</strong> — one partition handles ~10-100 MB/s depending on message size. If you need 1 GB/s, you need at least 10-100 partitions</li>
               <li><strong>Consumer parallelism</strong> — max parallel consumers = number of partitions. 20 partitions → max 20 consumers in a group</li>
               <li><strong>Ordering requirements</strong> — if all messages must be globally ordered: 1 partition (but no parallelism). Per-key order: use key-based routing across partitions</li>
-              <li><strong>Broker capacity</strong> — each partition costs ~filehandles and memory per broker. Rule of thumb: total partitions ≤ 4000 per broker, ≤ 200K per cluster</li>
+              <li><strong>Broker capacity</strong> — every partition replica costs open file handles (segment and index files), memory and replication work, and adds to leader-election and recovery time. The old "≈4,000 partitions per broker / 200K per cluster" guidance came from the ZooKeeper era; KRaft raises the ceiling, but measure on your own hardware instead of trusting a fixed number</li>
             </ul>
-            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">You can't easily decrease partitions</span><div class="callout-body">Increasing partitions later breaks key-to-partition mapping (same key → different partition). Plan capacity upfront. A common formula: <code>partitions = max(target_throughput_MB/s ÷ producer_throughput_per_partition, num_consumers_needed)</code></div></div></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">You cannot decrease partitions</span><div class="callout-body">Kafka has no way to remove partitions from a topic; the only route is a new topic plus migration. Increasing partitions is allowed, but it changes the key-to-partition mapping (same key → different partition), so per-key ordering breaks across the change and Kafka Streams co-partitioning breaks. Plan capacity upfront and over-provision moderately. A common formula: <code>partitions = max(target_throughput_MB/s ÷ producer_throughput_per_partition, num_consumers_needed)</code></div></div></div>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="arch">
           <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">What is a Schema Registry? Why is it important in a Kafka ecosystem?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>Schema Registry (Confluent or Apicurio) stores and enforces Avro/Protobuf/JSON Schema definitions. Producers register a schema; consumers fetch it by ID embedded in the message header. Prevents breaking schema changes from reaching consumers.</p>
+            <p>Schema Registry (Confluent or Apicurio) stores and enforces Avro/Protobuf/JSON Schema definitions. Producers register a schema; the serializer writes a small prefix in front of the payload (Confluent wire format: a magic byte plus a 4-byte schema ID), and consumers fetch the schema by that ID and cache it. The registry checks each new schema version against the compatibility rule, so breaking changes are rejected at registration time, before they reach consumers.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">Java — Avro with Spring Kafka</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Avro schema (order.avsc)</span>
 <span class="cmt">// {
 //   "type": "record",
@@ -223,19 +264,20 @@ kafkaTemplate.send(<span class="str">"orders"</span>, orderId, OrderEvent.newBui
                 <tr><td><strong>all / -1</strong> (all ISR)</td><td>All ISR replicas acknowledge</td><td>Higher (~2+ RTT)</td><td>No loss as long as ≥1 ISR is alive</td></tr>
               </tbody>
             </table></div>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Properties</span><button class="copy-btn">Copy</button></div><pre><code># Production-safe producer config
+            <div class="code-block"><div class="code-header"><span class="code-lang">Properties</span><button class="copy-btn">Copy</button></div><pre><code># Production-safe producer config (these are the defaults since Kafka 3.0 —
+# set them explicitly so a conflicting override fails loudly)
 acks=all                    # wait for all in-sync replicas
 retries=2147483647          # retry forever (rely on delivery.timeout.ms)
 delivery.timeout.ms=120000  # 2 min overall delivery deadline
-enable.idempotence=true     # exactly-once per partition (requires acks=all)
-max.in.flight.requests.per.connection=5  # max with idempotence
+enable.idempotence=true     # no duplicates from retries, per partition and session (requires acks=all)
+max.in.flight.requests.per.connection=5  # max with idempotence; order is still kept
 
 # Performance tuning
 batch.size=65536            # 64 KB batch (default 16KB — too small for high throughput)
-linger.ms=5                 # wait up to 5ms to fill a batch
+linger.ms=10                # default is 5 since Kafka 4.0 (KIP-1030), 0 before
 compression.type=snappy     # good ratio + fast decompression (lz4 also good)
 buffer.memory=67108864      # 64MB producer buffer</code></pre></div>
-            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">acks=all is not enough</span><div class="callout-body">Also set <code>min.insync.replicas=2</code> on the broker/topic. With replication-factor=3 and <code>min.insync.replicas=2</code>, the producer blocks if fewer than 2 replicas are in sync. Without this, acks=all with 1 ISR (the leader) = same as acks=1.</div></div></div>
+            <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">acks=all is not enough</span><div class="callout-body">Also set <code>min.insync.replicas=2</code> on the broker/topic. With replication-factor=3 and <code>min.insync.replicas=2</code>, the broker rejects acks=all writes with <code>NotEnoughReplicasException</code> when fewer than 2 replicas are in sync; the producer retries until <code>delivery.timeout.ms</code> and then fails the send. You trade availability for durability on purpose. Without this setting (the broker default is 1), acks=all with only the leader in the ISR behaves like acks=1.</div></div></div>
           </div>
         </div>
 
@@ -256,7 +298,7 @@ buffer.memory=67108864      # 64MB producer buffer</code></pre></div>
     props.put(<span class="typ">ProducerConfig</span>.BUFFER_MEMORY_CONFIG, <span class="num">67108864L</span>); <span class="cmt">// 64MB</span>
     <span class="kw">return new</span> <span class="typ">DefaultKafkaProducerFactory</span>&lt;&gt;(props);
 }</code></pre></div>
-            <p><strong>Compression algorithms:</strong> <code>none</code> → <code>gzip</code> (best ratio) → <code>snappy</code> (fast, good ratio) → <code>lz4</code> (fastest, less ratio) → <code>zstd</code> (best ratio + fast, Kafka 2.1+). For high throughput: <code>lz4</code> or <code>snappy</code>.</p>
+            <p><strong>Compression algorithms:</strong> <code>gzip</code> (good ratio, highest CPU cost), <code>snappy</code> (fast, moderate ratio), <code>lz4</code> (usually the fastest, moderate ratio), <code>zstd</code> (Kafka 2.1+, usually the best ratio at a CPU cost close to lz4/snappy). A common default today is <code>lz4</code> for latency-sensitive traffic and <code>zstd</code> when network or storage cost dominates. The batch stays compressed on the broker and is only decompressed by consumers, so compression saves network, disk and replication bandwidth at once — as long as the topic's <code>compression.type</code> is <code>producer</code> (the default), so the broker does not recompress.</p>
           </div>
         </div>
 
@@ -283,22 +325,23 @@ producer.initTransactions();
     producer.sendOffsetsToTransaction(offsets, consumerGroupMetadata);
 
     producer.commitTransaction();
-} <span class="kw">catch</span> (<span class="typ">ProducerFencedException</span> e) {
-    producer.close(); <span class="cmt">// another instance took over — fatal</span>
-} <span class="kw">catch</span> (<span class="typ">Exception</span> e) {
-    producer.abortTransaction(); <span class="cmt">// rollback all writes this transaction</span>
+} <span class="kw">catch</span> (<span class="typ">ProducerFencedException</span> | <span class="typ">OutOfOrderSequenceException</span> | <span class="typ">AuthorizationException</span> e) {
+    producer.close(); <span class="cmt">// fatal: another instance with the same transactional.id took over, or the producer is broken</span>
+} <span class="kw">catch</span> (<span class="typ">KafkaException</span> e) {
+    producer.abortTransaction(); <span class="cmt">// abortable error: roll back and retry the batch</span>
 }
 
 <span class="cmt">// Consumer must set isolation.level=read_committed to skip aborted transactions</span></code></pre></div>
-            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Performance cost</span><div class="callout-body">Transactions add ~20% latency overhead. Use them when you genuinely need cross-topic atomicity. For most cases, idempotent producers + idempotent consumers (dedup by event ID) is simpler and faster.</div></div></div>
+            <p><strong>Scope:</strong> the atomicity covers Kafka writes and consumer offsets only. A database write inside the same block is <em>not</em> part of the transaction; for DB + event atomicity use the Outbox pattern.</p>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Performance cost</span><div class="callout-body">Each transaction adds coordinator round trips and commit markers, and <code>read_committed</code> consumers cannot read past an open transaction, so end-to-end latency grows with the commit interval. The overhead per message shrinks as you put more records into each transaction. Use them when you genuinely need cross-topic atomicity. For most cases, idempotent producers + idempotent consumers (dedup by event ID) is simpler and faster.</div></div></div>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="producer">
           <div class="qa-question"><div class="qa-num">9</div><div class="qa-question-text">How does the Kafka partitioner work? When would you write a custom partitioner?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p><strong>Default partitioner (Kafka 2.4+)</strong> — "sticky partitioning": batches messages to the same partition until the batch is full or linger.ms elapses, then switches. Better batching than round-robin.</p>
-            <p><strong>Key-based</strong> — if a message has a key: <code>partition = hash(key) % numPartitions</code>. Same key always → same partition (ordering per key).</p>
+            <p><strong>No key</strong> — "sticky partitioning" (Kafka 2.4, KIP-480): the producer fills a batch for one partition, then switches. Better batching than round-robin. Kafka 3.3 (KIP-794) moved this into the producer itself as a built-in uniform sticky partitioner that also avoids slow brokers; <code>DefaultPartitioner</code> and <code>UniformStickyPartitioner</code> are deprecated, so leave <code>partitioner.class</code> unset.</p>
+            <p><strong>Key-based</strong> — if a message has a key: <code>partition = toPositive(murmur2(keyBytes)) % numPartitions</code>. Same key always → same partition (ordering per key) as long as the partition count does not change. It is murmur2 on the serialized bytes, not Java <code>hashCode()</code>, which is why non-Java clients can be configured to produce the same mapping.</p>
             <p><strong>Custom partitioner use cases:</strong></p>
             <ul>
               <li>Route by region: EU customers → EU partition (data residency)</li>
@@ -311,13 +354,19 @@ producer.initTransactions();
                          <span class="typ">Object</span> value, <span class="kw">byte</span>[] valueBytes, <span class="typ">Cluster</span> cluster) {
         <span class="kw">int</span> numPartitions = cluster.partitionCountForTopic(topic);
         <span class="typ">OrderEvent</span> order = (<span class="typ">OrderEvent</span>) value;
+        <span class="kw">int</span> half = numPartitions / <span class="num">2</span>;
+        <span class="kw">int</span> hash = <span class="typ">Utils</span>.toPositive(<span class="typ">Utils</span>.murmur2(keyBytes)); <span class="cmt">// Math.abs(Integer.MIN_VALUE) is negative</span>
         <span class="cmt">// Route EU orders to first half, others to second half</span>
         <span class="kw">if</span> (<span class="str">"EU"</span>.equals(order.getRegion())) {
-            <span class="kw">return</span> Math.abs(key.hashCode()) % (numPartitions / <span class="num">2</span>);
+            <span class="kw">return</span> hash % half;
         }
-        <span class="kw">return</span> numPartitions / <span class="num">2</span> + Math.abs(key.hashCode()) % (numPartitions / <span class="num">2</span>);
+        <span class="kw">return</span> half + hash % (numPartitions - half);
     }
+
+    <span class="ann">@Override</span> <span class="kw">public void</span> <span class="fn">configure</span>(<span class="typ">Map</span>&lt;<span class="typ">String</span>, ?&gt; configs) { }
+    <span class="ann">@Override</span> <span class="kw">public void</span> <span class="fn">close</span>() { }
 }</code></pre></div>
+            <p>This sketch assumes every record has a key and at least 2 partitions. Note that a custom partitioner couples producers to partition layout; a separate topic per region is often simpler to operate and to secure.</p>
           </div>
         </div>
 
@@ -334,7 +383,7 @@ producer.initTransactions();
         <div class="qa-card" data-pillar="consumer">
           <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">How does the Kafka consumer poll loop work? What is max.poll.records and max.poll.interval.ms?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>The consumer's <code>poll()</code> call does two things: (1) fetches records from the broker, (2) sends a heartbeat to the group coordinator to stay in the group.</p>
+            <p>The consumer's <code>poll()</code> fetches records (and runs rebalance callbacks and auto-commit). Heartbeats are sent by a separate <strong>background thread</strong> since Kafka 0.10.1 (KIP-62), so liveness and progress are checked separately: missing heartbeats for <code>session.timeout.ms</code> means "the process is dead", and not calling <code>poll()</code> within <code>max.poll.interval.ms</code> means "the process is alive but stuck". Either one removes the consumer from the group.</p>
             <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Manual poll loop (Spring Kafka hides this — shown for understanding)</span>
 <span class="kw">while</span> (<span class="kw">true</span>) {
     <span class="typ">ConsumerRecords</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; records = consumer.poll(<span class="typ">Duration</span>.ofMillis(<span class="num">100</span>));
@@ -347,8 +396,8 @@ producer.initTransactions();
 <span class="cmt">// Key configs:</span>
 <span class="cmt">// max.poll.records=500          — max records returned per poll (default 500)</span>
 <span class="cmt">// max.poll.interval.ms=300000   — if poll() not called within 5min, consumer is kicked</span>
-<span class="cmt">// session.timeout.ms=45000      — heartbeat timeout (consumer crashed)</span>
-<span class="cmt">// heartbeat.interval.ms=3000    — heartbeat frequency (1/3 of session.timeout)</span></code></pre></div>
+<span class="cmt">// session.timeout.ms=45000      — no heartbeat for this long = consumer crashed (default 45s since 3.0)</span>
+<span class="cmt">// heartbeat.interval.ms=3000    — heartbeat frequency (keep it at most 1/3 of session.timeout)</span></code></pre></div>
             <div class="callout danger"><span class="callout-icon">🚫</span><div><span class="callout-title">Common bug</span><div class="callout-body">If processing 500 records takes longer than <code>max.poll.interval.ms</code>, the consumer is kicked from the group, causing a rebalance. Fix: lower <code>max.poll.records</code>, increase <code>max.poll.interval.ms</code>, or process records asynchronously (but then you must manage offset commits carefully).</div></div></div>
           </div>
         </div>
@@ -356,17 +405,23 @@ producer.initTransactions();
         <div class="qa-card" data-pillar="consumer">
           <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">What is Consumer Group Rebalancing? What is Cooperative Rebalancing (Kafka 2.4+)?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>When consumers join/leave a group, partitions are reassigned — this is a <strong>rebalance</strong>. During rebalance, all consumers in the group stop processing (Stop-the-World).</p>
+            <p>When consumers join/leave a group, partitions are reassigned — this is a <strong>rebalance</strong>. How much processing stops depends on the protocol.</p>
             <p><strong>Triggers:</strong> consumer joins, consumer leaves (gracefully or timeout), partition count changes, subscription changes.</p>
-            <p><strong>Legacy (Eager) rebalance:</strong> all consumers release all partitions, then re-assign from scratch. Processing stops for the entire group during this.</p>
-            <p><strong>Cooperative/Incremental rebalance (Kafka 2.4+):</strong> only revoked partitions move; consumers processing unaffected partitions continue without stopping.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Properties</span><button class="copy-btn">Copy</button></div><pre><code># Enable cooperative rebalancing (Spring Kafka 2.7+ / Kafka 2.4+)
+            <p><strong>Eager rebalance (classic protocol, Range/RoundRobin/Sticky assignors):</strong> all consumers release all partitions, then re-assign from scratch. Processing stops for the entire group — this is the "stop-the-world" rebalance.</p>
+            <p><strong>Cooperative/Incremental rebalance (Kafka 2.4+, <code>CooperativeStickyAssignor</code>):</strong> only the partitions that must move are revoked, over two short rounds; consumers keep processing the rest. Since Kafka 3.0 the default assignor list is <code>[RangeAssignor, CooperativeStickyAssignor]</code>, which allows a rolling upgrade to cooperative by removing Range in a second bounce.</p>
+            <p><strong>New consumer protocol (KIP-848, GA in Kafka 4.0):</strong> the group coordinator on the broker computes assignments and each consumer reconciles incrementally through its heartbeats — no group-wide synchronization barrier at all. Brokers enable it by default in 4.0, but clients must opt in with <code>group.protocol=consumer</code>; the client default is still <code>classic</code>.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Properties</span><button class="copy-btn">Copy</button></div><pre><code># Option A — classic protocol with cooperative rebalancing
 partition.assignment.strategy=org.apache.kafka.clients.consumer.CooperativeStickyAssignor
 
-# group.instance.id — static membership: avoids rebalance on consumer restart
-# Same instance.id rejoins with its old partitions without triggering rebalance
+# Option B — Kafka 4.0+ brokers and clients: new rebalance protocol
+group.protocol=consumer
+group.remote.assignor=uniform   # optional: server-side assignor (uniform or range); partition.assignment.strategy is ignored
+
+# group.instance.id — static membership (Kafka 2.3, KIP-345)
+# A restarted member with the same id gets its partitions back without a rebalance,
+# provided it returns within session.timeout.ms
 group.instance.id=order-consumer-pod-1</code></pre></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">K8s + Kafka</span><div class="callout-body">In Kubernetes, set <code>group.instance.id</code> to the Pod name (via Downward API env var). When a pod restarts (same name), it reclaims its partitions without rebalancing the whole group — critical for production stability.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">K8s + Kafka</span><div class="callout-body">In Kubernetes, set <code>group.instance.id</code> to the Pod name (via Downward API env var) — stable names come from a StatefulSet; Deployment pods get new names. When a pod restarts within <code>session.timeout.ms</code>, it reclaims its partitions without rebalancing the whole group. Trade-off: if the pod is really gone, its partitions sit unconsumed until the session times out, so do not raise the timeout blindly.</div></div></div>
           </div>
         </div>
 
@@ -384,7 +439,7 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
 # order-processors   orders  1          987200          990000          2800
 
 # Export lag to Prometheus via kafka-exporter or burrow
-# Alert when lag > 10000 and growing</code></pre></div>
+# Alert when lag &gt; 10000 and growing</code></pre></div>
             <p><strong>Reducing lag:</strong></p>
             <ul>
               <li>Add more consumers (up to partition count)</li>
@@ -402,10 +457,10 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
             <div class="table-wrap"><table>
               <thead><tr><th>Strategy</th><th>How</th><th>Risk</th></tr></thead>
               <tbody>
-                <tr><td>Auto-commit (<code>enable.auto.commit=true</code>)</td><td>Commits offsets every <code>auto.commit.interval.ms</code> (default 5s)</td><td>At-least-once: commits may happen before processing completes; or after crash = reprocessing</td></tr>
+                <tr><td>Auto-commit (<code>enable.auto.commit=true</code>)</td><td>Inside <code>poll()</code>, at most every <code>auto.commit.interval.ms</code> (default 5s), commits the offsets returned by the <em>previous</em> poll</td><td>At-least-once if you process synchronously in the poll loop (a crash replays up to 5s of records). If you hand records to another thread, offsets can be committed before processing finishes → message loss</td></tr>
                 <tr><td>Manual sync commit</td><td><code>consumer.commitSync()</code> after processing each batch</td><td>Slower (blocks); at-least-once; precise</td></tr>
-                <tr><td>Manual async commit</td><td><code>consumer.commitAsync(callback)</code></td><td>Non-blocking; retry ordering issues on failure</td></tr>
-                <tr><td>Per-record commit</td><td>Commit after each record</td><td>Very slow; only for exactly-once sensitive scenarios</td></tr>
+                <tr><td>Manual async commit</td><td><code>consumer.commitAsync(callback)</code></td><td>Non-blocking; a failed commit is not retried (a retry could overwrite a newer offset), so finish with <code>commitSync()</code> on shutdown and in the rebalance listener</td></tr>
+                <tr><td>Per-record commit</td><td>Commit after each record</td><td>Very slow; shrinks the replay window to one record but is still at-least-once (a crash between processing and commit replays that record). Exactly-once needs transactions or an idempotent consumer</td></tr>
               </tbody>
             </table></div>
             <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Kafka manual commit</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// application.yml</span>
@@ -415,15 +470,12 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
 <span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>)
 <span class="kw">public void</span> <span class="fn">process</span>(<span class="typ">ConsumerRecord</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; record,
                     <span class="typ">Acknowledgment</span> ack) {
-    <span class="kw">try</span> {
-        processOrder(record.value());
-        ack.acknowledge(); <span class="cmt">// commit only after successful processing</span>
-    } <span class="kw">catch</span> (<span class="typ">NonRetryableException</span> e) {
-        <span class="cmt">// Send to DLT, then ack to not block the partition</span>
-        deadLetterTemplate.send(<span class="str">"orders.DLT"</span>, record.value());
-        ack.acknowledge();
-    }
-    <span class="cmt">// Retryable exceptions: don't ack — message will be redelivered</span>
+    processOrder(record.value());
+    ack.acknowledge(); <span class="cmt">// commit only after successful processing</span>
+    <span class="cmt">// On failure: let the exception propagate. The container's DefaultErrorHandler</span>
+    <span class="cmt">// seeks back, retries with back-off and finally hands the record to a</span>
+    <span class="cmt">// DeadLetterPublishingRecoverer (see the DLT question). Simply not acking does NOT</span>
+    <span class="cmt">// redeliver: the next records are still fetched, and a later ack commits past the failed one.</span>
 }</code></pre></div>
           </div>
         </div>
@@ -446,7 +498,7 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
 <span class="ann">@Bean</span>
 <span class="kw">public</span> <span class="typ">DefaultErrorHandler</span> <span class="fn">errorHandler</span>(<span class="typ">KafkaTemplate</span>&lt;<span class="typ">Object</span>, <span class="typ">Object</span>&gt; template) {
     <span class="typ">DeadLetterPublishingRecoverer</span> recoverer = <span class="kw">new</span> <span class="typ">DeadLetterPublishingRecoverer</span>(template,
-        (r, e) -> <span class="kw">new</span> <span class="typ">TopicPartition</span>(r.topic() + <span class="str">".DLT"</span>, r.partition()));
+        (r, e) -&gt; <span class="kw">new</span> <span class="typ">TopicPartition</span>(r.topic() + <span class="str">".DLT"</span>, r.partition()));
 
     <span class="typ">ExponentialBackOffWithMaxRetries</span> backoff = <span class="kw">new</span> <span class="typ">ExponentialBackOffWithMaxRetries</span>(<span class="num">3</span>);
     backoff.setInitialInterval(<span class="num">1_000L</span>);  <span class="cmt">// 1s, 2s, 4s</span>
@@ -462,10 +514,11 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
 <span class="cmt">// DLT consumer — for monitoring/reprocessing</span>
 <span class="ann">@KafkaListener</span>(topics = <span class="str">"orders.DLT"</span>)
 <span class="kw">public void</span> <span class="fn">handleDlt</span>(<span class="ann">@Payload</span> <span class="typ">OrderEvent</span> order,
-                      <span class="ann">@Header</span>(<span class="typ">KafkaHeaders</span>.EXCEPTION_MESSAGE) <span class="typ">String</span> errorMsg) {
+                      <span class="ann">@Header</span>(<span class="typ">KafkaHeaders</span>.DLT_EXCEPTION_MESSAGE) <span class="typ">String</span> errorMsg) {
     log.error(<span class="str">"DLT received: {} reason: {}"</span>, order, errorMsg);
     alertingService.notify(order, errorMsg);
 }</code></pre></div>
+            <p>Blocking retries like these hold up the whole partition while the back-off runs. For long back-offs use non-blocking retry topics (<code>@RetryableTopic</code>, see the retry-topics question in MQ Patterns). The DLT needs at least as many partitions as the source topic, because the default resolver keeps the same partition number.</p>
           </div>
         </div>
 
@@ -478,7 +531,7 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
                 <tr><td><strong>Guarantees</strong></td><td>Exactly-once per partition per session (dedup by sequence number)</td><td>Atomic writes across multiple partitions/topics</td></tr>
                 <tr><td><strong>Config</strong></td><td><code>enable.idempotence=true</code></td><td><code>transactional.id=unique-id</code> (implies idempotence)</td></tr>
                 <tr><td><strong>Use when</strong></td><td>Producer may retry and create duplicates (network blip)</td><td>Consume-process-produce loop must be atomic</td></tr>
-                <tr><td><strong>Overhead</strong></td><td>Minimal (sequence number tracking)</td><td>~20% latency, requires 2-phase commit protocol</td></tr>
+                <tr><td><strong>Overhead</strong></td><td>Minimal (sequence number tracking)</td><td>Extra coordinator round trips and commit markers per transaction (a two-phase commit run by the transaction coordinator); amortized by larger transactions</td></tr>
               </tbody>
             </table></div>
             <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Practical advice</span><div class="callout-body">Always enable idempotence (<code>enable.idempotence=true</code>) — it's free safety. Use transactions only for the consume-transform-produce pattern (Kafka Streams uses them automatically). For most microservices, idempotent consumer (dedup table) + idempotent producer is simpler and sufficient.</div></div></div>
@@ -516,16 +569,17 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
 
 <span class="cmt">// Count orders per user in a 1-hour tumbling window</span>
 <span class="typ">KTable</span>&lt;<span class="typ">Windowed</span>&lt;<span class="typ">String</span>&gt;, <span class="typ">Long</span>&gt; orderCounts = orders
-    .groupBy((key, order) -> order.getUserId())     <span class="cmt">// re-key by userId</span>
+    .groupBy((key, order) -&gt; order.getUserId())     <span class="cmt">// re-key by userId</span>
     .windowedBy(<span class="typ">TimeWindows</span>.ofSizeWithNoGrace(<span class="typ">Duration</span>.ofHours(<span class="num">1</span>)))
     .count(<span class="typ">Materialized</span>.as(<span class="str">"order-count-store"</span>));  <span class="cmt">// RocksDB state store</span>
 
 <span class="cmt">// Filter high-value orders and enrich with user data (KStream-KTable join)</span>
 <span class="typ">KTable</span>&lt;<span class="typ">String</span>, <span class="typ">User</span>&gt; users = builder.table(<span class="str">"user-updates"</span>);
 orders
-    .filter((k, o) -> o.getTotal() > <span class="num">1000</span>)
-    .join(users, (order, user) -> <span class="kw">new</span> <span class="typ">VIPOrderAlert</span>(order, user))
+    .filter((k, o) -&gt; o.getTotal() &gt; <span class="num">1000</span>)
+    .join(users, (order, user) -&gt; <span class="kw">new</span> <span class="typ">VIPOrderAlert</span>(order, user))
     .to(<span class="str">"vip-alerts"</span>);</code></pre></div>
+            <p>A KStream-KTable join is local to each instance, so it requires <strong>co-partitioning</strong>: both topics keyed by the same key (here the user id), with the same partition count and partitioner. If <code>orders</code> is keyed by order id, re-key first with <code>selectKey(...)</code>, which makes Streams write a repartition topic — or use a GlobalKTable for small lookup data.</p>
           </div>
         </div>
 
@@ -551,7 +605,7 @@ orders
                 <tr><td><strong>Session</strong></td><td>Dynamic size; gap of inactivity N ms closes the window</td><td>User sessions, clickstream analysis</td></tr>
               </tbody>
             </table></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Late data</span><div class="callout-body">Use <code>grace(Duration.ofMinutes(5))</code> to accept late-arriving events into windows. Without grace, late events are silently dropped. With Kafka Streams 3.x, you can also use <code>ofSizeAndGrace()</code> factory methods.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Late data</span><div class="callout-body">Declare the grace period explicitly: <code>TimeWindows.ofSizeAndGrace(Duration.ofHours(1), Duration.ofMinutes(5))</code> accepts events up to 5 minutes late (by event time). Events later than that are dropped and counted in the <code>dropped-records</code> metric. Since Kafka 3.0 the old <code>.grace()</code> method and the implicit 24-hour default grace are deprecated; use <code>ofSizeAndGrace()</code> or <code>ofSizeWithNoGrace()</code>. Window results are emitted as updates; use <code>suppress(untilWindowCloses(...))</code> if downstream needs one final value per window.</div></div></div>
           </div>
         </div>
 
@@ -571,16 +625,18 @@ orders
             <div class="table-wrap"><table>
               <thead><tr><th>Metric</th><th>Alert threshold</th><th>What it indicates</th></tr></thead>
               <tbody>
-                <tr><td><code>kafka_consumergroup_lag</code></td><td>&gt;10K and growing</td><td>Consumer can't keep up with producers</td></tr>
-                <tr><td><code>kafka_topic_partitions_under_replicated</code></td><td>&gt;0</td><td>Replication falling behind — broker overload or failure</td></tr>
-                <tr><td><code>kafka_controller_active_controller_count</code></td><td>≠1</td><td>No active controller (cluster unstable)</td></tr>
-                <tr><td><code>kafka_broker_messages_in_per_sec</code></td><td>Near disk/net capacity</td><td>Capacity planning</td></tr>
-                <tr><td><code>kafka_request_total_time_ms (p99)</code></td><td>&gt;500ms</td><td>Broker latency — disk or GC issue</td></tr>
-                <tr><td><code>kafka_jvm_gc_time</code></td><td>G1GC pauses &gt;1s</td><td>Tune heap or switch to ZGC</td></tr>
-                <tr><td><code>kafka_log_flush_time</code></td><td>&gt;100ms</td><td>Disk I/O bottleneck</td></tr>
+                <tr><td>Consumer lag (kafka-exporter <code>kafka_consumergroup_lag</code>, or Burrow)</td><td>Growing for N minutes, or time-lag over your SLA</td><td>Consumer can't keep up with producers</td></tr>
+                <tr><td><code>kafka.server:type=ReplicaManager,name=UnderReplicatedPartitions</code></td><td>&gt;0 for a few minutes</td><td>Replication falling behind — broker overload or failure</td></tr>
+                <tr><td><code>kafka.server:type=ReplicaManager,name=UnderMinIsrPartitionCount</code></td><td>&gt;0</td><td>acks=all producers to these partitions are failing now</td></tr>
+                <tr><td><code>kafka.controller:type=KafkaController,name=OfflinePartitionsCount</code></td><td>&gt;0</td><td>Partitions with no leader — unavailable</td></tr>
+                <tr><td><code>kafka.controller:type=KafkaController,name=ActiveControllerCount</code></td><td>Sum across the controller quorum ≠ 1</td><td>No active controller (cluster unstable)</td></tr>
+                <tr><td><code>kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec</code> / <code>BytesOutPerSec</code></td><td>Near disk/network capacity</td><td>Capacity planning</td></tr>
+                <tr><td><code>kafka.network:type=RequestMetrics,name=TotalTimeMs,request=Produce|FetchConsumer</code> (p99)</td><td>Sustained jump vs. baseline</td><td>Broker latency — disk, network or GC issue</td></tr>
+                <tr><td><code>kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent</code></td><td>&lt; 0.3</td><td>Request handler threads saturated</td></tr>
+                <tr><td>JVM GC pause time</td><td>Long or frequent pauses</td><td>Heap pressure; brokers need a modest heap and a large OS page cache</td></tr>
               </tbody>
             </table></div>
-            <p><strong>Tools:</strong> JMX metrics → Prometheus (via JMX exporter or kafka-exporter) → Grafana dashboards. Use Confluent's free Kafka dashboard or community dashboards from Grafana Labs.</p>
+            <p><strong>Tools:</strong> JMX metrics → Prometheus (via the Prometheus JMX exporter; kafka-exporter or Burrow for lag) → Grafana dashboards. Thresholds are starting points; alert on sustained deviation from your own baseline rather than fixed numbers.</p>
           </div>
         </div>
 
@@ -614,12 +670,14 @@ orders
 kafka-topics.sh --bootstrap-server kafka:9092 \
   --alter --topic orders --partitions 12
 
-# Then trigger consumer group rebalance to assign new partitions:
-# New consumers joining picks up new partitions automatically</code></pre></div>
+# No manual step needed: producers and consumers notice the new partitions on
+# their next metadata refresh (metadata.max.age.ms, default 5 min), and the
+# group rebalances to assign them. Set auto.offset.reset=earliest, or consumers
+# may skip records written to new partitions before they were assigned.</code></pre></div>
             <p><strong>Risks and mitigations:</strong></p>
             <ul>
-              <li>Keys that previously went to partition 0 may now go to partition 7 → ordering guarantee per key is broken for in-flight messages. If strict ordering matters, do this during a maintenance window with consumer restart</li>
-              <li>For Kafka Streams: repartition topics are internal and will be recreated automatically</li>
+              <li>Keys that previously went to partition 0 may now go to partition 7 → ordering guarantee per key is broken across the change (old records for a key sit in one partition, new ones in another). If strict ordering matters: pause producers, let consumers drain the lag, then add partitions and resume</li>
+              <li>For Kafka Streams: adding partitions to an input topic breaks co-partitioning with other inputs and invalidates state keyed to the old layout. Streams does not fix this automatically; the safe route is a new topic, or stopping the app and running the application reset tool</li>
               <li>For compacted topics: existing data isn't redistributed — old data stays in old partitions; only new messages go to new partitions</li>
             </ul>
           </div>
@@ -653,7 +711,8 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
 
 // Creates topics: cdc.public.orders, cdc.public.users
 // Each message = INSERT/UPDATE/DELETE row as JSON with before/after state</code></pre></div>
-            <p><strong>CDC pipeline:</strong> PostgreSQL WAL → Debezium → Kafka (<code>cdc.public.orders</code>) → Sink connectors → Elasticsearch/Redis/Data Warehouse. Zero impact on the source DB (reads WAL, not the tables).</p>
+            <p><strong>CDC pipeline:</strong> PostgreSQL WAL → Debezium → Kafka (<code>cdc.public.orders</code>) → Sink connectors → Elasticsearch/Redis/Data Warehouse. Low impact on the source DB: it reads the WAL through logical replication instead of querying tables (the initial snapshot does read the tables).</p>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Replication slot risk</span><div class="callout-body">A logical replication slot makes PostgreSQL keep WAL until the connector confirms it. If the connector is down for long, WAL piles up and can fill the database disk. Monitor slot lag (<code>pg_replication_slots</code>), and on PostgreSQL 13+ cap it with <code>max_slot_wal_keep_size</code>.</div></div></div>
           </div>
         </div>
 
@@ -671,14 +730,16 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
           <div class="qa-question"><div class="qa-num">23</div><div class="qa-question-text">How do you configure concurrency in Spring Kafka listeners? What is ConcurrentKafkaListenerContainerFactory?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Bean</span>
-<span class="kw">public</span> <span class="typ">ConcurrentKafkaListenerContainerFactory</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; <span class="fn">kafkaListenerContainerFactory</span>(
+<span class="kw">public</span> <span class="typ">ConcurrentKafkaListenerContainerFactory</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; <span class="fn">batchFactory</span>(
         <span class="typ">ConsumerFactory</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; cf, <span class="typ">DefaultErrorHandler</span> errorHandler) {
 
     <span class="kw">var</span> factory = <span class="kw">new</span> <span class="typ">ConcurrentKafkaListenerContainerFactory</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt;();
     factory.setConsumerFactory(cf);
 
-    <span class="cmt">// concurrency = number of consumer threads per listener
-    // Should match partition count or be a divisor of it</span>
+    <span class="cmt">// Bean name "batchFactory" is what containerFactory = "batchFactory" refers to below;
+    // Boot's auto-configured default factory is named "kafkaListenerContainerFactory".
+    // concurrency = number of consumer threads (one KafkaConsumer each) per listener per instance.
+    // Threads beyond the partition count (summed over all app instances) sit idle.</span>
     factory.setConcurrency(<span class="num">6</span>);  <span class="cmt">// 6 threads, each owns 2 partitions (12 total)</span>
 
     factory.setCommonErrorHandler(errorHandler);
@@ -706,7 +767,8 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
           <div class="qa-answer">
             <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Option 1: EmbeddedKafka (fast, in-process)</span>
 <span class="ann">@SpringBootTest</span>
-<span class="ann">@EmbeddedKafka</span>(partitions = 3, topics = {<span class="str">"orders"</span>, <span class="str">"orders.DLT"</span>})
+<span class="ann">@EmbeddedKafka</span>(partitions = 3, topics = {<span class="str">"orders"</span>, <span class="str">"orders.DLT"</span>},
+    bootstrapServersProperty = <span class="str">"spring.kafka.bootstrap-servers"</span>) <span class="cmt">// point Boot at the embedded broker</span>
 <span class="kw">class</span> <span class="typ">OrderConsumerIntegrationTest</span> {
 
     <span class="ann">@Autowired</span> <span class="kw">private</span> <span class="typ">KafkaTemplate</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; template;
@@ -719,20 +781,21 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
 
         <span class="cmt">// Wait for async processing</span>
         <span class="typ">Awaitility</span>.await().atMost(<span class="num">10</span>, SECONDS)
-            .untilAsserted(() ->
+            .untilAsserted(() -&gt;
                 assertThat(repo.findById(<span class="str">"ORD-001"</span>)).isPresent());
     }
 }
 
-<span class="cmt">// Option 2: Testcontainers (closest to production)</span>
+<span class="cmt">// Option 2: Testcontainers (closest to production) — real broker in Docker (KRaft)</span>
+<span class="cmt">// org.testcontainers.kafka.KafkaContainer runs the official apache/kafka image</span>
 <span class="ann">@Container</span>
-<span class="kw">static</span> <span class="typ">KafkaContainer</span> kafka = <span class="kw">new</span> <span class="typ">KafkaContainer</span>(
-    <span class="typ">DockerImageName</span>.parse(<span class="str">"confluentinc/cp-kafka:7.6.0"</span>));
+<span class="ann">@ServiceConnection</span> <span class="cmt">// Spring Boot 3.1+: sets spring.kafka.bootstrap-servers for you</span>
+<span class="kw">static</span> <span class="typ">KafkaContainer</span> kafka = <span class="kw">new</span> <span class="typ">KafkaContainer</span>(<span class="str">"apache/kafka:3.9.0"</span>);
 
-<span class="ann">@DynamicPropertySource</span>
-<span class="kw">static void</span> <span class="fn">props</span>(<span class="typ">DynamicPropertyRegistry</span> r) {
-    r.add(<span class="str">"spring.kafka.bootstrap-servers"</span>, kafka::getBootstrapServers);
-}</code></pre></div>
+<span class="cmt">// Without @ServiceConnection (older Boot versions):</span>
+<span class="cmt">// @DynamicPropertySource static void props(DynamicPropertyRegistry r) {</span>
+<span class="cmt">//     r.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers); }</span></code></pre></div>
+            <p><strong>Trade-off:</strong> EmbeddedKafka starts fast and needs no Docker, but it runs inside the test JVM and its version follows your spring-kafka dependency. Testcontainers needs Docker and a few seconds more, but it tests against the same broker image and version you run in production. Both are integration tests: always wait with Awaitility, never <code>Thread.sleep</code>.</p>
           </div>
         </div>
 
@@ -744,7 +807,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
 <span class="ann">@Data</span>
 <span class="kw">public class</span> <span class="typ">OutboxEvent</span> {
     <span class="ann">@Id @GeneratedValue</span> <span class="kw">private</span> <span class="typ">UUID</span> id;
-    <span class="kw">private</span> <span class="typ">String</span> topic, eventType, payload;
+    <span class="kw">private</span> <span class="typ">String</span> aggregateId, topic, eventType, payload;
     <span class="ann">@CreationTimestamp</span> <span class="kw">private</span> <span class="typ">Instant</span> createdAt;
     <span class="kw">private boolean</span> published = <span class="kw">false</span>;
 }
@@ -753,23 +816,24 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
 <span class="ann">@Transactional</span>
 <span class="kw">public</span> <span class="typ">Order</span> <span class="fn">placeOrder</span>(<span class="typ">PlaceOrderRequest</span> req) {
     <span class="typ">Order</span> order = orderRepo.save(mapper.toEntity(req));
-    outboxRepo.save(<span class="kw">new</span> <span class="typ">OutboxEvent</span>(<span class="str">"orders"</span>, <span class="str">"ORDER_PLACED"</span>, toJson(order)));
+    outboxRepo.save(<span class="kw">new</span> <span class="typ">OutboxEvent</span>(order.getId(), <span class="str">"orders"</span>, <span class="str">"ORDER_PLACED"</span>, toJson(order)));
     <span class="kw">return</span> order;
 }
 
-<span class="cmt">// 3. Outbox poller — runs every 500ms</span>
+<span class="cmt">// 3. Outbox relay (polling variant) — runs every 500ms</span>
 <span class="ann">@Scheduled</span>(fixedDelay = <span class="num">500</span>)
-<span class="ann">@Transactional</span>
-<span class="kw">public void</span> <span class="fn">publishPendingEvents</span>() {
-    outboxRepo.findTop100ByPublishedFalseOrderByCreatedAt()
-        .forEach(event -> {
-            kafkaTemplate.send(event.getTopic(), event.getId().toString(), event.getPayload())
-                .whenComplete((r, ex) -> {
-                    <span class="kw">if</span> (ex == <span class="kw">null</span>) outboxRepo.markPublished(event.getId());
-                });
-        });
+<span class="kw">public void</span> <span class="fn">publishPendingEvents</span>() <span class="kw">throws</span> <span class="typ">Exception</span> {
+    <span class="kw">for</span> (<span class="typ">OutboxEvent</span> event : outboxRepo.findTop100ByPublishedFalseOrderByCreatedAt()) {
+        <span class="cmt">// key = aggregate id keeps all events of one order in one partition, in order</span>
+        kafkaTemplate.send(event.getTopic(), event.getAggregateId(), event.getPayload())
+            .get(<span class="num">10</span>, <span class="typ">TimeUnit</span>.SECONDS);   <span class="cmt">// wait for the broker ack before marking</span>
+        outboxRepo.markPublished(event.getId());
+    }
 }
-<span class="cmt">// Better: use Debezium to watch outbox table changes (CDC-based outbox)</span></code></pre></div>
+<span class="cmt">// A crash between send and markPublished re-sends the event: delivery is</span>
+<span class="cmt">// at-least-once, so consumers must deduplicate by event id.</span></code></pre></div>
+            <p><strong>Kafka-specific points:</strong> use the aggregate id as the record key so per-aggregate order survives; wait for the send result before marking a row as published (marking it from an async callback outside the transaction can lose or reorder updates); run one relay instance per outbox (or lock rows with <code>SELECT … FOR UPDATE SKIP LOCKED</code>) so two pods do not publish the same rows. The CDC variant replaces the poller with Debezium plus its Outbox Event Router SMT (<code>io.debezium.transforms.outbox.EventRouter</code>), which routes each outbox row to a topic and uses the aggregate id as the key.</p>
+            <p><a class="deep-dive" href="microservices.html#data">Deep dive: Outbox pattern on the Microservices page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -789,7 +853,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
               <thead><tr><th></th><th>Kafka</th><th>RabbitMQ</th></tr></thead>
               <tbody>
                 <tr><td>Model</td><td>Log-based (pull) — messages persist; consumers read at their pace</td><td>Queue-based (push) — messages deleted after consumption</td></tr>
-                <tr><td>Replay</td><td>Yes — re-read old messages by seeking offset</td><td>No — message gone after ack</td></tr>
+                <tr><td>Replay</td><td>Yes — re-read old messages by seeking offset</td><td>Classic and quorum queues: no — message gone after ack. RabbitMQ Streams (3.9+) add an append-only log with offset-based replay</td></tr>
                 <tr><td>Throughput</td><td>Millions/sec (sequential disk I/O)</td><td>Tens of thousands/sec</td></tr>
                 <tr><td>Ordering</td><td>Per-partition ordering</td><td>Per-queue FIFO (with single consumer)</td></tr>
                 <tr><td>Best for</td><td>Event streaming, audit logs, CDC, high throughput</td><td>Task queues, RPC, complex routing (topic/headers exchanges)</td></tr>
@@ -802,7 +866,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
         <div class="qa-card" data-pillar="ops">
           <div class="qa-question"><div class="qa-num">27</div><div class="qa-question-text">What causes "NotLeaderForPartitionException" and how do you handle it?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>Thrown when a producer/consumer sends a request to a broker that is no longer the leader for a partition — happens during leader elections (broker failure, controlled shutdown, rolling restart).</p>
+            <p>Thrown when a producer/consumer sends a request to a broker that is no longer the leader for a partition — happens during leader elections (broker failure, controlled shutdown, rolling restart, partition reassignment). In current clients the error is <code>NotLeaderOrFollowerException</code> (renamed because, since KIP-392, consumers can also fetch from follower replicas); you may still see the old name in logs and older tools.</p>
             <p><strong>Handling:</strong> Kafka clients (and Spring Kafka) handle this automatically — they fetch updated metadata and retry the request. You should see this as a brief latency spike, not a failure, as long as ISR has at least one replica.</p>
             <p><strong>If persistent:</strong> check <code>replica.lag.time.max.ms</code> — followers too far behind are removed from ISR, reducing durability. Investigate broker disk I/O or network between brokers.</p>
           </div>
@@ -811,25 +875,31 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
         <div class="qa-card" data-pillar="delivery">
           <div class="qa-question"><div class="qa-num">28</div><div class="qa-question-text">A message keeps failing and going to DLT. How do you reprocess DLT messages?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code># Option 1: kafka-console-producer — re-send from DLT manually
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code># Option 1: quick manual re-send with the console tools (values only!)
+# The pipe drops keys and headers unless you print and parse them, so per-key
+# ordering and trace/exception headers are lost. Fine for a one-off, not as a process.
 kafka-console-consumer.sh --bootstrap-server kafka:9092 \
-  --topic orders.DLT --from-beginning | \
+  --topic orders.DLT --from-beginning --timeout-ms 10000 | \
 kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
 
-# Option 2: Spring Kafka RetryTopicConfiguration — built-in retry topics
-# Creates: orders-retry-0, orders-retry-1, orders-retry-2, orders.DLT
-# Each retry topic has increasing delay (exponential backoff between topics)</code></pre></div>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Spring Kafka 2.7+ non-blocking retry (retry topics)</span>
-<span class="ann">@Bean</span>
-<span class="kw">public</span> <span class="typ">RetryTopicConfiguration</span> <span class="fn">retryTopicConfig</span>(<span class="typ">KafkaTemplate</span>&lt;?, ?&gt; t) {
-    <span class="kw">return</span> <span class="typ">RetryTopicConfigurationBuilder</span>
-        .newInstance()
-        .fixedBackOff(<span class="num">1000</span>)         <span class="cmt">// 1s between retries</span>
-        .maxAttempts(<span class="num">4</span>)
-        .includeTopic(<span class="str">"orders"</span>)
-        .dltHandlerMethod(<span class="str">"myDltHandler"</span>)
-        .create(t);
+# Option 2 (better): a small "DLT replayer" service or admin endpoint that
+# consumes orders.DLT with its own group, filters by exception header or time,
+# and re-publishes key + value + headers to the original topic after the fix is deployed.
+
+# Option 3: prevent most DLT traffic with non-blocking retry topics (below).
+# Topic names depend on the back-off settings and Spring Kafka version:
+# by default a "-retry" suffix (per attempt or per delay) and "-dlt" for the DLT.
+# Note: DeadLetterPublishingRecoverer used with DefaultErrorHandler defaults to ".DLT".</code></pre></div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Spring Kafka 2.7+ non-blocking retry (retry topics), annotation style</span>
+<span class="ann">@RetryableTopic</span>(attempts = <span class="str">"4"</span>, backoff = <span class="ann">@Backoff</span>(delay = <span class="num">1000</span>, multiplier = <span class="num">2.0</span>))
+<span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>)
+<span class="kw">public void</span> <span class="fn">onOrder</span>(<span class="typ">OrderEvent</span> order) { orderService.process(order); }
+
+<span class="ann">@DltHandler</span> <span class="cmt">// same class; called once all attempts are used up</span>
+<span class="kw">public void</span> <span class="fn">onDlt</span>(<span class="typ">OrderEvent</span> order, <span class="ann">@Header</span>(<span class="typ">KafkaHeaders</span>.RECEIVED_TOPIC) <span class="typ">String</span> topic) {
+    log.error(<span class="str">"Gave up on {} from {}"</span>, order.getOrderId(), topic);
 }</code></pre></div>
+            <p>Retry topics break strict per-key ordering: a failed record waits in a retry topic while later records with the same key are processed. If order matters for that key, use blocking retries in the container instead.</p>
           </div>
         </div>
 
@@ -843,21 +913,21 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
               <li><strong>Data migration</strong> — move topics to a new cluster without downtime</li>
               <li><strong>Cross-region</strong> — aggregate regional clusters into a central cluster for analytics</li>
             </ul>
-            <p>MM2 translates offsets between clusters and adds source cluster prefix to topic names (<code>source.orders</code>). Consumers can checkpoint their offsets so failover doesn't lose progress.</p>
+            <p>By default (<code>DefaultReplicationPolicy</code>) MM2 prefixes replicated topics with the source cluster alias (<code>primary.orders</code>), which is also how it avoids replication cycles in active-active setups; <code>IdentityReplicationPolicy</code> keeps the names but only suits one-way replication. Offsets differ between clusters, so MM2 writes checkpoints that map consumer group offsets to the target cluster and can sync them (<code>sync.group.offsets.enabled=true</code>). After failover consumers resume close to where they stopped; expect a small number of duplicates, since replication is asynchronous.</p>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="producer">
           <div class="qa-question"><div class="qa-num">30</div><div class="qa-question-text">What is the "hot partition" problem? How do you detect and fix it?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>A hot partition occurs when one partition receives disproportionately more messages than others — usually caused by a high-cardinality key value (e.g. one user generates 80% of events).</p>
-            <p><strong>Detection:</strong> Compare <code>MessagesInPerSec</code> per partition — one partition at 10x others = hot partition.</p>
+            <p>A hot partition occurs when one partition receives disproportionately more messages than others — usually caused by a <strong>skewed key distribution</strong>: a few key values carry most of the traffic (e.g. one tenant generates 80% of events), or a low-cardinality key (country, status) is used as the partition key.</p>
+            <p><strong>Detection:</strong> broker metrics are per topic, not per partition, so compare the log-end-offset growth per partition (<code>kafka-consumer-groups.sh --describe</code>, kafka-exporter <code>kafka_topic_partition_current_offset</code>), lag concentrated on one partition, or partition size on disk. One partition growing 10x faster than the others = hot partition.</p>
             <p><strong>Fixes:</strong></p>
             <ul>
-              <li><strong>Composite key</strong> — append random suffix to hot key: <code>userId + "_" + (random 0-9)</code>. Consumers must deduplicate by original key if ordering matters</li>
-              <li><strong>Custom partitioner</strong> — detect known hot keys and spread them across multiple partitions</li>
-              <li><strong>Salting</strong> — salt the key at produce time; unsalt at consume time</li>
-              <li><strong>Separate topic</strong> — route traffic from VIP/power users to a dedicated topic with more partitions</li>
+              <li><strong>Choose a better key</strong> — a higher-cardinality key that still gives the ordering you need (order id instead of customer id, if per-order ordering is enough)</li>
+              <li><strong>Key salting</strong> — append a bounded suffix to known hot keys at produce time: <code>tenantId + "-" + (hash(orderId) % 8)</code>. The hot key now spreads over up to 8 partitions, so ordering holds only per salted key; consumers that aggregate per tenant must merge the sub-streams</li>
+              <li><strong>Custom partitioner</strong> — detect known hot keys and spread them across multiple partitions (same ordering trade-off as salting)</li>
+              <li><strong>Separate topic</strong> — route traffic from very large tenants to a dedicated topic with more partitions and its own consumers</li>
             </ul>
           </div>
         </div>
@@ -917,7 +987,7 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
                 <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-size:13px">Routing</td><td style="padding:6px 10px;font-size:13px">Flexible — exchanges (direct, topic, fanout, headers)</td><td style="padding:6px 10px;font-size:13px">Topic + partition key only</td></tr>
                 <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-size:13px">Ordering</td><td style="padding:6px 10px;font-size:13px">Per-queue (FIFO within a queue)</td><td style="padding:6px 10px;font-size:13px">Per-partition only</td></tr>
                 <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-size:13px">Retention</td><td style="padding:6px 10px;font-size:13px">Until consumed + ACK</td><td style="padding:6px 10px;font-size:13px">Configurable (days/weeks/forever)</td></tr>
-                <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-size:13px">Replay</td><td style="padding:6px 10px;font-size:13px">Not possible (deleted on ACK)</td><td style="padding:6px 10px;font-size:13px">Yes — rewind consumer offset</td></tr>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-size:13px">Replay</td><td style="padding:6px 10px;font-size:13px">Not with queues (deleted on ACK); RabbitMQ Streams (3.9+) allow replay by offset</td><td style="padding:6px 10px;font-size:13px">Yes — rewind consumer offset</td></tr>
                 <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-size:13px">Throughput</td><td style="padding:6px 10px;font-size:13px">~50k msg/s per node</td><td style="padding:6px 10px;font-size:13px">Millions msg/s per cluster</td></tr>
                 <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-size:13px">Consumers</td><td style="padding:6px 10px;font-size:13px">Competing consumers (load balance)</td><td style="padding:6px 10px;font-size:13px">Consumer groups (each group gets all messages)</td></tr>
                 <tr><td style="padding:6px 10px;font-size:13px">Best for</td><td style="padding:6px 10px;font-size:13px">Task queues, complex routing, RPC</td><td style="padding:6px 10px;font-size:13px">Event streaming, audit logs, analytics</td></tr>
@@ -942,13 +1012,14 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
     <span class="kw">public</span> <span class="typ">RetryTopicConfiguration</span> retryConfig(<span class="typ">KafkaTemplate</span>&lt;?, ?&gt; template) {
         <span class="kw">return</span> <span class="typ">RetryTopicConfigurationBuilder</span>
             .newInstance()
-            .maxAttempts(<span class="num">3</span>)                <span class="cmt">// 3 attempts total</span>
-            .exponentialBackoff(<span class="num">1000</span>, <span class="num">2</span>, <span class="num">10000</span>) <span class="cmt">// 1s, 2s, 4s (max 10s)</span>
+            .maxAttempts(<span class="num">3</span>)                <span class="cmt">// 3 attempts total = 1 original + 2 retries</span>
+            .exponentialBackoff(<span class="num">1000</span>, <span class="num">2</span>, <span class="num">10000</span>) <span class="cmt">// waits 1s, then 2s (capped at 10s)</span>
             .retryOn(<span class="typ">TransientException</span>.class)   <span class="cmt">// only retry transient errors</span>
             .notRetryOn(<span class="typ">ValidationException</span>.class) <span class="cmt">// send directly to DLT</span>
             .includeTopic(<span class="str">"orders"</span>)
             .create(template);
-        <span class="cmt">// Creates topics: orders-retry-0, orders-retry-1, orders-dlt</span>
+        <span class="cmt">// Creates retry topics with a "-retry" suffix plus a "-dlt" topic;</span>
+        <span class="cmt">// the exact retry topic names depend on the back-off and version</span>
     }
 }
 
@@ -970,7 +1041,7 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
     }
 }</code></pre>
             </div>
-            <div class="callout success"><span class="callout-icon">✅</span><div><span class="callout-title">Non-blocking retry advantage</span><div class="callout-body">Spring Kafka's non-blocking retry routes failed messages to separate retry topics instead of blocking the original partition. Other messages in the same partition continue processing while the failed message waits in the retry topic — far better than blocking retry which can cascade into partition lag.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">✅</span><div><span class="callout-title">Non-blocking retry advantage</span><div class="callout-body">Spring Kafka's non-blocking retry routes failed messages to separate retry topics instead of blocking the original partition. Other messages in the same partition continue processing while the failed message waits in the retry topic — far better than blocking retry which can cascade into partition lag. The price: per-key ordering is no longer guaranteed, and every retry topic needs partitions, retention and monitoring.</div></div></div>
           </div>
         </div>
 
@@ -980,7 +1051,7 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
             <p>Delivery semantics define what happens to a message when a failure occurs between produce and consume:</p>
             <p><strong>At-most-once</strong> — fire and forget. Message may be lost if producer/broker fails. Offset committed before processing. Use for: metrics, telemetry, non-critical logs. <code>acks=0</code>, auto-commit before processing.</p>
             <p><strong>At-least-once</strong> — message is delivered at least once but may be duplicated on retry. Offset committed after successful processing. Consumers must be idempotent. Use for: most business events. <code>acks=all</code>, commit after processing.</p>
-            <p><strong>Exactly-once</strong> — each message processed exactly once, no duplicates, no loss. Requires Kafka transactions + idempotent producer. Highest overhead. Use for: financial transactions, inventory updates.</p>
+            <p><strong>Exactly-once</strong> — the <em>effect</em> of each message is applied once, no duplicates, no loss. Kafka gives this for read-process-write loops that stay inside Kafka (idempotent producer + transactions + <code>read_committed</code> consumers; Kafka Streams with <code>exactly_once_v2</code>). As soon as a side effect leaves Kafka (DB write, HTTP call, email), you are back to at-least-once delivery plus an idempotent consumer. Highest overhead. Use for: stream processing pipelines, financial aggregations inside Kafka.</p>
             <div class="code-block">
               <div class="code-header"><span class="code-lang">Java — Kafka exactly-once with transactions</span><button class="copy-btn">Copy</button></div>
               <pre><code><span class="cmt">// application.yml — exactly-once semantics</span>
@@ -990,31 +1061,35 @@ spring:
       transaction-id-prefix: tx-  <span class="cmt"># enables idempotent producer + transactions</span>
       acks: all
     consumer:
-      isolation-level: read_committed  <span class="cmt"># only read committed (non-transactional) records</span>
+      isolation-level: read_committed  <span class="cmt"># skip records of aborted (and still open) transactions</span>
       enable-auto-commit: false
 
-<span class="cmt">// Java — consume-transform-produce in a transaction</span>
-<span class="ann">@Transactional</span>(<span class="str">"kafkaTransactionManager"</span>)
+<span class="cmt">// Java — consume-transform-produce (Kafka-to-Kafka) in a transaction.</span>
+<span class="cmt">// With transaction-id-prefix set, Boot gives the listener container a</span>
+<span class="cmt">// KafkaTransactionManager: the container starts the transaction, and sends the</span>
+<span class="cmt">// consumed offsets into it (sendOffsetsToTransaction) before committing.</span>
 <span class="ann">@KafkaListener</span>(topics = <span class="str">"payments"</span>)
-<span class="kw">public void</span> processPayment(<span class="typ">String</span> payload, <span class="typ">Acknowledgment</span> ack) {
+<span class="kw">public void</span> processPayment(<span class="typ">String</span> payload) {
     <span class="typ">Payment</span> payment = parse(payload);
-
-    <span class="cmt">// DB write + produce to output topic in one atomic transaction</span>
-    accountRepository.debit(payment.getAccountId(), payment.getAmount());
-    kafkaTemplate.send(<span class="str">"payment-events"</span>, payment.toEvent());
-
-    ack.acknowledge(); <span class="cmt">// offset committed as part of transaction</span>
-    <span class="cmt">// If any step fails: DB rolls back, output not visible, offset not committed</span>
+    kafkaTemplate.send(<span class="str">"payment-events"</span>, payment.getAccountId(), payment.toEvent());
+    <span class="cmt">// Exception → transaction aborted: output invisible to read_committed readers,</span>
+    <span class="cmt">// offsets not committed, record redelivered.</span>
 }
 
-<span class="cmt">// Idempotency key pattern for at-least-once (simpler alternative)</span>
-<span class="kw">public void</span> processIdempotent(<span class="typ">String</span> messageId, <span class="typ">String</span> payload) {
-    <span class="kw">if</span> (processedMessages.contains(messageId)) <span class="kw">return</span>; <span class="cmt">// deduplicate</span>
-    doProcess(payload);
-    processedMessages.add(messageId); <span class="cmt">// Redis SET with TTL</span>
+<span class="cmt">// A DB write here (accountRepository.debit(...)) would NOT be part of the Kafka</span>
+<span class="cmt">// transaction. It is a second resource: if the Kafka commit fails after the DB</span>
+<span class="cmt">// commit, the record is redelivered and the debit runs twice. Make it idempotent:</span>
+
+<span class="cmt">// Idempotent consumer for at-least-once (the usual answer for DB side effects)</span>
+<span class="ann">@Transactional</span> <span class="cmt">// DB transaction</span>
+<span class="kw">public void</span> processIdempotent(<span class="typ">String</span> messageId, <span class="typ">Payment</span> payment) {
+    <span class="cmt">// INSERT into processed_messages(id) with a primary key; a duplicate violates it</span>
+    <span class="kw">if</span> (!processedRepo.insertIfAbsent(messageId)) <span class="kw">return</span>;
+    accountRepository.debit(payment.getAccountId(), payment.getAmount());
+    <span class="cmt">// dedup row and debit commit together, or neither does</span>
 }</code></pre>
             </div>
-            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Exactly-once complexity</span><div class="callout-body">Kafka's exactly-once only covers the Kafka-to-Kafka path. If your consumer writes to a DB AND produces to Kafka, you need either Kafka transactions (which use the 2PC-like transaction coordinator) or design your consumer to be idempotent with at-least-once delivery — much simpler and often sufficient.</div></div></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Exactly-once complexity</span><div class="callout-body">Kafka's exactly-once only covers the Kafka-to-Kafka path. Kafka transactions cannot enlist a database, so if your consumer writes to a DB AND produces to Kafka, use an idempotent consumer (dedup table in the same DB transaction) for the DB side and the Outbox pattern for the events it emits. That combination is simpler than any distributed transaction and is what most production systems run.</div></div></div>
           </div>
         </div>
 
@@ -1030,6 +1105,7 @@ spring:
 <span class="cmt">// 3 consumers compete — only one gets each message (load balancing)</span>
 <span class="ann">@RabbitListener</span>(queues = <span class="str">"image-processing"</span>)
 <span class="kw">class</span> <span class="typ">ImageProcessor</span> { <span class="cmt">// instance 1</span>
+    <span class="ann">@RabbitHandler</span> <span class="cmt">// a class-level listener needs a handler method</span>
     <span class="kw">public void</span> process(<span class="typ">ImageUploadedEvent</span> event) {
         imageResizer.resize(event.getImageId()); <span class="cmt">// this work item is done</span>
     }
@@ -1040,6 +1116,7 @@ spring:
 <span class="cmt">// Both groups receive EVERY order event independently</span>
 <span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>, groupId = <span class="str">"inventory-service"</span>)
 <span class="kw">class</span> <span class="typ">InventoryConsumer</span> {
+    <span class="ann">@KafkaHandler</span>
     <span class="kw">public void</span> onOrder(<span class="typ">String</span> event) {
         inventory.reserveStock(event); <span class="cmt">// inventory gets every order</span>
     }
@@ -1047,6 +1124,7 @@ spring:
 
 <span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>, groupId = <span class="str">"billing-service"</span>)
 <span class="kw">class</span> <span class="typ">BillingConsumer</span> {
+    <span class="ann">@KafkaHandler</span>
     <span class="kw">public void</span> onOrder(<span class="typ">String</span> event) {
         billing.chargeCustomer(event); <span class="cmt">// billing also gets every order</span>
     }
@@ -1054,7 +1132,7 @@ spring:
 <span class="cmt">// Different groupId = independent subscription = pub/sub</span>
 <span class="cmt">// Same groupId = competing consumers = point-to-point</span></code></pre>
             </div>
-            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">Kafka's unification of both patterns</span><div class="callout-body">Kafka implements both patterns through consumer group IDs. Same groupId across instances = P2P (work queue). Different groupId per service = Pub/Sub (each service sees all events). This makes Kafka exceptionally versatile — you don't choose the pattern at the broker level, you choose it at the consumer configuration level.</div></div></div>
+            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">Kafka's unification of both patterns</span><div class="callout-body">Kafka implements both patterns through consumer group IDs. Same groupId across instances = P2P (work queue). Different groupId per service = Pub/Sub (each service sees all events). This makes Kafka exceptionally versatile — you don't choose the pattern at the broker level, you choose it at the consumer configuration level. The limit of Kafka as a work queue: parallelism is capped by the partition count and there is no per-message ack, so one slow message holds up its partition. Kafka 4.0 added share groups ("Queues for Kafka", KIP-932) as early access to address exactly this.</div></div></div>
           </div>
         </div>
 

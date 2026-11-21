@@ -62,20 +62,21 @@
         <div class="qa-card" data-pillar="fundamentals">
           <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">Explain the CAP theorem. Give a real example of a CP vs AP system.</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>A distributed system can only guarantee <strong>2 of 3</strong> in the presence of a network partition:</p>
+            <p>The usual "pick 2 of 3" summary is misleading. The precise statement: when a <strong>network partition</strong> happens, a replicated system must choose between <strong>consistency</strong> (refuse or fail some requests) and <strong>availability</strong> (answer every request, possibly with stale data). When there is no partition, you can have both.</p>
             <div class="table-wrap"><table>
               <thead><tr><th>Property</th><th>Meaning</th></tr></thead>
               <tbody>
-                <tr><td><strong>Consistency (C)</strong></td><td>Every read gets the most recent write or an error — all nodes see the same data at the same time</td></tr>
+                <tr><td><strong>Consistency (C)</strong></td><td>Linearizability: every read gets the most recent write or an error — the system behaves as if there were a single copy of the data</td></tr>
                 <tr><td><strong>Availability (A)</strong></td><td>Every request gets a (possibly stale) response — system is always responsive</td></tr>
                 <tr><td><strong>Partition Tolerance (P)</strong></td><td>System continues operating despite network failures between nodes — always required in a real distributed system</td></tr>
               </tbody>
             </table></div>
             <p>Since P is mandatory (networks fail), the real choice is <strong>CP vs AP</strong>:</p>
             <ul>
-              <li><strong>CP systems</strong> — HBase, ZooKeeper, etcd: prefer consistency; return error rather than stale data during partition</li>
-              <li><strong>AP systems</strong> — Cassandra, CouchDB, DynamoDB: prefer availability; may return stale data during partition; eventually consistent</li>
+              <li><strong>CP systems</strong> — HBase, ZooKeeper, etcd: prefer consistency; the minority side of a partition returns errors rather than stale data</li>
+              <li><strong>AP systems</strong> — Cassandra, CouchDB, DynamoDB (default settings): prefer availability; may return stale data during partition; eventually consistent</li>
             </ul>
+            <p>Many databases are <strong>tunable</strong>, so the label belongs to a configuration, not a product: Cassandra with <code>QUORUM</code> reads and writes behaves much more like CP than with <code>ONE</code>; DynamoDB offers strongly consistent reads per request. <strong>PACELC</strong> extends CAP with the everyday trade-off: if Partitioned choose A or C, <strong>E</strong>lse choose <strong>L</strong>atency or <strong>C</strong>onsistency — synchronous replication costs latency even when the network is fine.</p>
             <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Real example</span><div class="callout-body">A bank balance query should be CP — better to show an error than a stale (incorrect) balance. A social media "like count" can be AP — showing 2,341 instead of 2,342 for a few seconds is acceptable.</div></div></div>
           </div>
         </div>
@@ -107,10 +108,12 @@
                 <tr><td><strong>Speed</strong></td><td>Very fast (no content inspection)</td><td>Slower (parses HTTP)</td></tr>
                 <tr><td><strong>Routing decisions</strong></td><td>Round-robin, least connections, hash</td><td>URL path, host header, cookie, content type</td></tr>
                 <tr><td><strong>Features</strong></td><td>TLS passthrough, raw TCP proxying</td><td>SSL termination, authentication, rate limiting, A/B testing</td></tr>
-                <tr><td><strong>Examples</strong></td><td>AWS NLB, HAProxy TCP mode</td><td>Nginx, AWS ALB, Kubernetes Ingress, Envoy</td></tr>
+                <tr><td><strong>Examples</strong></td><td>AWS NLB, HAProxy TCP mode, Kubernetes Service (kube-proxy)</td><td>Nginx, AWS ALB, Envoy, HAProxy HTTP mode; in Kubernetes the controller behind an Ingress or Gateway API resource</td></tr>
               </tbody>
             </table></div>
-            <p><strong>Algorithms:</strong> Round Robin (even distribution), Least Connections (route to least busy), IP Hash (sticky sessions — same client → same server), Weighted (more traffic to powerful servers).</p>
+            <p>Kubernetes Ingress and Gateway API are <em>APIs</em>, not load balancers: a controller (Envoy Gateway, NGINX, HAProxy, a cloud LB) implements them. Gateway API is the newer, role-oriented and more expressive standard (GA since v1.0, October 2023); the Ingress API is frozen but still supported.</p>
+            <p><strong>Algorithms:</strong> Round Robin (even distribution), Least Connections (route to least busy), IP Hash or consistent hashing (sticky sessions — same client → same server), Weighted (more traffic to powerful servers), and "power of two random choices" (pick 2 at random, send to the less loaded one — what Envoy and many service meshes use for least-request). Health checks remove failed backends; connection draining lets in-flight requests finish during deploys.</p>
+            <p><a class="deep-dive" href="patterns.html#lb">Deep dive: load balancing algorithms on the Patterns page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -163,12 +166,12 @@ CREATE INDEX idx_expires ON urls(expires_at);  <span class="cmt">-- for cleanup 
               <tbody>
                 <tr><td>Data model</td><td>Structured, schema-enforced, joins</td><td>Document, key-value, graph, column — flexible schema</td></tr>
                 <tr><td>Consistency</td><td>ACID transactions</td><td>BASE (eventually consistent, varies by type)</td></tr>
-                <tr><td>Scaling</td><td>Vertical primary; horizontal via read replicas</td><td>Horizontally sharded natively</td></tr>
+                <tr><td>Scaling</td><td>Vertical primary; horizontal reads via replicas; write scaling via sharding (Citus, Vitess) or distributed SQL (CockroachDB, YugabyteDB, Spanner)</td><td>Many (Cassandra, DynamoDB, MongoDB) partition data across nodes as a built-in feature; others (a single Redis or Neo4j instance) do not</td></tr>
                 <tr><td>Use for</td><td>Financial data, orders, user accounts — relational data with transactions</td><td>User sessions, caching, product catalogs, real-time analytics, content</td></tr>
                 <tr><td>Examples</td><td>PostgreSQL, MySQL, Oracle</td><td>MongoDB (doc), Redis (KV), Cassandra (wide-col), Neo4j (graph)</td></tr>
               </tbody>
             </table></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Default choice</span><div class="callout-body">Default to PostgreSQL. Reach for NoSQL when you have a specific scaling or data-model reason (e.g., schema-less documents, >10TB write throughput, graph traversals). "NoSQL is faster" is a myth without a specific bottleneck.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Default choice</span><div class="callout-body">Default to PostgreSQL. Reach for NoSQL when you have a specific scaling or data-model reason (e.g., schema-less documents, sustained write throughput beyond what one primary can handle, deep graph traversals, simple key lookups at very large scale). "NoSQL is faster" is a myth without a specific bottleneck.</div></div></div>
           </div>
         </div>
 
@@ -195,10 +198,11 @@ CREATE INDEX idx_expires ON urls(expires_at);  <span class="cmt">-- for cleanup 
         <div class="qa-card" data-pillar="databases">
           <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">Explain ACID vs BASE. What is eventual consistency?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p><strong>ACID</strong> — Atomicity (all or nothing), Consistency (valid state before and after), Isolation (concurrent tx don't interfere), Durability (committed data survives failures). Guaranteed by most relational DBs.</p>
+            <p><strong>ACID</strong> — Atomicity (all or nothing), Consistency (valid state before and after: constraints and invariants hold), Isolation (concurrent tx don't interfere, to the degree of the isolation level), Durability (committed data survives failures). Guaranteed by most relational DBs. Note: the C in ACID (integrity constraints) is a different idea from the C in CAP (linearizable reads across replicas). Also, most databases default to a weaker isolation level than serializable — PostgreSQL and Oracle use Read Committed, MySQL InnoDB uses Repeatable Read.</p>
             <p><strong>BASE</strong> — Basically Available, Soft state, Eventually consistent. NoSQL trade-off: sacrifice strong consistency for availability and performance.</p>
             <p><strong>Eventual consistency</strong> — replicas may temporarily return stale data but will <em>eventually</em> converge to the same value. The window might be milliseconds (Cassandra within a data center) to seconds (cross-region).</p>
             <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">ACID in microservices</span><div class="callout-body">ACID guarantees end at the service boundary. Cross-service operations can't use database transactions — this is why patterns like Saga and Outbox exist.</div></div></div>
+            <p><a class="deep-dive" href="microservices.html#data">Deep dive: Saga and Outbox on the Microservices page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -206,25 +210,16 @@ CREATE INDEX idx_expires ON urls(expires_at);  <span class="cmt">-- for cleanup 
           <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">What is the Outbox Pattern? How does it solve dual-write problems?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p><strong>Dual-write problem:</strong> Writing to a DB and publishing a Kafka message in two separate operations — if the app crashes between them, they go out of sync.</p>
-            <p><strong>Outbox pattern:</strong> Write the event to an <code>outbox</code> table in the <em>same DB transaction</em> as the business data. A separate poller or CDC (Change Data Capture) tool reads the outbox and publishes to Kafka — exactly-once delivery.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- Outbox table</span>
-CREATE TABLE outbox_events (
-  id          UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_type  VARCHAR(100) NOT NULL,
-  payload     JSONB        NOT NULL,
-  created_at  TIMESTAMPTZ  DEFAULT now(),
-  published   BOOLEAN      DEFAULT FALSE
-);
-
-<span class="cmt">-- In a single transaction:</span>
+            <p><strong>Outbox pattern:</strong> Write the event to an <code>outbox</code> table in the <em>same DB transaction</em> as the business data, so both commit or neither does. A separate relay — a poller, or a CDC (Change Data Capture) tool such as Debezium reading the WAL — publishes the rows to the broker.</p>
+            <p><strong>Guarantee:</strong> no lost events, but <strong>at-least-once</strong> delivery: if the relay crashes after publishing and before recording progress, the event goes out again. Consumers must be idempotent (deduplicate by event id). Order per aggregate is kept by using the aggregate id as the message key.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">-- In a single transaction:</span>
 BEGIN;
   INSERT INTO orders (id, user_id, total) VALUES (...);
-  INSERT INTO outbox_events (event_type, payload)
-    VALUES ('ORDER_PLACED', '{"orderId": "...", "userId": "..."}');
+  INSERT INTO outbox_events (aggregate_id, event_type, payload)
+    VALUES ('...', 'ORDER_PLACED', '{"orderId": "...", "userId": "..."}');
 COMMIT;
-
-<span class="cmt">-- Debezium (CDC) watches outbox_events and publishes to Kafka
--- Zero risk of message loss or duplication</span></code></pre></div>
+<span class="cmt">-- The relay publishes the row afterwards (at-least-once)</span></code></pre></div>
+            <p><a class="deep-dive" href="microservices.html#data">Deep dive: Outbox pattern on the Microservices page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -250,7 +245,30 @@ COMMIT;
                 <tr><td><strong>Read-Through</strong></td><td>Cache sits in front of DB; on miss, cache fetches from DB</td><td>Transparent caching via framework</td><td>Complex cache logic; cold start problem</td></tr>
               </tbody>
             </table></div>
-            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Cache stampede</span><div class="callout-body">When many requests hit an expired cache key simultaneously and all go to the DB. Fix: probabilistic early expiration, distributed lock (Redis SETNX), or "cache warming" before expiry.</div></div></div>
+            <div class="pat-svg"><svg viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <defs><marker id="cam" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#475569"/></marker></defs>
+              <rect x="20" y="20" width="160" height="200" rx="8" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="100" y="115" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">Application</text>
+              <text x="100" y="135" text-anchor="middle" font-size="11" fill="#a5b4fc">cache-aside logic</text>
+              <rect x="440" y="20" width="180" height="90" rx="8" fill="#0d2618" stroke="#10b981" stroke-width="1.5"/>
+              <text x="530" y="58" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">Cache (Redis)</text>
+              <text x="530" y="78" text-anchor="middle" font-size="11" fill="#6ee7b7">TTL on every key</text>
+              <rect x="440" y="150" width="180" height="70" rx="8" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+              <text x="530" y="182" text-anchor="middle" font-size="13" fill="#e2e8f0" font-weight="600">Database</text>
+              <text x="530" y="202" text-anchor="middle" font-size="11" fill="#fcd34d">source of truth</text>
+              <line x1="180" y1="40" x2="440" y2="40" stroke="#475569" stroke-width="1.5" marker-end="url(#cam)"/>
+              <text x="192" y="32" font-size="11" fill="#6ee7b7">R1 GET key: on a hit, return it</text>
+              <line x1="180" y1="70" x2="440" y2="70" stroke="#475569" stroke-width="1.5" marker-end="url(#cam)"/>
+              <text x="192" y="62" font-size="11" fill="#6ee7b7">R3 SET key value EX ttl</text>
+              <line x1="180" y1="100" x2="440" y2="100" stroke="#475569" stroke-width="1.5" marker-end="url(#cam)"/>
+              <text x="192" y="92" font-size="11" fill="#fcd34d">W2 DEL key (not SET)</text>
+              <line x1="180" y1="175" x2="440" y2="175" stroke="#475569" stroke-width="1.5" marker-end="url(#cam)"/>
+              <text x="192" y="167" font-size="11" fill="#6ee7b7">R2 on a miss: SELECT the row</text>
+              <line x1="180" y1="205" x2="440" y2="205" stroke="#475569" stroke-width="1.5" marker-end="url(#cam)"/>
+              <text x="192" y="197" font-size="11" fill="#fcd34d">W1 UPDATE the row and commit</text>
+            </svg></div>
+            <p><strong>Cache-aside, read path</strong> (green): R1 look in the cache; on a miss R2 read the database and R3 store the result with a TTL. <strong>Write path</strong> (amber): W1 update the database first, then W2 <em>delete</em> the key so the next read reloads it. Deleting is safer than writing the new value into the cache: two concurrent writers can SET in the opposite order of their DB commits and leave the older value cached for the whole TTL. A small race still exists (a slow reader that missed before W1 can SET the old value after W2), which is why every key keeps a TTL as the upper bound on staleness; a delayed second DEL or CDC-driven invalidation narrows it further.</p>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Cache stampede</span><div class="callout-body">When many requests hit an expired hot key at the same moment and all go to the DB. Fixes: let only one request rebuild the value with a short-lived lock (<code>SET lock:key token NX PX 3000</code> — an expiry so a crashed holder cannot block others forever; the old <code>SETNX</code> command has no expiry), probabilistic early refresh before the TTL ends, jitter on TTLs so keys do not expire together, or warming hot keys ahead of time.</div></div></div>
           </div>
         </div>
 
@@ -260,14 +278,16 @@ COMMIT;
             <div class="table-wrap"><table>
               <thead><tr><th>Policy</th><th>What gets evicted</th><th>Use case</th></tr></thead>
               <tbody>
-                <tr><td>noeviction</td><td>Nothing — returns error when full</td><td>Message queues where data loss is unacceptable</td></tr>
+                <tr><td>noeviction (default)</td><td>Nothing — writes fail with an OOM error once <code>maxmemory</code> is reached; reads still work</td><td>Data that must not disappear silently: sessions, queues, locks</td></tr>
                 <tr><td>allkeys-lru</td><td>Least recently used across all keys</td><td>General caching — most common choice</td></tr>
-                <tr><td>volatile-lru</td><td>LRU among keys with TTL set</td><td>Mix of cached data and persistent data in one Redis</td></tr>
-                <tr><td>allkeys-lfu</td><td>Least frequently used — better for Zipfian distributions</td><td>Product catalog (popular items stay; cold items evicted)</td></tr>
-                <tr><td>volatile-ttl</td><td>Key with lowest TTL first</td><td>Session stores where oldest sessions should expire first</td></tr>
+                <tr><td>allkeys-lfu</td><td>Least frequently used — better for skewed (Zipfian) popularity</td><td>Product catalog (popular items stay; cold items evicted)</td></tr>
+                <tr><td>allkeys-random</td><td>A random key</td><td>Uniform access patterns</td></tr>
+                <tr><td>volatile-lru / volatile-lfu / volatile-random</td><td>Same as above, but only among keys that have a TTL</td><td>Cache keys (with TTL) and persistent keys (without) in one instance</td></tr>
+                <tr><td>volatile-ttl</td><td>Among keys with a TTL, the one with the shortest remaining TTL</td><td>When the TTL itself expresses "least valuable"</td></tr>
               </tbody>
             </table></div>
-            <p><strong>Session store:</strong> <code>volatile-ttl</code> — oldest sessions expire first, mimicking sliding window behaviour.<br>
+            <p>Redis LRU and LFU are <em>approximated</em>: Redis samples a few keys (<code>maxmemory-samples</code>, default 5) and evicts the best candidate, rather than keeping an exact ordering. Eviction only starts when <code>maxmemory</code> is set; TTL expiry is a separate mechanism that runs regardless.</p>
+            <p><strong>Session store:</strong> sessions should end by their own TTL (a sliding expiry refreshed on each request), not be thrown out under memory pressure — an evicted session is a user logged out at random. Use a dedicated instance with <code>noeviction</code> and enough memory, alert on memory use, or at least <code>volatile-lru</code> if it shares an instance with cache data.<br>
             <strong>Product catalog:</strong> <code>allkeys-lfu</code> — popular products stay in cache; rarely-viewed products evicted.</p>
           </div>
         </div>
@@ -288,30 +308,12 @@ COMMIT;
             <ul>
               <li><strong>Topic</strong> — named category of messages (like a table); append-only, durable log</li>
               <li><strong>Partition</strong> — unit of parallelism within a topic; messages ordered within a partition; distributed across brokers</li>
-              <li><strong>Offset</strong> — each message's position within a partition; consumers track their offset (usually in <code>__consumer_offsets</code> topic)</li>
-              <li><strong>Consumer Group</strong> — group of consumers sharing a topic's partitions; each partition consumed by exactly one consumer in the group (parallelism = # partitions)</li>
+              <li><strong>Offset</strong> — each message's position within a partition; each consumer group commits the offset it has processed up to, stored in the internal <code>__consumer_offsets</code> topic</li>
+              <li><strong>Consumer Group</strong> — group of consumers sharing a topic's partitions; each partition is read by exactly one consumer in the group, so the useful parallelism is at most the number of partitions</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Spring Kafka producer</span>
-<span class="ann">@Service</span>
-<span class="kw">public class</span> <span class="typ">OrderEventProducer</span> {
-    <span class="ann">@Autowired</span> <span class="kw">private</span> <span class="typ">KafkaTemplate</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; kafkaTemplate;
-
-    <span class="kw">public void</span> <span class="fn">publish</span>(<span class="typ">OrderEvent</span> event) {
-        kafkaTemplate.send(<span class="str">"orders"</span>, event.getOrderId().toString(), event)
-            .whenComplete((result, ex) -> {
-                <span class="kw">if</span> (ex != <span class="kw">null</span>) log.error(<span class="str">"Failed to send"</span>, ex);
-            });
-    }
-}
-
-<span class="cmt">// Spring Kafka consumer</span>
-<span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>, groupId = <span class="str">"inventory-service"</span>)
-<span class="kw">public void</span> <span class="fn">onOrderPlaced</span>(<span class="ann">@Payload</span> <span class="typ">OrderEvent</span> event,
-                          <span class="ann">@Header</span>(<span class="typ">KafkaHeaders</span>.RECEIVED_PARTITION) <span class="kw">int</span> partition) {
-    log.info(<span class="str">"Processing order {} from partition {}"</span>, event.getOrderId(), partition);
-    inventoryService.reserveItems(event);
-}</code></pre></div>
             <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key trade-off</span><div class="callout-body">Kafka ordering is guaranteed only within a partition. To ensure all events for one orderId are ordered, use orderId as the message key — Kafka routes same-key messages to the same partition.</div></div></div>
+            <p>In a system-design interview the point is <em>why</em> you pick Kafka: a durable, replayable log that decouples producers from consumers, lets several independent consumer groups read the same events, and scales by partitions. The price: ordering only per partition, a partition count that is hard to change later, and consumers that must cope with duplicates.</p>
+            <p><a class="deep-dive" href="kafka.html#architecture">Deep dive: Kafka basics on the Kafka page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -323,22 +325,23 @@ COMMIT;
               <tbody>
                 <tr><td><strong>At-most-once</strong></td><td>Lost (never duplicated)</td><td>Commit offset before processing; fire and forget</td></tr>
                 <tr><td><strong>At-least-once</strong></td><td>Duplicated (never lost)</td><td>Commit offset only after successful processing; retry on failure</td></tr>
-                <tr><td><strong>Exactly-once</strong></td><td>Neither lost nor duplicated</td><td>Idempotent producers + transactional API; most complex and slowest</td></tr>
+                <tr><td><strong>Exactly-once</strong></td><td>Effect applied once (the message may still be delivered more than once)</td><td>Kafka: idempotent producer + transactions + <code>isolation.level=read_committed</code>, for read-process-write between Kafka topics</td></tr>
               </tbody>
             </table></div>
-            <p><strong>Practically:</strong> Most systems use at-least-once + idempotent consumers (check if event already processed by storing event ID in DB). This is simpler and has most of the same guarantees.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Idempotent consumer — safe to process duplicate messages</span>
+            <p><strong>What Kafka's exactly-once really covers:</strong> the idempotent producer removes duplicates caused by producer retries, and a transaction writes the output records <em>and</em> the consumer offsets atomically. That holds only while input and output are both Kafka (Kafka Streams with <code>processing.guarantee=exactly_once_v2</code> does this for you). As soon as a side effect leaves Kafka — a DB write, an email, an HTTP call — you are back to at-least-once plus an idempotent consumer.</p>
+            <p><strong>Practically:</strong> most systems use at-least-once + idempotent consumers. Make the duplicate check atomic: a unique constraint on the event id inserted in the <em>same</em> DB transaction as the business change. A plain "check, then insert" lets two concurrent deliveries both pass the check.</p>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Idempotent consumer — processed_events.event_id has a PRIMARY KEY / UNIQUE constraint</span>
 <span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>)
-<span class="ann">@Transactional</span>
+<span class="ann">@Transactional</span>   <span class="cmt">// DB transaction: dedup row and business change commit together</span>
 <span class="kw">public void</span> <span class="fn">process</span>(<span class="typ">OrderEvent</span> event) {
-    <span class="cmt">// Upsert — idempotent by design</span>
-    <span class="kw">if</span> (processedEventRepo.existsById(event.getEventId())) {
+    <span class="cmt">// INSERT ... ON CONFLICT DO NOTHING; returns 0 if the id was already there</span>
+    <span class="kw">if</span> (processedEventRepo.insertIfAbsent(event.getEventId()) == <span class="num">0</span>) {
         log.info(<span class="str">"Skipping duplicate event {}"</span>, event.getEventId());
         <span class="kw">return</span>;
     }
     inventoryService.reserve(event);
-    processedEventRepo.save(<span class="kw">new</span> <span class="typ">ProcessedEvent</span>(event.getEventId()));
 }</code></pre></div>
+            <p><a class="deep-dive" href="kafka.html#mq-patterns">Deep dive: delivery guarantees on the Kafka page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -355,66 +358,38 @@ COMMIT;
         <div class="qa-card" data-pillar="patterns">
           <div class="qa-question"><div class="qa-num">13</div><div class="qa-question-text">What are the SOLID principles? Give a Java example for each.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// S — Single Responsibility: one class, one reason to change</span>
-<span class="kw">class</span> <span class="typ">UserService</span>   { <span class="kw">void</span> <span class="fn">createUser</span>()  {} }   <span class="cmt">// business logic only</span>
-<span class="kw">class</span> <span class="typ">UserEmailer</span>  { <span class="kw">void</span> <span class="fn">sendWelcome</span>() {} }   <span class="cmt">// email concern separate</span>
-<span class="kw">class</span> <span class="typ">UserRepository</span>{ <span class="kw">void</span> <span class="fn">save</span>()        {} }   <span class="cmt">// persistence separate</span>
-
-<span class="cmt">// O — Open/Closed: open for extension, closed for modification</span>
-<span class="kw">interface</span> <span class="typ">Discount</span>   { <span class="kw">double</span> <span class="fn">apply</span>(<span class="kw">double</span> price); }
-<span class="kw">class</span> <span class="typ">NoDiscount</span>    <span class="kw">implements</span> <span class="typ">Discount</span> { ... }
-<span class="kw">class</span> <span class="typ">VIPDiscount</span>   <span class="kw">implements</span> <span class="typ">Discount</span> { ... }   <span class="cmt">// extend without modifying</span>
-
-<span class="cmt">// L — Liskov Substitution: subtype must be usable in place of parent</span>
-<span class="kw">class</span> <span class="typ">Rectangle</span>  { <span class="kw">void</span> <span class="fn">setWidth</span>(<span class="kw">int</span> w) {} <span class="kw">void</span> <span class="fn">setHeight</span>(<span class="kw">int</span> h) {} }
-<span class="cmt">// 🚫 class Square extends Rectangle breaks LSP — setting width changes height</span>
-<span class="cmt">// Fix: separate Shape interface, no inheritance between Square and Rectangle</span>
-
-<span class="cmt">// I — Interface Segregation: many small interfaces > one fat interface</span>
-<span class="kw">interface</span> <span class="typ">Readable</span>  { <span class="typ">String</span> <span class="fn">read</span>(); }
-<span class="kw">interface</span> <span class="typ">Writable</span>  { <span class="kw">void</span>   <span class="fn">write</span>(<span class="typ">String</span> data); }
-<span class="cmt">// ReadonlyFile implements only Readable, not forced to implement write()</span>
-
-<span class="cmt">// D — Dependency Inversion: depend on abstractions, not concretions</span>
-<span class="kw">interface</span> <span class="typ">NotificationSender</span> { <span class="kw">void</span> <span class="fn">send</span>(<span class="typ">String</span> msg); }
-<span class="kw">class</span> <span class="typ">EmailSender</span> <span class="kw">implements</span> <span class="typ">NotificationSender</span> { ... }
-<span class="kw">class</span> <span class="typ">SmsSender</span>   <span class="kw">implements</span> <span class="typ">NotificationSender</span> { ... }
-<span class="kw">class</span> <span class="typ">AlertService</span> {
-    <span class="kw">private final</span> <span class="typ">NotificationSender</span> sender; <span class="cmt">// inject abstraction</span>
-    <span class="kw">public</span> <span class="fn">AlertService</span>(<span class="typ">NotificationSender</span> s) { <span class="kw">this</span>.sender = s; }
-}</code></pre></div>
+            <ul>
+              <li><strong>S — Single Responsibility:</strong> a class has one reason to change (one actor it serves) — <code>UserService</code> holds rules, <code>UserRepository</code> persistence, <code>UserEmailer</code> notifications</li>
+              <li><strong>O — Open/Closed:</strong> add behaviour by adding code, not editing tested code — a new <code>Discount</code> implementation instead of another <code>if</code> branch</li>
+              <li><strong>L — Liskov Substitution:</strong> a subtype must keep the parent's contract — a mutable <code>Square extends Rectangle</code> breaks callers that set width and height independently</li>
+              <li><strong>I — Interface Segregation:</strong> small, client-specific interfaces — a read-only file implements <code>Readable</code>, not a fat interface with a <code>write()</code> it must throw from</li>
+              <li><strong>D — Dependency Inversion:</strong> high-level code depends on an abstraction it owns — <code>AlertService</code> takes a <code>NotificationSender</code>, Spring injects the email or SMS implementation</li>
+            </ul>
+            <p>System-design angle: the same ideas scale up to service boundaries — single responsibility becomes "one service, one business capability", dependency inversion becomes ports and adapters around infrastructure. Applied dogmatically they also produce one-implementation interfaces and needless indirection; use them where change is actually expected.</p>
+            <p><a class="deep-dive" href="patterns.html#solid">Deep dive: SOLID principles on the Patterns page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="patterns">
           <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">What design patterns do you use regularly? Explain Strategy, Observer, and Decorator with examples.</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Strategy — swap algorithms at runtime (e.g. payment methods)</span>
-<span class="kw">interface</span> <span class="typ">PaymentStrategy</span> { <span class="kw">void</span> <span class="fn">pay</span>(<span class="kw">double</span> amount); }
-<span class="kw">class</span> <span class="typ">CardPayment</span>   <span class="kw">implements</span> <span class="typ">PaymentStrategy</span> { ... }
-<span class="kw">class</span> <span class="typ">PayPalPayment</span> <span class="kw">implements</span> <span class="typ">PaymentStrategy</span> { ... }
-<span class="cmt">// Spring uses Strategy heavily: @Qualifier selects strategy beans</span>
-
-<span class="cmt">// Observer — event-driven notification (Spring's ApplicationEventPublisher)</span>
-<span class="ann">@Component</span>
-<span class="kw">public class</span> <span class="typ">OrderService</span> {
-    <span class="ann">@Autowired</span> <span class="kw">private</span> <span class="typ">ApplicationEventPublisher</span> events;
-
-    <span class="kw">public void</span> <span class="fn">placeOrder</span>(<span class="typ">Order</span> order) {
-        orderRepo.save(order);
-        events.publishEvent(<span class="kw">new</span> <span class="typ">OrderPlacedEvent</span>(order)); <span class="cmt">// notify observers</span>
-    }
-}
-<span class="ann">@EventListener</span>
-<span class="kw">public void</span> <span class="fn">onOrderPlaced</span>(<span class="typ">OrderPlacedEvent</span> e) { emailService.sendConfirmation(e); }
-
-<span class="cmt">// Decorator — add behaviour without subclassing (Servlet Filters, Spring AOP)</span>
+            <ul>
+              <li><strong>Strategy</strong> (behavioural) — swap an algorithm behind one interface, e.g. <code>PaymentStrategy</code> with card and PayPal implementations. In Spring: inject a <code>Map&lt;String, PaymentStrategy&gt;</code> of beans and pick one by key, instead of a <code>switch</code></li>
+              <li><strong>Observer</strong> (behavioural) — publishers notify subscribers without knowing them: <code>ApplicationEventPublisher</code> + <code>@EventListener</code> in-process; use <code>@TransactionalEventListener</code> to react only after the commit. Across services the same idea becomes a message broker</li>
+              <li><strong>Decorator</strong> (structural) — wrap an object that has the same interface to add behaviour (caching, logging, retries) without subclassing; servlet filters and Spring AOP proxies work this way</li>
+            </ul>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Decorator: same interface, wraps the inner object</span>
 <span class="kw">interface</span> <span class="typ">TextFormatter</span> { <span class="typ">String</span> <span class="fn">format</span>(<span class="typ">String</span> text); }
-<span class="kw">class</span> <span class="typ">PlainFormatter</span>  <span class="kw">implements</span> <span class="typ">TextFormatter</span> { <span class="kw">return</span> text; }
-<span class="kw">class</span> <span class="typ">UpperDecorator</span>  <span class="kw">implements</span> <span class="typ">TextFormatter</span> {
+<span class="kw">class</span> <span class="typ">PlainFormatter</span> <span class="kw">implements</span> <span class="typ">TextFormatter</span> {
+    <span class="kw">public</span> <span class="typ">String</span> <span class="fn">format</span>(<span class="typ">String</span> t) { <span class="kw">return</span> t; }
+}
+<span class="kw">class</span> <span class="typ">UpperDecorator</span> <span class="kw">implements</span> <span class="typ">TextFormatter</span> {
     <span class="kw">private final</span> <span class="typ">TextFormatter</span> inner;
+    <span class="typ">UpperDecorator</span>(<span class="typ">TextFormatter</span> inner) { <span class="kw">this</span>.inner = inner; }
     <span class="kw">public</span> <span class="typ">String</span> <span class="fn">format</span>(<span class="typ">String</span> t) { <span class="kw">return</span> inner.format(t).toUpperCase(); }
 }</code></pre></div>
+            <p><a class="deep-dive" href="patterns.html#behavioral">Deep dive: Strategy and Observer on the Patterns page <i class="fa-solid fa-arrow-right"></i></a></p>
+            <p><a class="deep-dive" href="patterns.html#structural">Deep dive: Decorator on the Patterns page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -432,7 +407,10 @@ COMMIT;
                 <tr><td>Start here?</td><td>✅ Yes — most products start as a monolith</td><td>After bottlenecks emerge and team grows</td></tr>
               </tbody>
             </table></div>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Martin Fowler's advice</span><div class="callout-body">"Don't start with microservices — start with a monolith and extract services when you understand your domain boundaries and have a clear scaling need." The Modular Monolith is a great middle ground.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Martin Fowler's "MonolithFirst"</span><div class="callout-body">In paraphrase: start with a monolith and extract services once you understand the domain boundaries and have a concrete reason (independent deployment for separate teams, very different scaling or reliability needs). A modular monolith — clear modules with enforced boundaries in one deployable — is the usual middle ground.</div></div></div>
+            <p>The deciding factor is usually organisational, not technical: microservices pay off when many teams need to ship independently. Their costs — network failures, eventual consistency, distributed tracing, platform work — arrive on day one.</p>
+            <p><a class="deep-dive" href="patterns.html#arch">Deep dive: architecture patterns on the Patterns page <i class="fa-solid fa-arrow-right"></i></a></p>
+            <p><a class="deep-dive" href="microservices.html#migration">Deep dive: monolith-to-microservices migration on the Microservices page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
@@ -443,19 +421,22 @@ COMMIT;
             <ul>
               <li><strong>Fixed Window Counter</strong> — count requests in fixed time window (e.g. 100/min). Simple but bursts at window edges (98 at end of minute + 98 at start of next = 196 effectively)</li>
               <li><strong>Sliding Window Log</strong> — log each request timestamp; count within sliding window. Accurate but memory-intensive</li>
-              <li><strong>Token Bucket</strong> — bucket holds N tokens; each request consumes one; tokens refilled at rate R/sec. Allows controlled bursting. <strong>Most common in practice</strong></li>
-              <li><strong>Leaky Bucket</strong> — requests queue; processed at constant rate. Smooths bursts completely; old requests dropped if queue full</li>
+              <li><strong>Token Bucket</strong> — bucket holds up to N tokens; each request consumes one; tokens refill at rate R/sec. Allows bursts up to N while holding the average to R. Widely used (API gateways, Bucket4j, the Spring Cloud Gateway Redis limiter)</li>
+              <li><strong>Leaky Bucket</strong> — requests enter a fixed-size queue that drains at a constant rate. Smooths bursts completely; when the queue is full, <em>new</em> requests are rejected</li>
+              <li><strong>Sliding Window Counter</strong> — keep the current and previous fixed-window counts and weight the previous one by how much of it still overlaps the window. Nearly as accurate as the log at the memory cost of two counters — a common production choice</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Token Bucket with Redis (distributed rate limiter)</span>
-<span class="cmt">// Lua script — atomic check + decrement</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Fixed-window counter in Redis — simplest correct distributed limiter</span>
+<span class="cmt">// Lua runs atomically; EXPIRE is set only when the window's key is created,</span>
+<span class="cmt">// so later requests do not keep pushing the window end forward</span>
 <span class="kw">private static final</span> <span class="typ">String</span> RATE_LIMIT_SCRIPT = <span class="str">"""
-    local tokens = tonumber(redis.call('get', KEYS[1]) or ARGV[1])
-    if tokens > 0 then
-        redis.call('set', KEYS[1], tokens - 1, 'EX', ARGV[2])
-        return 1  -- allowed
-    else
-        return 0  -- rejected
+    local count = redis.call('INCR', KEYS[1])
+    if count == 1 then
+        redis.call('EXPIRE', KEYS[1], ARGV[2])
     end
+    if count &lt;= tonumber(ARGV[1]) then
+        return 1  -- allowed
+    end
+    return 0      -- rejected
     """</span>;
 
 <span class="kw">public boolean</span> <span class="fn">isAllowed</span>(<span class="typ">String</span> userId) {
@@ -463,11 +444,12 @@ COMMIT;
     <span class="typ">Long</span> result = redisTemplate.execute(
         RedisScript.of(RATE_LIMIT_SCRIPT, Long.class),
         <span class="typ">List</span>.of(key),
-        <span class="str">"100"</span>,   <span class="cmt">// max tokens</span>
+        <span class="str">"100"</span>,   <span class="cmt">// max requests per window</span>
         <span class="str">"60"</span>    <span class="cmt">// window in seconds</span>
     );
     <span class="kw">return</span> <span class="typ">Long</span>.valueOf(<span class="num">1</span>).equals(result);
 }</code></pre></div>
+            <p>A true token bucket stores two fields per client (tokens left, last refill time) and computes the refill inside the script; don't hand-roll it — use Bucket4j or the gateway's limiter. Design points interviewers look for: return <strong>429 Too Many Requests</strong> with a <code>Retry-After</code> header, decide what happens when Redis is down (fail open for availability or fail closed for protection), limit by user or API key rather than IP where possible, and keep a cheap local limiter in front so a Redis outage or a hot key cannot take the service down.</p>
           </div>
         </div>
 
@@ -484,7 +466,7 @@ COMMIT;
               <li><strong>Retry with exponential backoff</strong> — failed notifications re-enqueued with delay</li>
               <li><strong>Delivery tracking</strong> — webhooks from providers update delivery status in DB</li>
             </ol>
-            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key design decisions</span><div class="callout-body">Deduplication: use idempotency keys to prevent duplicate sends on retry. Rate limiting: respect per-provider limits (e.g. SES 14 emails/sec on sandbox). Templating: store template IDs + variables in DB, render at send time for localisation.</div></div></div>
+            <div class="callout tip"><span class="callout-icon">💡</span><div><span class="callout-title">Key design decisions</span><div class="callout-body">Deduplication: use idempotency keys to prevent duplicate sends on retry. Rate limiting: respect each provider's sending quotas, which differ per account and region — throttle in the channel worker and back off on 429 responses. Templating: store template IDs + variables in DB, render at send time for localisation.</div></div></div>
           </div>
         </div>
 
@@ -497,9 +479,10 @@ COMMIT;
             <p><strong>Limitations:</strong></p>
             <ul>
               <li>Not suitable for personalised or authenticated content (though edge auth is evolving)</li>
-              <li>Cache invalidation is hard — purging stale content needs CDN API calls</li>
+              <li>Cache invalidation is hard — purges need CDN API calls and take time to propagate; the usual fix is versioned (content-hashed) file names with long <code>Cache-Control: max-age</code>, so you never need to purge</li>
               <li>Cost at high volume</li>
-              <li>Single point of trust — CDN sees all your traffic (mitigate with TLS, SRI hashes)</li>
+              <li>Trust and dependency — the CDN terminates TLS, so it sees your traffic in plaintext; Subresource Integrity (SRI) hashes protect against tampered scripts, and an outage of the CDN takes your site with it (multi-CDN for critical sites)</li>
+              <li>Cache keys and headers must be right — a missing <code>Vary</code> or a cached <code>Set-Cookie</code> can serve one user's response to another</li>
             </ul>
           </div>
         </div>
@@ -507,25 +490,26 @@ COMMIT;
         <div class="qa-card" data-pillar="patterns">
           <div class="qa-question"><div class="qa-num">19</div><div class="qa-question-text">What is the Service Mesh pattern? What does Istio provide that Kubernetes doesn't?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p>A Service Mesh adds a sidecar proxy (Envoy) to every Pod. All traffic goes through the proxy, enabling infrastructure-level observability, security, and traffic control — without changing application code.</p>
+            <p>A service mesh puts a proxy in the path of all service-to-service traffic — classically an Envoy sidecar in every Pod (Istio), or per-node proxies in Istio ambient mode — and gives you observability, security and traffic control as infrastructure, without changing application code.</p>
             <div class="table-wrap"><table>
               <thead><tr><th>Feature</th><th>Kubernetes alone</th><th>With Istio</th></tr></thead>
               <tbody>
-                <tr><td>Mutual TLS (mTLS)</td><td>Manual certificate management</td><td>Automatic per-service identity and mTLS</td></tr>
-                <tr><td>Traffic splitting</td><td>By pod count only</td><td>Weight-based (10%/90% canary)</td></tr>
+                <tr><td>Mutual TLS (mTLS)</td><td>Not provided; NetworkPolicy restricts by IP/label, no encryption or workload identity</td><td>Automatic per-workload identity (SPIFFE certificates) and mTLS</td></tr>
+                <tr><td>Traffic splitting</td><td>Plain Services split only by pod count; Gateway API <code>HTTPRoute</code> weights can split at the edge</td><td>Weight- and header-based routing between any services (10%/90% canary)</td></tr>
                 <tr><td>Observability</td><td>Basic metrics</td><td>Golden signals per service pair, trace spans</td></tr>
                 <tr><td>Retries/timeouts</td><td>App code</td><td>Declarative policies in YAML</td></tr>
                 <tr><td>Fault injection</td><td>Not available</td><td>Inject delays/errors for chaos testing</td></tr>
               </tbody>
             </table></div>
-            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Complexity cost</span><div class="callout-body">Istio adds ~50ms latency per hop (proxy overhead) and significant operational complexity. Don't adopt a service mesh until you have ≥10 services and clear pain points it solves — most teams reach for it too early.</div></div></div>
+            <div class="callout warning"><span class="callout-icon">⚠️</span><div><span class="callout-title">Complexity cost</span><div class="callout-body">Every proxy hop adds latency — typically around a millisecond or less at the median, more at the tail and under load; measure it for your own traffic. The bigger costs are memory and CPU for a proxy per Pod (reduced by ambient mode), upgrades of the mesh itself, and a new layer to debug. Adopt a mesh for a concrete need — mTLS everywhere for compliance, uniform traffic policy across many services — not by default.</div></div></div>
+            <p><a class="deep-dive" href="microservices.html#decomposition">Deep dive: service mesh and API gateway on the Microservices page <i class="fa-solid fa-arrow-right"></i></a></p>
           </div>
         </div>
 
         <div class="qa-card" data-pillar="fundamentals">
           <div class="qa-question"><div class="qa-num">20</div><div class="qa-question-text">How would you design a system to handle 1 million concurrent WebSocket connections?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <p><strong>Challenge:</strong> 1M persistent connections — traditional thread-per-connection model won't scale (1M threads × 1MB stack = 1TB RAM).</p>
+            <p><strong>Challenge:</strong> 1M persistent connections — a platform-thread-per-connection model won't scale (with the common 1MB default stack reservation, 1M threads means about 1TB of reserved address space, plus scheduler overhead).</p>
             <p><strong>Solution components:</strong></p>
             <ol>
               <li><strong>Non-blocking I/O</strong> — Netty/Vert.x or Spring WebFlux with Reactor Netty (event loop, not thread per connection)</li>
@@ -533,8 +517,10 @@ COMMIT;
               <li><strong>Message fan-out</strong> — when server A needs to send to user on server B: publish to Redis Pub/Sub; all servers subscribe; the one holding the connection delivers</li>
               <li><strong>Presence tracking</strong> — Redis hash map of userId → serverId</li>
               <li><strong>Heartbeat + reconnect</strong> — client sends ping every 30s; server disconnects on timeout; client auto-reconnects with exponential backoff</li>
+              <li><strong>OS limits</strong> — each connection is a file descriptor and kernel socket buffers: raise <code>ulimit -n</code> / <code>fs.file-max</code>, tune buffer sizes, and make sure the load balancer and any NAT in between can track that many connections (ephemeral ports cap at about 64K per source-IP/destination pair)</li>
+              <li><strong>Deploys</strong> — a restart drops every connection on that node at once; drain gradually and add jitter to client reconnects to avoid a thundering herd</li>
             </ol>
-            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">Java 21 alternative</span><div class="callout-body">With virtual threads (Project Loom) you can use blocking code with 1M threads — JVM handles the multiplexing. Eliminates the need for reactive programming while achieving the same scale.</div></div></div>
+            <div class="callout info"><span class="callout-icon">ℹ️</span><div><span class="callout-title">Java 21 alternative</span><div class="callout-body">With virtual threads (Project Loom, final in Java 21) you can keep blocking, thread-per-connection code: a million virtual threads are cheap because they are not OS threads, and the JVM parks them during blocking I/O. It removes most of the need for reactive code, but not the memory per connection (buffers, session state) or the OS limits above; check that the WebSocket library actually runs on virtual threads.</div></div></div>
           </div>
         </div>
 
@@ -544,7 +530,7 @@ COMMIT;
       <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
       <a href="patterns.html">Design Patterns</a>
       <a href="microservices.html">Microservices</a>
-      <a href="general.html">General &amp; Interview Tips</a>
+      <a href="soft-skills.html">Soft Skills &amp; Interview Tips</a>
     </div>
 
     </div><!-- /content -->
