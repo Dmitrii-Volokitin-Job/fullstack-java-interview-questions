@@ -1036,6 +1036,7 @@ abbr[data-abbr]:first-child::after { left: 0; transform: none; }
   background: #0d1117; border-radius: 10px;
 }
 .pat-svg svg, .uml-svg svg { min-width: 420px; display: block; }
+.pat-svg text, .uml-svg text { white-space: pre; }
 .uml-box {
   margin: 20px 0;
   background: var(--bg-code);

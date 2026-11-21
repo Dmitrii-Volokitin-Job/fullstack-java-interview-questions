@@ -27,7 +27,7 @@ function toggleTheme() {
 // ─── Navigation: single source of truth, ordered as the study path ───────
 // `count` must equal the page's .qa-card count — scripts/check-site.py enforces it.
 const NAV = [
-  { href: 'java-refresher.html',    label: 'Java 8–21 Refresher',            icon: 'fa-solid fa-book-open',            count: 0,
+  { href: 'java-refresher.html',    label: 'Java 8–21 Refresher',            icon: 'fa-solid fa-book-open',            count: 6,
     desc: 'One running OrderService example, upgraded release by release from Java 8 to 21.' },
   { href: 'java-spring.html',       label: 'Java & Spring Boot',             icon: 'fa-solid fa-mug-hot',              count: 57,
     desc: 'Core Java, concurrency, JVM, collections, Spring Core/MVC/Security, JPA and testing.' },

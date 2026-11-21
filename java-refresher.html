@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Java 8–16 Refresher — Interview Prep</title>
+  <title>Java 8–21 Refresher — Interview Prep</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=15">
@@ -23,6 +23,9 @@
     .version-badge.v8  { background: linear-gradient(135deg,#f89820,#e65c00); }
     .version-badge.v11 { background: linear-gradient(135deg,#10b981,#059669); }
     .version-badge.v14 { background: linear-gradient(135deg,#3b82f6,#6366f1); }
+    .version-badge.v17 { background: linear-gradient(135deg,#8b5cf6,#6d28d9); }
+    .version-badge.v21 { background: linear-gradient(135deg,#ef4444,#b91c1c); }
+    .ver-chip { font-size: 11px; font-weight: 700; padding: 2px 8px; margin-left: 6px; border-radius: 10px; background: var(--bg-card-hover); color: var(--text-muted); vertical-align: middle; }
     .version-title { font-size: 22px; font-weight: 800; }
 
     /* Story context banner */
@@ -146,8 +149,8 @@
 
     <!-- Hero -->
     <div class="refresh-hero">
-      <h1><i class="fa-solid fa-mug-hot"></i> Java 8 → 16 — Visual Refresher</h1>
-      <p>Every feature explained through one running example: an <strong>e-commerce Order system</strong>. Follow the same domain from lambdas to records and see how the language evolved to reduce boilerplate and increase clarity.</p>
+      <h1><i class="fa-solid fa-mug-hot"></i> Java 8 → 21 — Visual Refresher</h1>
+      <p>Every feature explained through one running example: an <strong>e-commerce Order system</strong>. Follow the same domain from lambdas to virtual threads and see how the language evolved to reduce boilerplate and increase clarity.</p>
       <div class="refresh-tags">
         <span class="refresh-tag">Lambdas &amp; Streams</span>
         <span class="refresh-tag">Optional</span>
@@ -157,7 +160,12 @@
         <span class="refresh-tag">String methods</span>
         <span class="refresh-tag">Records</span>
         <span class="refresh-tag">Pattern Matching</span>
+        <span class="refresh-tag">Switch Expressions</span>
+        <span class="refresh-tag">Text Blocks</span>
         <span class="refresh-tag">Sealed Classes</span>
+        <span class="refresh-tag">Pattern switch</span>
+        <span class="refresh-tag">Virtual Threads</span>
+        <span class="refresh-tag">Sequenced Collections</span>
       </div>
     </div>
 
@@ -182,7 +190,7 @@
     <div class="uml-box">
       <div class="uml-title">UML — Order Domain Model</div>
       <div class="uml-svg">
-        <svg viewBox="0 0 820 215" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+        <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
           <defs>
             <marker id="assoc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1 L9,5 L0,9 L2,5 Z" fill="#475569"/></marker>
           </defs>
@@ -218,29 +226,29 @@
           <text x="504" y="111" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">quantity: int</text>
           <text x="504" y="129" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">unitPrice: BigDecimal</text>
           <!-- Product -->
-          <rect x="694" y="42" width="122" height="108" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
-          <rect x="694" y="42" width="122" height="32" rx="5" fill="#243252"/>
-          <rect x="694" y="70" width="122" height="4" fill="#243252"/>
-          <text x="755" y="63" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Product</text>
-          <line x1="694" y1="74" x2="816" y2="74" stroke="#2d3f6b" stroke-width="1"/>
-          <text x="704" y="93" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">id: Long</text>
-          <text x="704" y="111" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">name: String</text>
-          <text x="704" y="129" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">category: String</text>
+          <rect x="730" y="42" width="146" height="108" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+          <rect x="730" y="42" width="146" height="32" rx="5" fill="#243252"/>
+          <rect x="730" y="70" width="146" height="4" fill="#243252"/>
+          <text x="803" y="63" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Product</text>
+          <line x1="730" y1="74" x2="876" y2="74" stroke="#2d3f6b" stroke-width="1"/>
+          <text x="740" y="93" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">id: Long</text>
+          <text x="740" y="111" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">name: String</text>
+          <text x="740" y="129" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">category: String</text>
           <!-- Customer → Order -->
           <line x1="169" y1="106" x2="224" y2="106" stroke="#475569" stroke-width="1.5" marker-end="url(#assoc)"/>
           <text x="172" y="100" fill="#f59e0b" font-size="11">1</text>
-          <text x="202" y="100" fill="#f59e0b" font-size="11">1..*</text>
+          <text x="200" y="100" fill="#f59e0b" font-size="11">0..*</text>
           <!-- Order → OrderItem -->
           <line x1="434" y1="106" x2="494" y2="106" stroke="#475569" stroke-width="1.5" marker-end="url(#assoc)"/>
           <text x="437" y="100" fill="#f59e0b" font-size="11">1</text>
           <text x="474" y="100" fill="#f59e0b" font-size="11">1..*</text>
           <!-- OrderItem → Product -->
-          <line x1="674" y1="96" x2="694" y2="92" stroke="#475569" stroke-width="1.5" marker-end="url(#assoc)"/>
-          <text x="677" y="89" fill="#f59e0b" font-size="11">*</text>
-          <text x="685" y="83" fill="#f59e0b" font-size="11">1</text>
+          <line x1="674" y1="106" x2="730" y2="106" stroke="#475569" stroke-width="1.5" marker-end="url(#assoc)"/>
+          <text x="678" y="100" fill="#f59e0b" font-size="11">*</text>
+          <text x="716" y="100" fill="#f59e0b" font-size="11">1</text>
           <!-- Status bar -->
-          <rect x="4" y="192" width="812" height="22" rx="4" fill="#0a1525" stroke="#2d3f6b" stroke-width="1"/>
-          <text x="410" y="207" text-anchor="middle" fill="#64748b" font-size="11">OrderStatus (enum): PENDING · PAID · SHIPPED · CANCELLED</text>
+          <rect x="4" y="212" width="872" height="22" rx="4" fill="#0a1525" stroke="#2d3f6b" stroke-width="1"/>
+          <text x="440" y="227" text-anchor="middle" fill="#64748b" font-size="11">OrderStatus (enum): PENDING · PAID · SHIPPED · CANCELLED</text>
         </svg>
       </div>
     </div>
@@ -576,22 +584,22 @@ double revenue = orders.stream()
               <text x="13" y="265" fill="#ef4444" font-size="11">if empty!</text>
               <text x="13" y="280" fill="#64748b" font-size="11">use orElseThrow()</text>
               <!-- NO branch -->
-              <line x1="448" y1="160" x2="564" y2="160" stroke="#ef4444" stroke-width="1.5" marker-end="url(#oarr)"/>
-              <text x="494" y="153" fill="#ef4444" font-size="11" font-weight="700">NO (empty)</text>
+              <line x1="448" y1="160" x2="540" y2="160" stroke="#ef4444" stroke-width="1.5" marker-end="url(#oarr)"/>
+              <text x="470" y="153" fill="#ef4444" font-size="11" font-weight="700">NO (empty)</text>
               <!-- NO box -->
-              <rect x="564" y="100" width="112" height="192" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
-              <text x="620" y="118" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">empty</text>
-              <line x1="564" y1="124" x2="676" y2="124" stroke="#300808"/>
-              <text x="573" y="142" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElse(v)</text>
-              <text x="573" y="160" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElseGet()</text>
-              <text x="573" y="178" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElseThrow()</text>
-              <text x="573" y="196" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.ifPresentOr</text>
-              <text x="573" y="213" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Else(fn, act)</text>
-              <line x1="564" y1="222" x2="676" y2="222" stroke="#300808" stroke-dasharray="3,3"/>
-              <text x="573" y="240" fill="#10b981" font-size="11">Never throws</text>
-              <text x="573" y="256" fill="#10b981" font-size="11">NPE or NSEE.</text>
-              <text x="573" y="272" fill="#10b981" font-size="11">Always safe.</text>
-              <text x="573" y="288" fill="#10b981" font-size="11">✓ Prefer these.</text>
+              <rect x="540" y="100" width="136" height="192" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+              <text x="608" y="118" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">empty</text>
+              <line x1="540" y1="124" x2="676" y2="124" stroke="#300808"/>
+              <text x="550" y="142" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElse(v)</text>
+              <text x="550" y="160" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElseGet()</text>
+              <text x="550" y="178" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.orElseThrow()</text>
+              <text x="550" y="196" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">.ifPresentOrElse</text>
+              <text x="550" y="213" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">  (fn, other)</text>
+              <line x1="540" y1="222" x2="676" y2="222" stroke="#300808" stroke-dasharray="3,3"/>
+              <text x="550" y="240" fill="#10b981" font-size="11">No hidden NPE:</text>
+              <text x="550" y="256" fill="#10b981" font-size="11">you choose the</text>
+              <text x="550" y="272" fill="#10b981" font-size="11">fallback or error.</text>
+              <text x="550" y="288" fill="#10b981" font-size="11">✓ Prefer these.</text>
             </svg>
           </div>
         </div>
@@ -661,7 +669,7 @@ Optional&lt;Order&gt; paidOrder = findById(42L)
         <div class="uml-box" style="margin:14px 0">
           <div class="uml-title">UML — Interface with default methods (diamond problem)</div>
           <div class="uml-svg">
-            <svg viewBox="0 0 700 278" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+            <svg viewBox="0 0 700 316" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
               <defs>
                 <marker id="iarr" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="8" markerHeight="8" orient="auto"><polygon points="0,0 12,6 0,12" fill="none" stroke="#8b5cf6" stroke-width="1.5"/></marker>
               </defs>
@@ -689,18 +697,18 @@ Optional&lt;Order&gt; paidOrder = findById(42L)
               <line x1="380" y1="109" x2="696" y2="109" stroke="#380808" stroke-dasharray="4,3"/>
               <text x="390" y="127" fill="#ef4444" font-size="11">⚠ Conflict — same signature as Discountable</text>
               <!-- DigitalProduct -->
-              <rect x="220" y="200" width="260" height="74" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
-              <rect x="220" y="200" width="260" height="30" rx="5" fill="#243252"/>
+              <rect x="190" y="200" width="320" height="76" rx="5" fill="#1e2d45" stroke="#6366f1" stroke-width="1.5"/>
+              <rect x="190" y="200" width="320" height="30" rx="5" fill="#243252"/>
               <text x="350" y="220" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">DigitalProduct</text>
-              <line x1="220" y1="230" x2="480" y2="230" stroke="#2d3f6b"/>
-              <text x="230" y="248" fill="#93c5fd" font-size="12" font-family="JetBrains Mono,monospace">double discountRate()  // required</text>
-              <text x="230" y="266" fill="#a5b4fc" font-size="11.5" font-family="JetBrains Mono,monospace">// must override discountedPrice()</text>
+              <line x1="190" y1="230" x2="510" y2="230" stroke="#2d3f6b"/>
+              <text x="202" y="250" fill="#93c5fd" font-size="12" font-family="JetBrains Mono,monospace">double discountRate()  // required</text>
+              <text x="202" y="268" fill="#a5b4fc" font-size="11.5" font-family="JetBrains Mono,monospace">// must override discountedPrice()</text>
               <!-- Dashed implements arrows -->
               <line x1="310" y1="200" x2="220" y2="154" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#iarr)"/>
               <line x1="390" y1="200" x2="480" y2="134" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#iarr)"/>
               <!-- Resolution note -->
-              <rect x="4" y="256" width="692" height="20" rx="3" fill="#0a1525" stroke="#2d3f6b"/>
-              <text x="350" y="271" text-anchor="middle" fill="#f59e0b" font-size="11">Resolution: Discountable.super.discountedPrice(price) — explicitly pick which default to use</text>
+              <rect x="4" y="288" width="692" height="24" rx="3" fill="#0a1525" stroke="#2d3f6b"/>
+              <text x="350" y="304" text-anchor="middle" fill="#f59e0b" font-size="11">Resolution: Discountable.super.discountedPrice(price) — explicitly pick which default to use</text>
             </svg>
           </div>
         </div>
@@ -816,7 +824,7 @@ d.discountedPrice(BigDecimal.valueOf(100));   <span class="cmt">// 100.0 (0% off
               <text x="476" y="97" fill="#64748b" font-size="11">Date+Time+Timezone</text>
               <text x="476" y="113" fill="#10b981" font-size="11">Full timestamp</text>
               <line x1="466" y1="122" x2="630" y2="122" stroke="#103020" stroke-dasharray="3,3"/>
-              <text x="476" y="138" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">T14:30+02:00[Vienna]</text>
+              <text x="476" y="138" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">14:30 Europe/Vienna</text>
               <line x1="466" y1="148" x2="630" y2="148" stroke="#103020" stroke-dasharray="3,3"/>
               <text x="476" y="164" fill="#f59e0b" font-size="11">Cross-TZ scheduling</text>
               <text x="476" y="179" fill="#f59e0b" font-size="11">User-facing delivery</text>
@@ -827,7 +835,7 @@ d.discountedPrice(BigDecimal.valueOf(100));   <span class="cmt">// 100.0 (0% off
               <text x="720" y="70" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="600">Instant</text>
               <line x1="644" y1="80" x2="796" y2="80" stroke="#3a2808"/>
               <text x="654" y="97" fill="#f59e0b" font-size="11">Machine time</text>
-              <text x="654" y="113" fill="#f59e0b" font-size="11">Epoch millis</text>
+              <text x="654" y="113" fill="#f59e0b" font-size="11">Point on UTC line</text>
               <line x1="644" y1="122" x2="796" y2="122" stroke="#3a2808" stroke-dasharray="3,3"/>
               <text x="654" y="138" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">1750499400000</text>
               <line x1="644" y1="148" x2="796" y2="148" stroke="#3a2808" stroke-dasharray="3,3"/>
@@ -906,7 +914,7 @@ LocalDate parsed = LocalDate.parse("20.06.2025", euro);</code></pre></div>
       <div class="feature-card-header" onclick="toggleCard('f-var')">
         <span class="feature-icon"><i class="fa-solid fa-tag"></i></span>
         <div>
-          <div class="feature-name"><code>var</code> in lambda parameters</div>
+          <div class="feature-name"><code>var</code> — local variables (Java 10) and lambda parameters (Java 11)</div>
           <div class="feature-tagline">Allows annotations on inferred lambda param types</div>
         </div>
         <span class="feature-arrow">›</span>
@@ -1043,10 +1051,89 @@ Files.writeString(p, "\nline",
     <hr class="section-divider">
     <div class="version-header" id="java14">
       <span class="version-badge v14">Java 14–16</span>
-      <span class="version-title">Data modelling revolution</span>
+      <span class="version-title">Expressions and data modelling</span>
     </div>
     <div class="story-banner">
-      <strong>Context:</strong> These releases introduced the features that most changed <em>how</em> Java code looks. Records eliminated DTO boilerplate. Pattern matching killed redundant casts. Sealed classes gave the compiler full knowledge of your type hierarchy — enabling exhaustive checks that prevent entire bug classes.
+      <strong>Context:</strong> These releases changed <em>how</em> Java code looks. Switch became an expression, text blocks ended string concatenation for SQL and JSON, records eliminated DTO boilerplate, and pattern matching for <code>instanceof</code> killed redundant casts.
+    </div>
+
+    <!-- Feature: Switch expressions -->
+    <div class="feature-card open" id="f-switch">
+      <div class="feature-card-header" onclick="toggleCard('f-switch')">
+        <span class="feature-icon"><i class="fa-solid fa-code-branch"></i></span>
+        <div>
+          <div class="feature-name">Switch Expressions <span class="ver-chip">Java 14</span></div>
+          <div class="feature-tagline">switch returns a value · arrow labels · no fall-through · exhaustive on enums</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <div class="compare-grid">
+          <div class="compare-block">
+            <div class="compare-label before">Before — statement with break</div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code>String label;
+<span class="kw">switch</span> (order.getStatus()) {
+    <span class="kw">case</span> PENDING:
+        label = <span class="str">"Waiting for payment"</span>;
+        <span class="kw">break</span>;
+    <span class="kw">case</span> PAID:
+    <span class="kw">case</span> SHIPPED:
+        label = <span class="str">"On its way"</span>;
+        <span class="kw">break</span>;   <span class="cmt">// forget this → fall-through bug</span>
+    <span class="kw">default</span>:
+        label = <span class="str">"Closed"</span>;
+}</code></pre></div>
+          </div>
+          <div class="compare-block">
+            <div class="compare-label after">Java 14 — expression</div>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code>String label = <span class="kw">switch</span> (order.getStatus()) {
+    <span class="kw">case</span> PENDING       -&gt; <span class="str">"Waiting for payment"</span>;
+    <span class="kw">case</span> PAID, SHIPPED -&gt; <span class="str">"On its way"</span>;
+    <span class="kw">case</span> CANCELLED     -&gt; {
+        audit.log(order);
+        <span class="kw">yield</span> <span class="str">"Closed"</span>;   <span class="cmt">// yield returns from a block</span>
+    }
+};  <span class="cmt">// all enum constants covered → no default needed</span></code></pre></div>
+          </div>
+        </div>
+        <div class="callout info"><span class="callout-icon"></span><div class="callout-body"><strong>Interview point:</strong> a switch <em>expression</em> must be exhaustive. For an enum, a missing constant is a compile error, so adding <code>REFUNDED</code> to <code>OrderStatus</code> shows you every place that must handle it. A switch <em>statement</em> with arrows has no fall-through but does not have to be exhaustive (unless it uses patterns, Java 21).</div></div>
+      </div>
+    </div>
+
+    <!-- Feature: Text blocks -->
+    <div class="feature-card open" id="f-textblocks">
+      <div class="feature-card-header" onclick="toggleCard('f-textblocks')">
+        <span class="feature-icon"><i class="fa-solid fa-align-left"></i></span>
+        <div>
+          <div class="feature-name">Text Blocks <span class="ver-chip">Java 15</span></div>
+          <div class="feature-tagline">Multi-line strings for SQL, JSON and test fixtures without \n and +</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Before: escapes and concatenation</span>
+String sql = <span class="str">"SELECT o.id, o.total\n"</span> +
+             <span class="str">"FROM orders o\n"</span> +
+             <span class="str">"WHERE o.customer_id = ?\n"</span>;
+
+<span class="cmt">// Java 15: the closing """ sets the left margin — common indentation is stripped</span>
+String sql = <span class="str">"""
+        SELECT o.id, o.total
+        FROM orders o
+        WHERE o.customer_id = ?
+        """</span>;
+
+<span class="cmt">// JSON fixture in a test, filled with formatted() (also Java 15)</span>
+String body = <span class="str">"""
+        { "customerId": %d, "items": [ { "sku": "%s", "qty": %d } ] }
+        """</span>.formatted(42, <span class="str">"BOOK-1"</span>, 2);
+
+<span class="cmt">// \ at line end = no newline; \s = keep a trailing space</span>
+String oneLine = <span class="str">"""
+        Order %d was \
+        shipped\s"""</span>.formatted(1001);</code></pre></div>
+        <div class="callout tip"><span class="callout-icon"></span><div class="callout-body"><strong>Remember:</strong> a text block is an ordinary <code>String</code> — no interpolation. Use <code>formatted()</code> or <code>String.format()</code>, and never build SQL from user input this way; keep the <code>?</code> placeholders.</div></div>
+      </div>
     </div>
 
     <!-- Feature: Records -->
@@ -1064,15 +1151,16 @@ Files.writeString(p, "\nline",
         <div class="uml-box" style="margin:14px 0">
           <div class="uml-title">UML — Record auto-generation</div>
           <div class="uml-svg">
-            <svg viewBox="0 0 700 278" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+            <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
               <defs>
                 <marker id="rarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="#10b981"/></marker>
               </defs>
               <!-- Input -->
-              <rect x="4" y="4" width="300" height="60" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
-              <text x="154" y="22" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">you write 1 line:</text>
+              <rect x="4" y="4" width="300" height="78" rx="5" fill="#1a1535" stroke="#8b5cf6" stroke-width="1.5"/>
+              <text x="154" y="22" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">you write the header:</text>
               <text x="14" y="40" fill="#c792ea" font-size="12" font-family="JetBrains Mono,monospace">record OrderSummary(</text>
-              <text x="14" y="57" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">  Long id, OrderStatus status, BigDecimal total)</text>
+              <text x="14" y="56" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">  Long id, OrderStatus status,</text>
+              <text x="14" y="72" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">  BigDecimal total) {}</text>
               <!-- Arrow -->
               <line x1="304" y1="34" x2="360" y2="34" stroke="#10b981" stroke-width="2" marker-end="url(#rarr)"/>
               <text x="332" y="26" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">compiler</text>
@@ -1093,21 +1181,21 @@ Files.writeString(p, "\nline",
               <text x="370" y="168" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">boolean equals(Object)</text>
               <text x="370" y="184" fill="#93c5fd" font-size="11.5" font-family="JetBrains Mono,monospace">int hashCode()  ·  String toString()</text>
               <!-- Cannot / Can -->
-              <rect x="4" y="82" width="300" height="120" rx="5" fill="#1e2d45" stroke="#334155" stroke-width="1"/>
-              <text x="14" y="101" fill="#ef4444" font-size="11" font-weight="600">Cannot:</text>
-              <text x="14" y="118" fill="#94a3b8" font-size="11">• extend a class (implicitly extends Record)</text>
-              <text x="14" y="135" fill="#94a3b8" font-size="11">• add instance fields beyond header</text>
-              <text x="14" y="152" fill="#94a3b8" font-size="11">• be abstract</text>
-              <line x1="4" y1="162" x2="304" y2="162" stroke="#334155" stroke-dasharray="3,3"/>
-              <text x="14" y="179" fill="#10b981" font-size="11" font-weight="600">Can:</text>
-              <text x="14" y="196" fill="#94a3b8" font-size="11">• implement interfaces</text>
+              <rect x="4" y="98" width="300" height="120" rx="5" fill="#1e2d45" stroke="#334155" stroke-width="1"/>
+              <text x="14" y="117" fill="#ef4444" font-size="11" font-weight="600">Cannot:</text>
+              <text x="14" y="134" fill="#94a3b8" font-size="11">• extend a class (implicitly extends Record)</text>
+              <text x="14" y="151" fill="#94a3b8" font-size="11">• add instance fields beyond header</text>
+              <text x="14" y="168" fill="#94a3b8" font-size="11">• be abstract</text>
+              <line x1="4" y1="178" x2="304" y2="178" stroke="#334155" stroke-dasharray="3,3"/>
+              <text x="14" y="195" fill="#10b981" font-size="11" font-weight="600">Can:</text>
+              <text x="14" y="212" fill="#94a3b8" font-size="11">• implement interfaces</text>
               <!-- toString output note -->
-              <rect x="4" y="218" width="692" height="56" rx="5" fill="#0a1525" stroke="#2d3f6b" stroke-width="1"/>
-              <text x="14" y="236" fill="#64748b" font-size="11">toString() output:</text>
-              <text x="130" y="236" fill="#c3e88d" font-size="11.5" font-family="JetBrains Mono,monospace">OrderSummary[id=1, status=PAID, total=99.99]</text>
-              <text x="14" y="256" fill="#64748b" font-size="11">value equality:</text>
-              <text x="130" y="256" fill="#c3e88d" font-size="11.5" font-family="JetBrains Mono,monospace">new OrderSummary(1L, PAID, ...).equals(new OrderSummary(1L, PAID, ...))</text>
-              <text x="680" y="268" text-anchor="end" fill="#10b981" font-size="11">→ true</text>
+              <rect x="4" y="234" width="692" height="62" rx="5" fill="#0a1525" stroke="#2d3f6b" stroke-width="1"/>
+              <text x="14" y="254" fill="#64748b" font-size="11">toString() output:</text>
+              <text x="130" y="254" fill="#c3e88d" font-size="11.5" font-family="JetBrains Mono,monospace">OrderSummary[id=1, status=PAID, total=99.99]</text>
+              <text x="14" y="276" fill="#64748b" font-size="11">value equality:</text>
+              <text x="130" y="276" fill="#c3e88d" font-size="11.5" font-family="JetBrains Mono,monospace">new OrderSummary(1L, PAID, ...).equals(new OrderSummary(1L, PAID, ...))</text>
+              <text x="684" y="276" text-anchor="end" fill="#10b981" font-size="11">→ true</text>
             </svg>
           </div>
         </div>
@@ -1257,6 +1345,17 @@ List&lt;OrderSummary&gt; summaries = orders.stream()
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- JAVA 17                                                -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div class="version-header" id="java17">
+      <span class="version-badge v17">Java 17 — LTS</span>
+      <span class="version-title">Closed hierarchies</span>
+    </div>
+    <div class="story-banner">
+      <strong>Context:</strong> Java 17 is the baseline for Spring Boot 3. It finalised <strong>sealed classes</strong> and strongly encapsulated the JDK internals (no more reflective access to <code>sun.*</code> without <code>--add-opens</code>). Records and <code>instanceof</code> patterns from Java 16 are now in every LTS codebase.
+    </div>
+
     <!-- Feature: Sealed Classes -->
     <div class="feature-card open" id="f-sealed">
       <div class="feature-card-header" onclick="toggleCard('f-sealed')">
@@ -1272,7 +1371,7 @@ List&lt;OrderSummary&gt; summaries = orders.stream()
         <div class="uml-box" style="margin:14px 0">
           <div class="uml-title">UML — Sealed PaymentResult hierarchy</div>
           <div class="uml-svg">
-            <svg viewBox="0 0 720 345" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+            <svg viewBox="0 0 720 356" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
               <defs>
                 <marker id="sarr" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto"><polygon points="0,0 12,6 0,12" fill="none" stroke="#8b5cf6" stroke-width="1.5"/></marker>
               </defs>
@@ -1298,7 +1397,7 @@ List&lt;OrderSummary&gt; summaries = orders.stream()
               <polygon points="360,150 365,165 355,165" fill="#8b5cf6"/>
               <polygon points="620,150 625,165 615,165" fill="#8b5cf6"/>
               <!-- Success record -->
-              <rect x="4" y="162" width="192" height="130" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="4" y="162" width="192" height="144" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
               <rect x="4" y="162" width="192" height="42" rx="5" fill="#0d2618"/>
               <text x="100" y="179" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«record»</text>
               <text x="100" y="196" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Success</text>
@@ -1306,34 +1405,34 @@ List&lt;OrderSummary&gt; summaries = orders.stream()
               <text x="14" y="221" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">String transactionId</text>
               <text x="14" y="238" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">BigDecimal amount</text>
               <text x="14" y="255" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Instant paidAt</text>
-              <line x1="4" y1="264" x2="196" y2="264" stroke="#103020" stroke-dasharray="3,3"/>
-              <text x="100" y="281" text-anchor="middle" fill="#10b981" font-size="11" font-weight="600">final</text>
-              <text x="100" y="296" text-anchor="middle" fill="#64748b" font-size="11">nobody extends</text>
+              <line x1="4" y1="266" x2="196" y2="266" stroke="#103020" stroke-dasharray="3,3"/>
+              <text x="100" y="283" text-anchor="middle" fill="#10b981" font-size="11" font-weight="600">final</text>
+              <text x="100" y="298" text-anchor="middle" fill="#64748b" font-size="11">nobody extends</text>
               <!-- Failure record -->
-              <rect x="264" y="162" width="192" height="110" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+              <rect x="264" y="162" width="192" height="144" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
               <rect x="264" y="162" width="192" height="42" rx="5" fill="#280808"/>
               <text x="360" y="179" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«record»</text>
               <text x="360" y="196" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Failure</text>
               <line x1="264" y1="204" x2="456" y2="204" stroke="#380808"/>
               <text x="274" y="221" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">String reason</text>
               <text x="274" y="238" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">String errorCode</text>
-              <line x1="264" y1="248" x2="456" y2="248" stroke="#380808" stroke-dasharray="3,3"/>
-              <text x="360" y="265" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="600">final</text>
-              <text x="360" y="280" text-anchor="middle" fill="#64748b" font-size="11">nobody extends</text>
+              <line x1="264" y1="266" x2="456" y2="266" stroke="#380808" stroke-dasharray="3,3"/>
+              <text x="360" y="283" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="600">final</text>
+              <text x="360" y="298" text-anchor="middle" fill="#64748b" font-size="11">nobody extends</text>
               <!-- Pending record -->
-              <rect x="524" y="162" width="192" height="130" rx="5" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
+              <rect x="524" y="162" width="192" height="144" rx="5" fill="#1a1508" stroke="#f59e0b" stroke-width="1.5"/>
               <rect x="524" y="162" width="192" height="42" rx="5" fill="#2a2008"/>
               <text x="620" y="179" text-anchor="middle" fill="#a5b4fc" font-size="11" font-style="italic">«record»</text>
               <text x="620" y="196" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Pending</text>
               <line x1="524" y1="204" x2="716" y2="204" stroke="#3a2808"/>
               <text x="534" y="221" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Duration estimatedTime</text>
               <text x="534" y="238" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">Instant retryAfter</text>
-              <line x1="524" y1="248" x2="716" y2="248" stroke="#3a2808" stroke-dasharray="3,3"/>
-              <text x="620" y="265" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="600">non-sealed</text>
-              <text x="620" y="280" text-anchor="middle" fill="#64748b" font-size="11">can be subclassed</text>
+              <line x1="524" y1="266" x2="716" y2="266" stroke="#3a2808" stroke-dasharray="3,3"/>
+              <text x="620" y="283" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="600">final</text>
+              <text x="620" y="298" text-anchor="middle" fill="#64748b" font-size="11">nobody extends</text>
               <!-- Benefit banner -->
-              <rect x="4" y="308" width="712" height="34" rx="5" fill="#0a1525" stroke="#8b5cf6" stroke-width="1"/>
-              <text x="360" y="329" text-anchor="middle" fill="#a5b4fc" font-size="11.5">Compiler knows all 3 subtypes → switch on PaymentResult requires no default case — missing case = compile error</text>
+              <rect x="4" y="318" width="712" height="34" rx="5" fill="#0a1525" stroke="#8b5cf6" stroke-width="1"/>
+              <text x="360" y="339" text-anchor="middle" fill="#a5b4fc" font-size="11.5">Records are implicitly final · the compiler knows all 3 subtypes, so a switch needs no default and a missing case fails to compile</text>
             </svg>
           </div>
         </div>
@@ -1362,7 +1461,7 @@ List&lt;OrderSummary&gt; summaries = orders.stream()
             log.error("Payment failed: {} ({})", f.reason(), f.errorCode());
             <span class="kw">yield</span> OrderStatus.CANCELLED;
         }
-        <span class="kw">case</span> Pending p  -&gt; {
+        <span class="kw">case</span> Pending p  -&gt; {   <span class="cmt">// type patterns in switch: final in Java 21</span>
             log.info("Payment pending, retry after {}", p.retryAfter());
             <span class="kw">yield</span> OrderStatus.PENDING;
         }
@@ -1381,49 +1480,274 @@ List&lt;OrderSummary&gt; summaries = orders.stream()
         <div class="uml-box" style="margin:14px 0">
           <div class="uml-title">Before vs After — handling a closed type hierarchy</div>
           <div class="uml-svg">
-            <svg viewBox="0 0 700 248" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+            <svg viewBox="0 0 700 262" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
               <!-- BEFORE panel -->
-              <rect x="4" y="4" width="334" height="240" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
-              <rect x="4" y="4" width="334" height="32" rx="5" fill="#280808"/>
-              <text x="171" y="20" text-anchor="middle" fill="#ef4444" font-size="11.5" font-weight="700">BEFORE — Visitor pattern</text>
-              <text x="171" y="34" text-anchor="middle" fill="#fca5a5" font-size="11">60+ lines of boilerplate</text>
-              <line x1="4" y1="36" x2="338" y2="36" stroke="#380808"/>
-              <text x="14" y="54" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">interface PaymentVisitor {</text>
-              <text x="14" y="70" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Success s);</text>
-              <text x="14" y="86" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Failure f);</text>
-              <text x="14" y="102" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Pending p);</text>
-              <text x="14" y="118" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
-              <text x="14" y="138" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">abstract class PaymentResult {</text>
-              <text x="14" y="154" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  abstract void accept(Visitor v);</text>
-              <text x="14" y="170" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
-              <text x="14" y="190" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">class Success extends PaymentResult {</text>
-              <text x="14" y="206" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void accept(Visitor v) {</text>
-              <text x="14" y="222" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">    v.visit(this); }</text>
-              <text x="14" y="238" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
+              <rect x="4" y="4" width="334" height="254" rx="5" fill="#1a0808" stroke="#ef4444" stroke-width="1.5"/>
+              <rect x="4" y="4" width="334" height="44" rx="5" fill="#280808"/>
+              <text x="171" y="21" text-anchor="middle" fill="#ef4444" font-size="11.5" font-weight="700">BEFORE — Visitor pattern</text>
+              <text x="171" y="38" text-anchor="middle" fill="#fca5a5" font-size="11">60+ lines of boilerplate</text>
+              <line x1="4" y1="48" x2="338" y2="48" stroke="#380808"/>
+              <text x="14" y="66" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">interface PaymentVisitor {</text>
+              <text x="14" y="82" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Success s);</text>
+              <text x="14" y="98" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Failure f);</text>
+              <text x="14" y="114" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void visit(Pending p);</text>
+              <text x="14" y="130" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
+              <text x="14" y="150" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">abstract class PaymentResult {</text>
+              <text x="14" y="166" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  abstract void accept(PaymentVisitor v);</text>
+              <text x="14" y="182" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
+              <text x="14" y="202" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">class Success extends PaymentResult {</text>
+              <text x="14" y="218" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">  void accept(PaymentVisitor v) {</text>
+              <text x="14" y="234" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">    v.visit(this); }</text>
+              <text x="14" y="250" fill="#64748b" font-size="11" font-family="JetBrains Mono,monospace">}</text>
               <!-- VS divider -->
-              <text x="350" y="128" text-anchor="middle" fill="#475569" font-size="22" font-weight="700">→</text>
+              <text x="350" y="140" text-anchor="middle" fill="#475569" font-size="22" font-weight="700">→</text>
               <!-- AFTER panel -->
-              <rect x="366" y="4" width="330" height="240" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
-              <rect x="366" y="4" width="330" height="32" rx="5" fill="#0d2618"/>
-              <text x="531" y="20" text-anchor="middle" fill="#10b981" font-size="11.5" font-weight="700">AFTER — Sealed + switch</text>
-              <text x="531" y="34" text-anchor="middle" fill="#34d399" font-size="11">~20 lines · same guarantee</text>
-              <line x1="366" y1="36" x2="696" y2="36" stroke="#103020"/>
-              <text x="376" y="54" fill="#c792ea" font-size="11" font-family="JetBrains Mono,monospace">sealed interface PaymentResult</text>
-              <text x="376" y="70" fill="#c792ea" font-size="11" font-family="JetBrains Mono,monospace">  permits Success, Failure, Pending {}</text>
-              <text x="376" y="90" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Success(...)</text>
-              <text x="376" y="106" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
-              <text x="376" y="122" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Failure(...)</text>
-              <text x="376" y="138" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
-              <text x="376" y="154" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Pending(...)</text>
-              <text x="376" y="170" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
-              <text x="376" y="190" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">return switch (result) {</text>
-              <text x="376" y="206" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Success s  → PAID;</text>
-              <text x="376" y="222" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Failure f  → CANCELLED;</text>
-              <text x="376" y="238" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Pending p  → PENDING; }; ← exhaustive</text>
+              <rect x="366" y="4" width="330" height="254" rx="5" fill="#081a0f" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="366" y="4" width="330" height="44" rx="5" fill="#0d2618"/>
+              <text x="531" y="21" text-anchor="middle" fill="#10b981" font-size="11.5" font-weight="700">AFTER — Sealed + switch</text>
+              <text x="531" y="38" text-anchor="middle" fill="#34d399" font-size="11">~20 lines · same guarantee</text>
+              <line x1="366" y1="48" x2="696" y2="48" stroke="#103020"/>
+              <text x="376" y="66" fill="#c792ea" font-size="11" font-family="JetBrains Mono,monospace">sealed interface PaymentResult</text>
+              <text x="376" y="82" fill="#c792ea" font-size="11" font-family="JetBrains Mono,monospace">  permits Success, Failure, Pending {}</text>
+              <text x="376" y="102" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Success(...)</text>
+              <text x="376" y="118" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
+              <text x="376" y="134" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Failure(...)</text>
+              <text x="376" y="150" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
+              <text x="376" y="166" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">record Pending(...)</text>
+              <text x="376" y="182" fill="#93c5fd" font-size="11" font-family="JetBrains Mono,monospace">    implements PaymentResult {}</text>
+              <text x="376" y="202" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">return switch (result) {</text>
+              <text x="376" y="218" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Success s  -&gt; PAID;</text>
+              <text x="376" y="234" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Failure f  -&gt; CANCELLED;</text>
+              <text x="376" y="250" fill="#a5b4fc" font-size="11" font-family="JetBrains Mono,monospace">  case Pending p  -&gt; PENDING; }; // exhaustive</text>
             </svg>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- JAVA 21                                                -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div class="version-header" id="java21">
+      <span class="version-badge v21">Java 21 — LTS</span>
+      <span class="version-title">Data-oriented code and cheap threads</span>
+    </div>
+    <div class="story-banner">
+      <strong>Context:</strong> Java 21 completes the data-modelling story — pattern matching in <code>switch</code> and record patterns are final — and ships <strong>virtual threads</strong>, which make the simple thread-per-request style scale again. It also adds sequenced collections and generational ZGC.
+    </div>
+
+    <!-- Feature: Pattern matching for switch -->
+    <div class="feature-card open" id="f-pmswitch">
+      <div class="feature-card-header" onclick="toggleCard('f-pmswitch')">
+        <span class="feature-icon"><i class="fa-solid fa-diagram-project"></i></span>
+        <div>
+          <div class="feature-name">Pattern Matching for <code>switch</code> + Record Patterns <span class="ver-chip">Java 21</span></div>
+          <div class="feature-tagline">Switch on type · deconstruct records · guards with <code>when</code> · <code>case null</code></div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">sealed interface</span> <span class="cls">PaymentResult</span> <span class="kw">permits</span> Success, Failure, Pending {}
+<span class="kw">record</span> <span class="cls">Success</span>(String transactionId, BigDecimal amount) <span class="kw">implements</span> PaymentResult {}
+<span class="kw">record</span> <span class="cls">Failure</span>(String reason, String errorCode)     <span class="kw">implements</span> PaymentResult {}
+<span class="kw">record</span> <span class="cls">Pending</span>(Duration estimatedTime)               <span class="kw">implements</span> PaymentResult {}
+
+String describe(PaymentResult result) {
+    <span class="kw">return switch</span> (result) {
+        <span class="kw">case null</span> -&gt; <span class="str">"no result yet"</span>;              <span class="cmt">// without this case: NullPointerException</span>
+        <span class="cmt">// record pattern: deconstruct the components in place</span>
+        <span class="kw">case</span> Success(var id, var amount)
+                <span class="kw">when</span> amount.compareTo(LIMIT) &gt; 0 -&gt; <span class="str">"large payment "</span> + id;
+        <span class="kw">case</span> Success(var id, var amount)      -&gt; <span class="str">"paid "</span> + amount;
+        <span class="kw">case</span> Failure(var reason, var code)    -&gt; <span class="str">"failed: "</span> + reason + <span class="str">" ("</span> + code + <span class="str">")"</span>;
+        <span class="kw">case</span> Pending p                        -&gt; <span class="str">"retry in "</span> + p.estimatedTime();
+    };  <span class="cmt">// sealed + all subtypes covered → exhaustive, no default</span>
+}
+
+<span class="cmt">// Nested record patterns</span>
+<span class="kw">record</span> <span class="cls">Address</span>(String city, String country) {}
+<span class="kw">record</span> <span class="cls">Shipment</span>(Long orderId, Address to) {}
+
+<span class="kw">if</span> (obj <span class="kw">instanceof</span> Shipment(var id, Address(var city, <span class="str">"AT"</span>)))  <span class="cmt">// ❌ constants are not patterns</span>
+<span class="kw">if</span> (obj <span class="kw">instanceof</span> Shipment(var id, Address(var city, var country))
+        &amp;&amp; country.equals(<span class="str">"AT"</span>)) { ship(id, city); }          <span class="cmt">// ✅</span></code></pre></div>
+        <div class="callout info"><span class="callout-icon"></span><div class="callout-body"><strong>Order matters:</strong> cases are tried top to bottom, and the compiler rejects a case that an earlier one already covers (a <em>dominated</em> label) — so the guarded <code>Success(...) when ...</code> must come before the plain <code>Success(...)</code>. Unnamed patterns (<code>case Pending _</code>) were preview in 21 and are final in Java 22.</div></div>
+      </div>
+    </div>
+
+    <!-- Feature: Virtual threads -->
+    <div class="feature-card open" id="f-vthreads">
+      <div class="feature-card-header" onclick="toggleCard('f-vthreads')">
+        <span class="feature-icon"><i class="fa-solid fa-wind"></i></span>
+        <div>
+          <div class="feature-name">Virtual Threads <span class="ver-chip">Java 21</span></div>
+          <div class="feature-tagline">Millions of cheap threads · blocking code that scales · no reactive rewrite</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <div class="uml-box" style="margin:14px 0">
+          <div class="uml-title">Many virtual threads on a few carrier threads</div>
+          <div class="uml-svg">
+            <svg viewBox="0 0 760 252" xmlns="http://www.w3.org/2000/svg" font-family="Inter,sans-serif">
+              <rect x="4" y="4" width="210" height="218" rx="6" fill="#101528" stroke="#8b5cf6" stroke-width="1.5"/>
+              <text x="109" y="24" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">Virtual threads</text>
+              <rect x="16" y="38" width="186" height="24" rx="4" fill="#0d2618" stroke="#10b981"/>
+              <text x="26" y="54" fill="#34d399" font-size="11">VT-1 · running</text>
+              <rect x="16" y="68" width="186" height="24" rx="4" fill="#0d2618" stroke="#10b981"/>
+              <text x="26" y="84" fill="#34d399" font-size="11">VT-2 · running</text>
+              <rect x="16" y="98" width="186" height="24" rx="4" fill="#1a0808" stroke="#ef4444"/>
+              <text x="26" y="114" fill="#fca5a5" font-size="11">VT-3 · waiting on JDBC</text>
+              <rect x="16" y="128" width="186" height="24" rx="4" fill="#0d2618" stroke="#10b981"/>
+              <text x="26" y="144" fill="#34d399" font-size="11">VT-4 · running</text>
+              <rect x="16" y="158" width="186" height="24" rx="4" fill="#1a0808" stroke="#ef4444"/>
+              <text x="26" y="174" fill="#fca5a5" font-size="11">VT-5 · waiting on HTTP</text>
+              <text x="109" y="206" text-anchor="middle" fill="#64748b" font-size="11">… up to millions</text>
+              <rect x="274" y="4" width="210" height="218" rx="6" fill="#101528" stroke="#6366f1" stroke-width="1.5"/>
+              <text x="379" y="24" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">Carrier threads</text>
+              <text x="379" y="42" text-anchor="middle" fill="#64748b" font-size="11">ForkJoinPool, ≈ 1 per core</text>
+              <rect x="290" y="54" width="178" height="30" rx="4" fill="#1e2d45" stroke="#6366f1"/>
+              <text x="302" y="73" fill="#e2e8f0" font-size="11">carrier 1 ← VT-1</text>
+              <rect x="290" y="94" width="178" height="30" rx="4" fill="#1e2d45" stroke="#6366f1"/>
+              <text x="302" y="113" fill="#e2e8f0" font-size="11">carrier 2 ← VT-2</text>
+              <rect x="290" y="134" width="178" height="30" rx="4" fill="#1e2d45" stroke="#6366f1"/>
+              <text x="302" y="153" fill="#e2e8f0" font-size="11">carrier 3 ← VT-4</text>
+              <rect x="290" y="174" width="178" height="30" rx="4" fill="#1e2d45" stroke="#334155"/>
+              <text x="302" y="193" fill="#94a3b8" font-size="11">carrier 4 · picks next VT</text>
+              <line x1="202" y1="50" x2="290" y2="69" stroke="#10b981" stroke-width="1.5"/>
+              <line x1="202" y1="80" x2="290" y2="109" stroke="#10b981" stroke-width="1.5"/>
+              <line x1="202" y1="140" x2="290" y2="149" stroke="#10b981" stroke-width="1.5"/>
+              <rect x="544" y="4" width="212" height="218" rx="6" fill="#101528" stroke="#ef4444" stroke-width="1.5"/>
+              <text x="650" y="24" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">Heap</text>
+              <text x="650" y="42" text-anchor="middle" fill="#64748b" font-size="11">stacks of parked threads</text>
+              <rect x="556" y="54" width="188" height="48" rx="4" fill="#1a0808" stroke="#ef4444"/>
+              <text x="566" y="73" fill="#fca5a5" font-size="11">VT-3 stack frames</text>
+              <text x="566" y="91" fill="#94a3b8" font-size="11">resume when the DB replies</text>
+              <rect x="556" y="112" width="188" height="48" rx="4" fill="#1a0808" stroke="#ef4444"/>
+              <text x="566" y="131" fill="#fca5a5" font-size="11">VT-5 stack frames</text>
+              <text x="566" y="149" fill="#94a3b8" font-size="11">resume on the HTTP reply</text>
+              <text x="650" y="186" text-anchor="middle" fill="#64748b" font-size="11">no OS thread is held</text>
+              <text x="650" y="202" text-anchor="middle" fill="#64748b" font-size="11">while a thread waits</text>
+              <text x="380" y="244" text-anchor="middle" fill="#64748b" font-size="11">a blocking call unmounts the virtual thread; its carrier immediately runs the next runnable one</text>
+            </svg>
+          </div>
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// One virtual thread per task — fine for 10,000 concurrent order look-ups</span>
+<span class="kw">try</span> (<span class="kw">var</span> executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    List&lt;Future&lt;Order&gt;&gt; futures = orderIds.stream()
+        .map(id -&gt; executor.submit(() -&gt; orderClient.fetch(id)))  <span class="cmt">// blocking HTTP call is fine</span>
+        .toList();
+    <span class="kw">for</span> (<span class="kw">var</span> f : futures) process(f.get());
+}   <span class="cmt">// close() waits for all tasks</span>
+
+Thread.ofVirtual().name(<span class="str">"order-"</span>, 0).start(() -&gt; ship(order));
+Thread.startVirtualThread(() -&gt; audit(order));
+
+<span class="cmt">// Spring Boot 3.2+: Tomcat request threads, @Async and schedulers become virtual</span>
+<span class="cmt">// application.properties →  spring.threads.virtual.enabled=true</span>
+
+<span class="cmt">// Limit concurrency with a Semaphore, not with a small pool</span>
+<span class="kw">private final</span> Semaphore dbPermits = <span class="kw">new</span> Semaphore(20);   <span class="cmt">// = HikariCP pool size</span></code></pre></div>
+        <table class="use-table">
+          <tr><th>Rule</th><th>Why</th></tr>
+          <tr><td>Never pool virtual threads</td><td>They are cheap to create; a pool only adds a queue. Create one per task.</td></tr>
+          <tr><td>Use for I/O-bound work</td><td>CPU-bound work gains nothing — there are still only N cores. Keep a platform pool for heavy computation.</td></tr>
+          <tr><td>Watch pinning on Java 21–23</td><td>Blocking inside <code>synchronized</code> keeps the carrier busy (the thread is <em>pinned</em>). Use <code>ReentrantLock</code> there, or move to Java 24+, where JEP 491 removed this for <code>synchronized</code>.</td></tr>
+          <tr><td>Be careful with <code>ThreadLocal</code> caches</td><td>A million threads mean a million copies. Scoped values (final in Java 25) are the replacement.</td></tr>
+          <tr><td>Downstream limits still apply</td><td>A DB pool of 20 connections still serves 20 queries at a time — guard it with a semaphore or the pool's timeout.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Feature: Sequenced collections -->
+    <div class="feature-card open" id="f-sequenced">
+      <div class="feature-card-header" onclick="toggleCard('f-sequenced')">
+        <span class="feature-icon"><i class="fa-solid fa-list-ol"></i></span>
+        <div>
+          <div class="feature-name">Sequenced Collections <span class="ver-chip">Java 21</span></div>
+          <div class="feature-tagline">One API for first / last / reversed across List, Deque, LinkedHashSet, LinkedHashMap</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-body">
+        <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Before: every collection had its own way</span>
+Order first = orders.get(0);
+Order last  = orders.get(orders.size() - 1);
+Map.Entry&lt;Long, Order&gt; newest = <span class="cmt">/* iterate a LinkedHashMap to the end */</span>;
+
+<span class="cmt">// Java 21: SequencedCollection / SequencedMap</span>
+Order first = orders.getFirst();          <span class="cmt">// NoSuchElementException if empty</span>
+Order last  = orders.getLast();
+List&lt;Order&gt; newestFirst = orders.reversed();   <span class="cmt">// a view, not a copy</span>
+
+LinkedHashMap&lt;Long, Order&gt; recent = <span class="kw">new</span> LinkedHashMap&lt;&gt;();
+recent.putLast(order.getId(), order);     <span class="cmt">// move to the end</span>
+Map.Entry&lt;Long, Order&gt; oldest = recent.pollFirstEntry();   <span class="cmt">// remove + return</span>
+
+LinkedHashSet&lt;String&gt; skus = <span class="kw">new</span> LinkedHashSet&lt;&gt;(List.of(<span class="str">"A"</span>, <span class="str">"B"</span>));
+skus.addFirst(<span class="str">"C"</span>);                       <span class="cmt">// [C, A, B]</span></code></pre></div>
+        <div class="callout info"><span class="callout-icon"></span><div class="callout-body"><strong>Hierarchy:</strong> <code>SequencedCollection</code> (<code>addFirst/addLast</code>, <code>getFirst/getLast</code>, <code>removeFirst/removeLast</code>, <code>reversed()</code>) is implemented by <code>List</code>, <code>Deque</code> and <code>SequencedSet</code> (<code>LinkedHashSet</code>, <code>SortedSet</code>). <code>SequencedMap</code> is implemented by <code>LinkedHashMap</code> and <code>SortedMap</code>. A plain <code>HashSet</code> has no order, so it is not sequenced. Unmodifiable lists throw <code>UnsupportedOperationException</code> from <code>addFirst</code>.</div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- QUICK CHECK                                            -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div class="section-header" id="quick-check">
+      <div class="section-icon"><i class="fa-solid fa-circle-question"></i></div>
+      <div><h2>Quick check — modern Java questions</h2><p>Interview questions on Java 14–21; use Test yourself to drill them</p></div>
+    </div>
+
+    <div class="qa-list">
+
+      <div class="qa-card" data-new>
+        <div class="qa-question"><div class="qa-num">1</div><div class="qa-question-text">Which Java 17–21 features would you combine to model a payment result, and what does each one buy you?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+        <div class="qa-answer">
+          <p><strong>Sealed interface</strong> (17) lists every possible result, <strong>records</strong> (16) carry the data immutably with <code>equals</code>/<code>hashCode</code> for free, and <strong>pattern matching for <code>switch</code></strong> with record patterns (21) handles each case. Because the hierarchy is sealed, the switch is checked for exhaustiveness: add <code>Refunded</code> to <code>permits</code> and every switch that misses it stops compiling.</p><p>That replaces the Visitor pattern: same compile-time safety, a fraction of the code, and the logic stays next to the data it reads.</p>
+        </div>
+      </div>
+
+      <div class="qa-card" data-new>
+        <div class="qa-question"><div class="qa-num">2</div><div class="qa-question-text">What problem do virtual threads solve, and when do they not help?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
+        <div class="qa-answer">
+          <p>A platform thread maps 1:1 to an OS thread (about 1&nbsp;MB of stack reserved, costly to create and switch), so a thread-per-request server tops out at a few thousand concurrent requests while most threads just wait on I/O. A <strong>virtual thread</strong> is scheduled by the JVM onto a small pool of carrier threads; when it blocks on I/O it unmounts and its stack is parked on the heap, so millions can wait at once.</p><ul><li><strong>Helps:</strong> I/O-bound request handling — REST calls, JDBC, messaging — written in plain blocking style instead of reactive code.</li><li><strong>Does not help:</strong> CPU-bound work (still N cores), a bottleneck downstream (a DB pool of 20 still runs 20 queries), or code that pins carriers.</li></ul><p>Spring Boot 3.2+ switches Tomcat, <code>@Async</code> and schedulers to virtual threads with <code>spring.threads.virtual.enabled=true</code>.</p>
+        </div>
+      </div>
+
+      <div class="qa-card" data-new>
+        <div class="qa-question"><div class="qa-num">3</div><div class="qa-question-text">What is pinning with virtual threads, and how do you avoid it?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
+        <div class="qa-answer">
+          <p>A virtual thread is <em>pinned</em> when it cannot unmount from its carrier while it blocks, so the carrier is lost for the duration. On Java 21–23 this happens when the thread blocks inside a <code>synchronized</code> block or method, and while it runs a native method or foreign function.</p><ul><li>Replace <code>synchronized</code> around blocking calls with <code>ReentrantLock</code> — or upgrade: Java 24 (JEP 491) lets virtual threads unmount inside <code>synchronized</code>.</li><li>Find it with JFR's <code>jdk.VirtualThreadPinned</code> event (on 21–23 also <code>-Djdk.tracePinnedThreads=full</code>).</li><li>Check libraries too: older JDBC drivers used <code>synchronized</code> on hot paths; the PostgreSQL driver replaced it with locks in 42.6.</li></ul>
+        </div>
+      </div>
+
+      <div class="qa-card" data-new>
+        <div class="qa-question"><div class="qa-num">4</div><div class="qa-question-text">Switch statement vs switch expression — what changed in Java 14 and again in Java 21?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+        <div class="qa-answer">
+          <p><strong>Java 14</strong> made <code>switch</code> usable as an <em>expression</em>: it returns a value, arrow labels (<code>case A, B -&gt;</code>) have no fall-through, <code>yield</code> returns a value from a block, and an expression must be exhaustive (all enum constants, or a <code>default</code>).</p><p><strong>Java 21</strong> lets cases match <em>types and shapes</em>: <code>case Success s</code>, record patterns <code>case Success(var id, var amount)</code>, guards with <code>when</code>, and <code>case null</code>. A switch that uses patterns must be exhaustive even as a statement, and over a sealed type it needs no <code>default</code>.</p>
+        </div>
+      </div>
+
+      <div class="qa-card" data-new>
+        <div class="qa-question"><div class="qa-num">5</div><div class="qa-question-text">What can a record not do, and what is a compact constructor for?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+        <div class="qa-answer">
+          <p>A record cannot extend another class (it already extends <code>java.lang.Record</code>), cannot declare instance fields beyond its components, and its fields are <code>final</code> — so no setters. It can implement interfaces, declare static fields and methods, add instance methods, and nest other types.</p><p>The <strong>compact constructor</strong> runs before the fields are assigned and is the place for validation and normalisation:</p><div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">record</span> <span class="cls">Money</span>(BigDecimal amount, String currency) {
+    Money {
+        Objects.requireNonNull(currency);
+        <span class="kw">if</span> (amount.signum() &lt; 0) <span class="kw">throw new</span> IllegalArgumentException(<span class="str">"negative"</span>);
+        amount = amount.setScale(2, RoundingMode.HALF_EVEN);  <span class="cmt">// reassigns the parameter</span>
+    }
+}</code></pre></div><p>Records are shallowly immutable: a <code>List</code> component can still be changed unless you copy it with <code>List.copyOf</code>. They are a poor fit for JPA entities (no no-arg constructor, final fields) but fine for DTOs, projections and value objects.</p>
+        </div>
+      </div>
+
+      <div class="qa-card" data-new>
+        <div class="qa-question"><div class="qa-num">6</div><div class="qa-question-text">What are sequenced collections in Java 21, and which types implement them?</div><span class="qa-difficulty diff-easy">Easy</span><span class="qa-chevron">▼</span></div>
+        <div class="qa-answer">
+          <p>Java 21 added <code>SequencedCollection</code>, <code>SequencedSet</code> and <code>SequencedMap</code> so that every collection with a defined order shares one API: <code>getFirst()</code>, <code>getLast()</code>, <code>addFirst()</code>, <code>addLast()</code>, <code>removeFirst()</code>, <code>removeLast()</code> and <code>reversed()</code> (a view). Maps get <code>firstEntry()</code>, <code>lastEntry()</code>, <code>pollFirstEntry()</code>, <code>putFirst()</code>, <code>putLast()</code>.</p><p>Implemented by <code>List</code>, <code>Deque</code>, <code>LinkedHashSet</code>, <code>SortedSet</code>/<code>TreeSet</code>, <code>LinkedHashMap</code> and <code>SortedMap</code>/<code>TreeMap</code>. <code>HashSet</code> and <code>HashMap</code> are not sequenced because they have no order. <code>getFirst()</code> on an empty list throws <code>NoSuchElementException</code>.</p>
+        </div>
+      </div>
+
     </div>
 
     <div class="related-pages">
