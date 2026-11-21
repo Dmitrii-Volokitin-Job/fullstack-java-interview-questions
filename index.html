@@ -555,6 +555,30 @@
               <td>A study method that repeats a card at growing intervals; this site uses five Leitner boxes (1, 3, 7, 14, 30 days).</td>
               <td><span class="tag">General</span></td>
             </tr>
+            <tr data-g="JMM Java Memory Model">
+              <td><strong>JMM</strong></td>
+              <td>Java Memory Model</td>
+              <td>The rules for when one thread sees another thread&#x27;s writes. A happens-before edge (unlock→lock, volatile write→read, Thread.start, join) guarantees visibility and ordering.</td>
+              <td><span class="tag">Java</span></td>
+            </tr>
+            <tr data-g="TLAB Thread-Local Allocation Buffer">
+              <td><strong>TLAB</strong></td>
+              <td>Thread-Local Allocation Buffer</td>
+              <td>A slice of Eden owned by one thread, so most new objects are allocated by bumping a pointer without any locking.</td>
+              <td><span class="tag">Java</span></td>
+            </tr>
+            <tr data-g="ZGC Z Garbage Collector">
+              <td><strong>ZGC</strong></td>
+              <td>Z Garbage Collector</td>
+              <td>A low-latency, concurrent, region-based collector with pauses well under a millisecond; generational since Java 21 and the only mode since Java 23.</td>
+              <td><span class="tag">Java</span></td>
+            </tr>
+            <tr data-g="JFR Java Flight Recorder">
+              <td><strong>JFR</strong></td>
+              <td>Java Flight Recorder</td>
+              <td>The low-overhead profiler built into the JVM; record with jcmd &lt;pid&gt; JFR.start and open the file in JDK Mission Control.</td>
+              <td><span class="tag">Java</span></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -580,7 +604,7 @@
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<script src="js/app.js?v=12"></script>
+<script src="js/app.js?v=13"></script>
 <script src="js/quiz.js?v=2"></script>
 </body>
 </html>

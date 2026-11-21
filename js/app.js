@@ -29,7 +29,7 @@ function toggleTheme() {
 const NAV = [
   { href: 'java-refresher.html',    label: 'Java 8–21 Refresher',            icon: 'fa-solid fa-book-open',            count: 6,
     desc: 'One running OrderService example, upgraded release by release from Java 8 to 21.' },
-  { href: 'java-spring.html',       label: 'Java & Spring Boot',             icon: 'fa-solid fa-mug-hot',              count: 57,
+  { href: 'java-spring.html',       label: 'Java & Spring Boot',             icon: 'fa-solid fa-mug-hot',              count: 80,
     desc: 'Core Java, concurrency, JVM, collections, Spring Core/MVC/Security, JPA and testing.' },
   { href: 'sql-databases.html',     label: 'SQL & Databases',                icon: 'fa-solid fa-database',             count: 16,
     desc: 'Joins, window functions, indexes, EXPLAIN, isolation levels, MVCC and locking.' },
@@ -552,6 +552,10 @@ const ABBR_DICT = {
   'CORS':  'Cross-Origin Resource Sharing — Browser rules that decide whether a page from one origin may read a response from another. Non-simple requests send an OPTIONS preflight first; the server answers with Access-Control-Allow-* headers.',
   'CSRF':  'Cross-Site Request Forgery — An attack where another site makes the browser send an authenticated request with the user\'s cookies. Defended with SameSite cookies and CSRF tokens; Spring Security enables protection by default.',
   'CSP':   'Content Security Policy — A response header that tells the browser which script, style and image sources may run on a page — a strong second line of defence against XSS.',
+  'JMM':   'Java Memory Model — The rules for when one thread sees another thread\'s writes. A happens-before edge (unlock→lock, volatile write→read, Thread.start, join) guarantees visibility and ordering.',
+  'TLAB':  'Thread-Local Allocation Buffer — A slice of Eden owned by one thread, so most new objects are allocated by bumping a pointer without any locking.',
+  'ZGC':   'Z Garbage Collector — A low-latency, concurrent, region-based collector with pauses well under a millisecond; generational since Java 21 and the only mode since Java 23.',
+  'JFR':   'Java Flight Recorder — The low-overhead profiler built into the JVM; record with jcmd <pid> JFR.start and open the file in JDK Mission Control.',
   'SRS':   'Spaced Repetition System — A study method that repeats a card at growing intervals; this site uses five Leitner boxes (1, 3, 7, 14, 30 days).',
 };
 
@@ -567,7 +571,7 @@ function buildAbbrRegex() {
 
 // Walk text nodes, skip code blocks / nav / buttons
 function collectTextNodes(root) {
-  const SKIP_TAGS = new Set(['SCRIPT','STYLE','CODE','PRE','ABBR','INPUT','TEXTAREA','BUTTON','SELECT','TH']);
+  const SKIP_TAGS = new Set(['SCRIPT','STYLE','CODE','PRE','ABBR','INPUT','TEXTAREA','BUTTON','SELECT','TH','svg']);
   const SKIP_CLASSES = ['code-block','sidebar','topbar','qa-num','qa-difficulty','nav-badge','copy-btn','section-icon','hero-stat','lp-num','star-label','pillar-chip','company-badge'];
 
   const nodes = [];

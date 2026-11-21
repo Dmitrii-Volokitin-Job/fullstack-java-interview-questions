@@ -57,6 +57,8 @@ function measureDiagrams() {
     const texts = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim()).map(t => ({ t, r: box(t) }));
     const shapes = [...svg.querySelectorAll('rect, circle, ellipse')].map(s => ({ s, r: box(s) })).filter(s => s.r.width < sb.width - 2 || s.r.height < sb.height - 2);
     const lines = [...svg.querySelectorAll('line')].map(linePoints);
+    // An HTML element inside SVG text is not rendered, so its words silently vanish.
+    if (svg.querySelector('text *:not(tspan)')) issues.push('non-SVG element inside <text> (invisible)');
     texts.forEach(({ t, r }, i) => {
       if (!inside(r, sb, -4 + PAD)) issues.push('clipped/edge ' + label(t));
       texts.slice(i + 1).forEach(o => { if (area(r, o.r) > 6) issues.push('overlap ' + label(t) + ' / ' + label(o.t)); });
