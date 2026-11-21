@@ -176,18 +176,21 @@ async function checkFilters(page) {
 async function checkTestYourself(page) {
   await page.goto(BASE + '/system-design.html');
   await page.click('#quizFab');
+  for (let i = 0; i < 4; i++) await page.keyboard.press('Tab');
+  assert(await page.evaluate(() => !!document.activeElement.closest('.quiz-modal')), 'Tab left the quiz dialog');
   const q = (await page.textContent('.quiz-question')).replace(/\s+/g, ' ').trim();
   await page.click('.quiz-btn.reveal');
   assert(await page.locator('.quiz-answer-box.visible').count() === 1, 'answer not revealed');
   await page.click('.quiz-btn.got-it');
   await page.keyboard.press('Escape');
+  assert(await page.evaluate(() => document.activeElement.id === 'quizFab'), 'focus not returned to the quiz button');
   const r = await page.evaluate(q => {
     const card = [...document.querySelectorAll('.qa-card')].find(c => questionText(c) === q);
     return { mastered: card.classList.contains('mastered'), srs: loadSrs()[card.dataset.cardKey], tomorrow: dayString(1) };
   }, q);
   assert(r.mastered, 'Got it did not master the card');
   assert(r.srs && r.srs.box === 0 && r.srs.due === r.tomorrow, 'srs entry wrong: ' + JSON.stringify(r.srs));
-  console.log('ok   Test yourself: reveal, Got it, card mastered, due tomorrow');
+  console.log('ok   Test yourself: focus stays in dialog, reveal, Got it, card mastered, due tomorrow, focus returns');
 }
 
 async function checkPractice(page, pages) {

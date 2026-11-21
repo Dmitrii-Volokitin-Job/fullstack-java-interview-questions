@@ -138,23 +138,37 @@ function startQuiz(deck, onEnd) {
   Object.assign(quiz, { deck, idx: 0, score: { got: 0, again: 0, skip: 0 }, onEnd: onEnd || null });
   quiz.overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+  quiz.returnFocus = document.activeElement;
+  setBackgroundInert(true);
   renderQuestion();
+  quiz.overlay.querySelector('.quiz-close').focus();
+}
+
+// Keeps Tab and clicks inside the dialog while it is open.
+function setBackgroundInert(on) {
+  [...document.body.children].forEach(c => { if (c !== quiz.overlay) c.inert = on; });
 }
 
 function closeQuiz() {
   if (!quiz.overlay) return;
   quiz.overlay.classList.remove('active');
   document.body.style.overflow = '';
+  setBackgroundInert(false);
+  quiz.returnFocus?.focus?.();
   if (quiz.onEnd) quiz.onEnd();
 }
 
 function quizKeys(e) {
-  if (!quiz.overlay?.classList.contains('active') || e.target.tagName === 'TEXTAREA') return;
+  if (!quiz.overlay?.classList.contains('active') || isTyping(e.target)) return;
   if (e.key === 'Escape') closeQuiz();
   else if (quiz.idx >= quiz.deck.length) return;
   else if (e.key === ' ' && !quiz.revealed) { e.preventDefault(); reveal(); }
   else if (e.key === '1' && quiz.revealed) answer(true);
   else if (e.key === '2' && quiz.revealed) answer(false);
+}
+
+function isTyping(target) {
+  return ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable;
 }
 
 function quizMeta(item) {
@@ -238,13 +252,15 @@ function initQuizButton() {
 // ─── Practice hub (final-exam.html) ────────────────────────────────────────
 async function loadAllCards() {
   const parser = new DOMParser();
-  const pages = await Promise.all(NAV.map(async n => {
+  const results = await Promise.allSettled(NAV.map(async n => {
     const res = await fetch(n.href);
     if (!res.ok) throw new Error(n.href + ': HTTP ' + res.status);
     const doc = parser.parseFromString(await res.text(), 'text/html');
     return [...doc.querySelectorAll('.qa-card')].map(c => deckItem(c, pageOf(n.href)));
   }));
-  return pages.flat();
+  const loaded = results.filter(r => r.status === 'fulfilled');
+  if (!loaded.length) throw results[0].reason;
+  return loaded.flatMap(r => r.value);
 }
 
 function practiceStats(items, srs) {
@@ -336,7 +352,10 @@ async function initPractice() {
 // ─── Dashboard study path (index.html) ─────────────────────────────────────
 function studyCard(n, step, srs) {
   const page = pageOf(n.href);
-  const mastered = readJson(MASTERY_PREFIX + page, []).filter(k => k.startsWith(page + ':')).length;
+  // Legacy `page-N` keys count until the page is opened and migrates them; reworded questions can leave extra keys, hence the cap.
+  const legacy = new RegExp('^' + page + '-\\d+$');
+  const stored = readJson(MASTERY_PREFIX + page, []).filter(k => k.startsWith(page + ':') || legacy.test(k)).length;
+  const mastered = Math.min(stored, n.count);
   const pct = n.count ? Math.min(100, Math.round(mastered / n.count * 100)) : 0;
   const due = Object.keys(srs).filter(k => k.startsWith(page + ':') && isDue(srs[k])).length;
   const card = el('a', 'study-card');

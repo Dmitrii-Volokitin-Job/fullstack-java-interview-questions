@@ -591,7 +591,7 @@ function collectTextNodes(root) {
 }
 
 // Replace abbreviations in a single text node
-function replaceInTextNode(textNode, pattern, seen) {
+function replaceInTextNode(textNode, pattern) {
   const text = textNode.textContent;
   pattern.lastIndex = 0;
   if (!pattern.test(text)) return;
@@ -604,9 +604,6 @@ function replaceInTextNode(textNode, pattern, seen) {
   while ((match = pattern.exec(text)) !== null) {
     const abbr  = match[1];
     const full  = ABBR_DICT[abbr];
-    const first = !seen.has(abbr);
-    if (first) seen.add(abbr);
-
     if (match.index > last) {
       frag.appendChild(document.createTextNode(text.slice(last, match.index)));
     }
@@ -614,7 +611,6 @@ function replaceInTextNode(textNode, pattern, seen) {
     const el = document.createElement('abbr');
     el.title = full;
     el.dataset.abbr  = abbr;
-    el.dataset.first = first ? '1' : '0';
     el.textContent   = abbr;
     frag.appendChild(el);
 
@@ -632,9 +628,8 @@ function wrapAbbreviations() {
   if (!content) return;
 
   const pattern = buildAbbrRegex();
-  const seen    = new Set();
   const nodes   = collectTextNodes(content);
-  nodes.forEach(n => replaceInTextNode(n, pattern, seen));
+  nodes.forEach(n => replaceInTextNode(n, pattern));
 }
 
 // ─── Topbar extras: Done counter + Reset button ───────────────────────────
