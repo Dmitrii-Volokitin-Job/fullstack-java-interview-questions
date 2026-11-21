@@ -545,6 +545,14 @@ const ABBR_DICT = {
   'OWASP':  'Open Worldwide Application Security Project — publishes the Top 10 most critical web security risks',
   'XSS':    'Cross-Site Scripting — injecting malicious JavaScript into a web page that runs in other users\' browsers',
   'SQL':    'Structured Query Language — the standard language for relational databases (SELECT, INSERT, UPDATE, DELETE)',
+  'MVCC':  'Multi-Version Concurrency Control — Readers see a snapshot of row versions instead of waiting for writers. PostgreSQL keeps old row versions in the table (xmin/xmax) until VACUUM removes them, so a long-open transaction causes bloat.',
+  'CAS':   'Compare-And-Swap — A CPU instruction that updates a value only if it still equals the expected one. It is the basis of lock-free classes such as AtomicInteger and ConcurrentHashMap.',
+  'JIT':   'Just-In-Time compiler — The JVM part that compiles hot bytecode to native code at run time (C1 quickly, C2 with heavy optimisation such as inlining and escape analysis).',
+  'PECS':  'Producer Extends, Consumer Super — The wildcard rule for generics: read from a List<? extends T>, write into a List<? super T>. Collections.copy(dest, src) is the classic example.',
+  'CORS':  'Cross-Origin Resource Sharing — Browser rules that decide whether a page from one origin may read a response from another. Non-simple requests send an OPTIONS preflight first; the server answers with Access-Control-Allow-* headers.',
+  'CSRF':  'Cross-Site Request Forgery — An attack where another site makes the browser send an authenticated request with the user\'s cookies. Defended with SameSite cookies and CSRF tokens; Spring Security enables protection by default.',
+  'CSP':   'Content Security Policy — A response header that tells the browser which script, style and image sources may run on a page — a strong second line of defence against XSS.',
+  'SRS':   'Spaced Repetition System — A study method that repeats a card at growing intervals; this site uses five Leitner boxes (1, 3, 7, 14, 30 days).',
 };
 
 function escapeRe(s) {

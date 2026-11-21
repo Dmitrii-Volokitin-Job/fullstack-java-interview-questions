@@ -6,7 +6,7 @@
   <title>Interview Prep — Full Stack Java · Angular · K8s</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="css/styles.css?v=16">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
@@ -507,6 +507,54 @@
               <td>An attack where an attacker injects malicious JavaScript into a web page that gets executed in other users' browsers. Prevention: never use innerHTML with user-supplied content; use textContent or a sanitiser; set Content-Security-Policy headers.</td>
               <td><span class="tag">Security</span></td>
             </tr>
+            <tr data-g="MVCC Multi-Version Concurrency Control">
+              <td><strong>MVCC</strong></td>
+              <td>Multi-Version Concurrency Control</td>
+              <td>Readers see a snapshot of row versions instead of waiting for writers. PostgreSQL keeps old row versions in the table (xmin/xmax) until VACUUM removes them, so a long-open transaction causes bloat.</td>
+              <td><span class="tag">SQL</span></td>
+            </tr>
+            <tr data-g="CAS Compare-And-Swap">
+              <td><strong>CAS</strong></td>
+              <td>Compare-And-Swap</td>
+              <td>A CPU instruction that updates a value only if it still equals the expected one. It is the basis of lock-free classes such as AtomicInteger and ConcurrentHashMap.</td>
+              <td><span class="tag">Java</span></td>
+            </tr>
+            <tr data-g="JIT Just-In-Time compiler">
+              <td><strong>JIT</strong></td>
+              <td>Just-In-Time compiler</td>
+              <td>The JVM part that compiles hot bytecode to native code at run time (C1 quickly, C2 with heavy optimisation such as inlining and escape analysis).</td>
+              <td><span class="tag">Java</span></td>
+            </tr>
+            <tr data-g="PECS Producer Extends, Consumer Super">
+              <td><strong>PECS</strong></td>
+              <td>Producer Extends, Consumer Super</td>
+              <td>The wildcard rule for generics: read from a List&lt;? extends T&gt;, write into a List&lt;? super T&gt;. Collections.copy(dest, src) is the classic example.</td>
+              <td><span class="tag">Java</span></td>
+            </tr>
+            <tr data-g="CORS Cross-Origin Resource Sharing">
+              <td><strong>CORS</strong></td>
+              <td>Cross-Origin Resource Sharing</td>
+              <td>Browser rules that decide whether a page from one origin may read a response from another. Non-simple requests send an OPTIONS preflight first; the server answers with Access-Control-Allow-* headers.</td>
+              <td><span class="tag">Web</span></td>
+            </tr>
+            <tr data-g="CSRF Cross-Site Request Forgery">
+              <td><strong>CSRF</strong></td>
+              <td>Cross-Site Request Forgery</td>
+              <td>An attack where another site makes the browser send an authenticated request with the user&#x27;s cookies. Defended with SameSite cookies and CSRF tokens; Spring Security enables protection by default.</td>
+              <td><span class="tag">Web</span></td>
+            </tr>
+            <tr data-g="CSP Content Security Policy">
+              <td><strong>CSP</strong></td>
+              <td>Content Security Policy</td>
+              <td>A response header that tells the browser which script, style and image sources may run on a page — a strong second line of defence against XSS.</td>
+              <td><span class="tag">Web</span></td>
+            </tr>
+            <tr data-g="SRS Spaced Repetition System">
+              <td><strong>SRS</strong></td>
+              <td>Spaced Repetition System</td>
+              <td>A study method that repeats a card at growing intervals; this site uses five Leitner boxes (1, 3, 7, 14, 30 days).</td>
+              <td><span class="tag">General</span></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -532,7 +580,7 @@
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<script src="js/app.js?v=10"></script>
+<script src="js/app.js?v=11"></script>
 <script src="js/quiz.js?v=1"></script>
 </body>
 </html>
