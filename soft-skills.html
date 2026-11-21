@@ -6,52 +6,20 @@
   <title>Soft Skills &amp; Interview Traps — Interview Prep</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 <div class="layout">
 
   <!-- ── Sidebar ──────────────────────────────────────────── -->
-  <aside class="sidebar">
-    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">
-        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
-        <a class="nav-link" href="java-refresher.html"><i class="fa-solid fa-book-open icon-fw"></i> Java 8–16 Refresher</a>
-        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
-        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
-        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
-        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
-        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
-        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
-        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
-        <a class="nav-link active" href="soft-skills.html"><i class="fa-solid fa-brain icon-fw"></i> Soft Skills &amp; Traps<span class="nav-badge">50</span></a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="#self-intro"><i class="fa-solid fa-user icon-fw"></i> Self-Introduction</a>
-        <a class="nav-link" href="#behavioral"><i class="fa-solid fa-star icon-fw"></i> Behavioral STAR</a>
-        <a class="nav-link" href="#tech-comm"><i class="fa-solid fa-comments icon-fw"></i> Technical Communication</a>
-        <a class="nav-link" href="#team-culture"><i class="fa-solid fa-people-group icon-fw"></i> Team &amp; Culture</a>
-        <a class="nav-link" href="#traps"><i class="fa-solid fa-triangle-exclamation icon-fw"></i> Interview Traps</a>      </div>
-      <div class="nav-section">
-        <div class="nav-section-title">Exam</div>
-        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
-      </div>
-    </nav>
-    <div class="sidebar-footer">
-      <p class="text-muted">50 questions · click to reveal answers</p>
-    </div>
-  </aside>
+  <aside class="sidebar"></aside>
 
   <!-- ── Main ─────────────────────────────────────────────── -->
   <div class="main">
     <div class="topbar">
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-      <div class="topbar-title"><i class="fa-solid fa-brain"></i> Soft Skills &amp; Interview Traps <span>50 Questions</span></div>
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-brain"></i> Soft Skills &amp; Interview Traps <span><span data-qcount></span> Questions</span></div>
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input id="searchInput" type="text" placeholder="Search questions…">
@@ -65,7 +33,7 @@
       <div class="progress-wrap">
         <div class="progress-label">
           <strong>Progress</strong>
-          <span id="progressLabel">0 / 50 mastered</span>
+          <span id="progressLabel"></span>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
@@ -84,7 +52,7 @@
            SECTION 1 — SELF-INTRODUCTION & MOTIVATION
       ════════════════════════════════════════════ -->
       <div class="section-header" id="self-intro">
-        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-user"></i></div>
+        <div class="section-icon chip-accent"><i class="fa-solid fa-user"></i></div>
         <div><h2>Self-Introduction &amp; Motivation</h2><p>How to present yourself, your strengths, and your career story</p></div>
       </div>
 
@@ -332,7 +300,7 @@ is often where projects stall, and reducing it accelerates everything.
            SECTION 2 — BEHAVIORAL STAR QUESTIONS
       ════════════════════════════════════════════ -->
       <div class="section-header" id="behavioral">
-        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-star"></i></div>
+        <div class="section-icon chip-warning"><i class="fa-solid fa-star"></i></div>
         <div><h2>Behavioral STAR Questions</h2><p><strong>STAR method:</strong> Situation (set the context), Task (your specific responsibility), Action (what YOU did — use "I" not "we"), Result (measurable outcome). Every behavioral answer should follow this arc.</p></div>
       </div>
 
@@ -701,7 +669,7 @@ on schedule.
            SECTION 3 — TECHNICAL COMMUNICATION
       ════════════════════════════════════════════ -->
       <div class="section-header" id="tech-comm">
-        <div class="section-icon" class="chip-success"><i class="fa-solid fa-comments"></i></div>
+        <div class="section-icon chip-success"><i class="fa-solid fa-comments"></i></div>
         <div><h2>Technical Communication</h2><p>How you explain, estimate, document, and navigate technical discussions</p></div>
       </div>
 
@@ -1071,7 +1039,7 @@ Week 3+ — Raise the bar:
            SECTION 4 — TEAM, CULTURE & GROWTH
       ════════════════════════════════════════════ -->
       <div class="section-header" id="team-culture">
-        <div class="section-icon" class="chip-purple"><i class="fa-solid fa-people-group"></i></div>
+        <div class="section-icon chip-purple"><i class="fa-solid fa-people-group"></i></div>
         <div><h2>Team, Culture &amp; Growth</h2><p>Collaboration, mentorship, learning, and professional resilience</p></div>
       </div>
 
@@ -1425,7 +1393,7 @@ valid outcomes.
            SECTION 5 — INTERVIEW TRAPS & NEGOTIATION
       ════════════════════════════════════════════ -->
       <div class="section-header" id="traps">
-        <div class="section-icon" class="chip-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="section-icon chip-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
         <div><h2>Interview Traps &amp; Negotiation</h2><p>Loaded questions, illegal questions, salary negotiation, and follow-up strategy</p></div>
       </div>
 
@@ -1662,7 +1630,7 @@ Step 5 — State your uncertainty:
             <p>The system design interview has a characteristic failure mode: candidates jump into database schema or API design before establishing requirements, scale, and constraints. Without knowing whether you're designing for 1,000 users or 100 million, your choices are arbitrary. Interviewers reward candidates who drive the conversation systematically.</p>
             <div class="code-block">
               <div class="code-header"><span class="code-lang">System Design Time Budget (30 min)</span></div>
-              <pre><code">Minutes 0–5: Requirements and constraints
+              <pre><code>Minutes 0–5: Requirements and constraints
   "Before I design anything, let me understand the problem.
    What are the core features we need to support?
    Approximately how many users, and what's the read/write ratio?
@@ -1731,7 +1699,7 @@ post-mortem culture, or does it tend to be more fire-drill-and-move-on?"
             <p>Most candidates ask generic questions at the end: "What does a typical day look like?" or "What's the tech stack?" These are fine but forgettable. The questions you ask at the end of an interview communicate your priorities, your seniority, and your genuine interest. They're also your best opportunity to assess whether you actually want this job.</p>
             <div class="code-block">
               <div class="code-header"><span class="code-lang">High-Signal Questions to Ask</span></div>
-              <pre><code">On team health:
+              <pre><code>On team health:
 "What's the biggest friction point on the team right now that
 you'd want the person in this role to help resolve?"
 
@@ -1860,6 +1828,7 @@ may refer you to your next role.
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
-<script src="js/app.js?v=9"></script>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
   <title>Microservices — Interview Prep</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <style>
     .ms-banner {
@@ -29,41 +29,12 @@
 <body>
 <div class="layout">
 
-  <aside class="sidebar">
-    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">
-        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot</a>
-        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
-        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular</a>
-        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps</a>
-        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design</a>
-        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive</a>
-        <a class="nav-link active" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
-        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google</a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="#decomposition"><i class="fa-solid fa-scissors icon-fw"></i> Decomposition &amp; DDD</a>
-        <a class="nav-link" href="#communication"><i class="fa-solid fa-satellite-dish icon-fw"></i> Communication</a>
-        <a class="nav-link" href="#data"><i class="fa-solid fa-database icon-fw"></i> Data Patterns</a>
-        <a class="nav-link" href="#resilience"><i class="fa-solid fa-shield-halved icon-fw"></i> Resilience</a>
-        <a class="nav-link" href="#observability"><i class="fa-solid fa-binoculars icon-fw"></i> Observability</a>
-        <a class="nav-link" href="#security"><i class="fa-solid fa-lock icon-fw"></i> Security</a>
-        <a class="nav-link" href="#migration"><i class="fa-solid fa-rocket icon-fw"></i> Migration</a>      </div>
-      <div class="nav-section">
-        <div class="nav-section-title">Exam</div>
-        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
-      </div>
-    </nav>
-  </aside>
+  <aside class="sidebar"></aside>
 
   <div class="main">
     <div class="topbar">
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-      <div class="topbar-title"><i class="fa-solid fa-link"></i> Microservices <span>28 Deep-Dive Interview Questions</span></div>
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-link"></i> Microservices <span><span data-qcount></span> Deep-Dive Interview Questions</span></div>
       <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
     </div>
@@ -71,12 +42,12 @@
     <div class="content">
 
       <!-- Hero -->
-      <div class="hero ms-banner" class="mb-28">
+      <div class="hero ms-banner mb-28">
         <h1 style="font-size:26px;margin-bottom:8px">Microservices Interview Guide</h1>
         <p style="color:var(--text-secondary);margin-bottom:18px">Service decomposition, inter-service communication, distributed data, resilience patterns, and migration strategy — the complete picture for senior engineers.</p>
         <div class="hero-stats">
-          <div class="hero-stat"><div class="num" style="color:#10b981">28</div><div class="lbl">Questions</div></div>
-          <div class="hero-stat"><div class="num" style="color:#10b981">7</div><div class="lbl">Topic Areas</div></div>
+          <div class="hero-stat"><div class="num" style="color:#10b981" data-qcount></div><div class="lbl">Questions</div></div>
+          <div class="hero-stat"><div class="num" style="color:#10b981" data-scount></div><div class="lbl">Topic Areas</div></div>
           <div class="hero-stat"><div class="num">Spring</div><div class="lbl">+ Resilience4j</div></div>
           <div class="hero-stat"><div class="num">Kafka</div><div class="lbl">Event-Driven</div></div>
         </div>
@@ -84,7 +55,7 @@
 
       <!-- Pillar filters -->
       <div class="pillar-filters">
-        <button class="pillar-chip active" data-pillar="all">All</button>
+        <button class="pillar-chip active" data-pillar="">All</button>
         <button class="pillar-chip" data-pillar="decomp">Decomposition</button>
         <button class="pillar-chip" data-pillar="comm">Communication</button>
         <button class="pillar-chip" data-pillar="data">Data Patterns</button>
@@ -95,7 +66,7 @@
       </div>
 
       <div class="progress-wrap">
-        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 28 reviewed</span></div>
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel"></span></div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
 
@@ -103,7 +74,7 @@
            1. DECOMPOSITION & DDD
       ═══════════════════════════════════ -->
       <div class="section-header" id="decomposition">
-        <div class="section-icon" class="chip-success"><i class="fa-solid fa-scissors"></i></div>
+        <div class="section-icon chip-success"><i class="fa-solid fa-scissors"></i></div>
         <div><h2>Decomposition &amp; Domain-Driven Design</h2><p>How to split a system into services correctly — and the traps when you get it wrong</p></div>
       </div>
 
@@ -120,7 +91,7 @@
               <li><strong>Independent deployability</strong> — you can deploy service A without deploying service B</li>
               <li><strong>Team ownership</strong> — Conway's Law: your service boundaries will mirror your org chart. Design the org and services together</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Decomposition example: e-commerce</span><button class="copy-btn">Copy</button></div><pre><code">Monolith "order"  →  microservices:
+            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Decomposition example: e-commerce</span><button class="copy-btn">Copy</button></div><pre><code>Monolith "order"  →  microservices:
   OrderService     — create order, track status, order history
   PaymentService   — charge, refund, reconciliation (payment is its OWN domain)
   InventoryService — stock levels, reservations, warehouse routing
@@ -220,7 +191,7 @@ What's wrong with splitting too small:
            2. COMMUNICATION
       ═══════════════════════════════════ -->
       <div class="section-header" id="communication">
-        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-satellite-dish"></i></div>
+        <div class="section-icon chip-accent"><i class="fa-solid fa-satellite-dish"></i></div>
         <div><h2>Inter-Service Communication</h2><p>Synchronous vs async, gRPC, Kafka, service discovery, and the choreography/orchestration trade-off</p></div>
       </div>
 
@@ -255,7 +226,7 @@ What's wrong with splitting too small:
               <li>✅ No single point of failure; services are more loosely coupled</li>
               <li>❌ Hard to visualize end-to-end flow; debugging "where did this saga get stuck" is painful; compensating transactions are scattered across services</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Choreography flow: order processing</span><button class="copy-btn">Copy</button></div><pre><code">OrderService publishes → OrderCreated
+            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Choreography flow: order processing</span><button class="copy-btn">Copy</button></div><pre><code>OrderService publishes → OrderCreated
   PaymentService consumes → charges card → publishes PaymentCompleted | PaymentFailed
     InventoryService consumes PaymentCompleted → reserves stock → publishes InventoryReserved
       ShippingService consumes InventoryReserved → schedules dispatch
@@ -284,7 +255,7 @@ On failure: PaymentFailed → OrderService consumes and publishes OrderCancelled
               <li>Strongly typed contracts — <code>.proto</code> files generate client/server stubs in any language; no swagger drift</li>
               <li>Built-in deadline propagation — client sets a deadline; it flows through all service hops</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Protobuf — UserService.proto</span><button class="copy-btn">Copy</button></div><pre><code">syntax = "proto3";
+            <div class="code-block"><div class="code-header"><span class="code-lang">Protobuf — UserService.proto</span><button class="copy-btn">Copy</button></div><pre><code>syntax = "proto3";
 
 service UserService {
   rpc GetUser (GetUserRequest) returns (UserResponse);
@@ -329,7 +300,7 @@ message UserResponse {
            3. DATA PATTERNS
       ═══════════════════════════════════ -->
       <div class="section-header" id="data">
-        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-database"></i></div>
+        <div class="section-icon chip-warning"><i class="fa-solid fa-database"></i></div>
         <div><h2>Data Patterns</h2><p>Database-per-service, CQRS, Event Sourcing, and the distributed data consistency problem</p></div>
       </div>
 
@@ -359,7 +330,7 @@ message UserResponse {
           <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">Explain CQRS. When does it help and when is it over-engineering?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p><strong>CQRS (Command Query Responsibility Segregation)</strong> separates the write model (Commands) from the read model (Queries) — usually implemented as separate data stores.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — CQRS with Spring + Kafka</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// WRITE SIDE: normalised PostgreSQL, optimised for writes and consistency</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — CQRS with Spring + Kafka</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// WRITE SIDE: normalised PostgreSQL, optimised for writes and consistency</span>
 <span class="ann">@Service</span>
 <span class="kw">public class</span> <span class="typ">OrderCommandService</span> {
     <span class="kw">public</span> <span class="typ">Order</span> <span class="fn">createOrder</span>(<span class="typ">CreateOrderCmd</span> cmd) {
@@ -390,7 +361,7 @@ message UserResponse {
           <div class="qa-question"><div class="qa-num">11</div><div class="qa-question-text">What is Event Sourcing and when does it provide real value?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p><strong>Event Sourcing</strong> stores the state of an entity as a sequence of events, not as the current state. To get current state, replay all events.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Event Sourcing concept</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Traditional: single row updated in place — history lost</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Event Sourcing concept</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Traditional: single row updated in place — history lost</span>
 UPDATE orders SET status = 'SHIPPED', updated_at = NOW() WHERE id = 42;
 
 <span class="cmt">// Event Sourced: immutable append-only event log</span>
@@ -416,7 +387,7 @@ events table:
           <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">How does the Transactional Outbox pattern solve the dual-write problem?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p><strong>Dual-write problem:</strong> you can't atomically write to your database AND publish to Kafka. If the DB write succeeds but Kafka publish fails, your event is lost — the rest of the system never knows the order was created.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java + SQL — Outbox pattern implementation</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Step 1: Write order AND outbox event in the SAME database transaction</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java + SQL — Outbox pattern implementation</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Step 1: Write order AND outbox event in the SAME database transaction</span>
 <span class="ann">@Transactional</span>
 <span class="kw">public</span> <span class="typ">Order</span> <span class="fn">createOrder</span>(<span class="typ">CreateOrderRequest</span> req) {
     <span class="typ">Order</span> order = orderRepo.save(<span class="kw">new</span> <span class="typ">Order</span>(req));
@@ -451,7 +422,7 @@ events table:
            4. RESILIENCE
       ═══════════════════════════════════ -->
       <div class="section-header" id="resilience">
-        <div class="section-icon" class="chip-danger"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="section-icon chip-danger"><i class="fa-solid fa-shield-halved"></i></div>
         <div><h2>Resilience Patterns</h2><p>Circuit Breaker, Bulkhead, Retry, Timeout — and how to combine them correctly</p></div>
       </div>
 
@@ -467,7 +438,7 @@ events table:
               <li><strong>OPEN</strong> — failure threshold exceeded. All calls fail immediately with <code>CallNotPermittedException</code>; no calls reach downstream</li>
               <li><strong>HALF_OPEN</strong> — after a wait duration, allows a limited number of probe calls. If they succeed → CLOSED. If they fail → OPEN again</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Circuit Breaker</span><button class="copy-btn">Copy</button></div><pre><code"><span class="ann">@CircuitBreaker</span>(name = <span class="str">"inventoryService"</span>, fallbackMethod = <span class="str">"inventoryFallback"</span>)
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Circuit Breaker</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@CircuitBreaker</span>(name = <span class="str">"inventoryService"</span>, fallbackMethod = <span class="str">"inventoryFallback"</span>)
 <span class="ann">@TimeLimiter</span>(name = <span class="str">"inventoryService"</span>)
 <span class="ann">@Retry</span>(name = <span class="str">"inventoryService"</span>)
 <span class="kw">public</span> <span class="typ">CompletableFuture</span>&lt;<span class="typ">StockLevel</span>&gt; <span class="fn">getStock</span>(<span class="typ">String</span> productId) {
@@ -479,7 +450,7 @@ events table:
     <span class="kw">return</span> <span class="typ">CompletableFuture</span>.completedFuture(stockCache.get(productId)
         .orElse(<span class="typ">StockLevel</span>.unknown()));
 }</code></pre></div>
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Resilience4j config (application.yml)</span><button class="copy-btn">Copy</button></div><pre><code">resilience4j:
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Resilience4j config (application.yml)</span><button class="copy-btn">Copy</button></div><pre><code>resilience4j:
   circuitbreaker:
     instances:
       inventoryService:
@@ -501,7 +472,7 @@ events table:
           <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">What is the Bulkhead pattern and how does it isolate failures?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>Named after ship bulkheads that prevent one flooded compartment from sinking the whole ship. In software: each downstream service gets its own thread pool or semaphore, so a slow/unavailable service can't exhaust the shared thread pool and block all other operations.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Bulkhead (thread pool isolation)</span><button class="copy-btn">Copy</button></div><pre><code">resilience4j:
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Resilience4j Bulkhead (thread pool isolation)</span><button class="copy-btn">Copy</button></div><pre><code>resilience4j:
   thread-pool-bulkhead:
     instances:
       paymentService:
@@ -525,7 +496,7 @@ events table:
               <li><strong>Exponential backoff + jitter</strong> — spreads retry load; prevents thundering herd (all services retrying simultaneously)</li>
               <li><strong>Circuit Breaker</strong> — for persistent failures. Once failure rate threshold is reached, stops retrying altogether. Gives the failing service recovery time</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Retry with backoff (Resilience4j)</span><button class="copy-btn">Copy</button></div><pre><code">resilience4j:
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Retry with backoff (Resilience4j)</span><button class="copy-btn">Copy</button></div><pre><code>resilience4j:
   retry:
     instances:
       paymentService:
@@ -559,11 +530,11 @@ events table:
           <div class="qa-question"><div class="qa-num">16</div><div class="qa-question-text">What are the three pillars of observability and how do you implement them in Spring Boot?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p><strong>1. Logs — structured, correlated:</strong></p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Logback JSON with trace correlation</span><button class="copy-btn">Copy</button></div><pre><code">logging.structured.format.console: ecs   <span class="cmt"># Spring Boot 3.4+ ECS structured logging</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Logback JSON with trace correlation</span><button class="copy-btn">Copy</button></div><pre><code>logging.structured.format.console: ecs   <span class="cmt"># Spring Boot 3.4+ ECS structured logging</span>
 <span class="cmt"># Output: {"@timestamp":"...", "traceId":"abc123", "spanId":"def456", "message":"Order created"}</span>
 <span class="cmt"># traceId + spanId injected by Micrometer Tracing automatically</span></code></pre></div>
             <p><strong>2. Metrics — Micrometer + Prometheus:</strong></p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Custom business metrics</span><button class="copy-btn">Copy</button></div><pre><code"><span class="ann">@Service</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Custom business metrics</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Service</span>
 <span class="kw">public class</span> <span class="typ">OrderService</span> {
     <span class="kw">private final</span> <span class="typ">Counter</span> ordersCreated;
     <span class="kw">private final</span> <span class="typ">Timer</span> orderProcessingTime;
@@ -582,7 +553,7 @@ events table:
     }
 }</code></pre></div>
             <p><strong>3. Traces — Micrometer Tracing + Zipkin/Tempo:</strong></p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Distributed tracing config</span><button class="copy-btn">Copy</button></div><pre><code">management:
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Distributed tracing config</span><button class="copy-btn">Copy</button></div><pre><code>management:
   tracing:
     sampling:
       probability: 0.1   <span class="cmt"># trace 10% in prod; 1.0 for debugging</span>
@@ -613,7 +584,7 @@ events table:
         <div class="qa-card" data-pillar="observability">
           <div class="qa-question"><div class="qa-num">18</div><div class="qa-question-text">What is health checking in microservices? How does Spring Boot Actuator integrate with Kubernetes probes?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Spring Boot Actuator health groups for K8s probes</span><button class="copy-btn">Copy</button></div><pre><code">management:
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — Spring Boot Actuator health groups for K8s probes</span><button class="copy-btn">Copy</button></div><pre><code>management:
   endpoint:
     health:
       probes:
@@ -664,7 +635,7 @@ readinessProbe:
               <li>Gateway passes validated JWT downstream — services trust it without re-validating signature</li>
               <li>Each service reads claims from JWT: userId, roles, tenantId</li>
             </ol>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Security Resource Server (validate JWT)</span><button class="copy-btn">Copy</button></div><pre><code"><span class="ann">@Configuration</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Security Resource Server (validate JWT)</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Configuration</span>
 <span class="kw">public class</span> <span class="typ">SecurityConfig</span> {
     <span class="ann">@Bean</span>
     <span class="kw">public</span> <span class="typ">SecurityFilterChain</span> <span class="fn">filterChain</span>(<span class="typ">HttpSecurity</span> http) <span class="kw">throws</span> <span class="typ">Exception</span> {
@@ -729,7 +700,7 @@ readinessProbe:
               <li><strong>Remove the code</strong> from the monolith</li>
               <li><strong>Repeat</strong> for the next capability</li>
             </ol>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Strangler Fig timeline example</span><button class="copy-btn">Copy</button></div><pre><code">Month 1: Extract NotificationService (stateless, low risk, clear boundary)
+            <div class="code-block"><div class="code-header"><span class="code-lang">Text — Strangler Fig timeline example</span><button class="copy-btn">Copy</button></div><pre><code>Month 1: Extract NotificationService (stateless, low risk, clear boundary)
   → Proxy: /api/notifications → NotificationService (new)
   → Monolith: email/SMS code removed
 
@@ -750,7 +721,7 @@ Month 9: Monolith now handles only core orders → becomes OrderService</code></
           <div class="qa-question"><div class="qa-num">22</div><div class="qa-question-text">What is an Anti-Corruption Layer (ACL) and when do you need one?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>An <strong>Anti-Corruption Layer</strong> is a translation layer between two bounded contexts with incompatible models. It prevents the poor design of a legacy system from "corrupting" the clean model of a new service.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — ACL translating legacy Customer model</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Legacy monolith's Customer: a god-object with 50 fields, null everywhere</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — ACL translating legacy Customer model</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Legacy monolith's Customer: a god-object with 50 fields, null everywhere</span>
 <span class="kw">class</span> <span class="typ">LegacyCustomer</span> { <span class="typ">String</span> CUST_ID; <span class="typ">String</span> FIRST_NM; <span class="typ">String</span> LAST_NM; <span class="typ">Integer</span> STAT_CD; ... }
 
 <span class="cmt">// New service's domain model: clean, expressive</span>
@@ -786,7 +757,7 @@ Month 9: Monolith now handles only core orders → becomes OrderService</code></
               <li><strong>Header versioning:</strong> <code>Accept: application/vnd.company.order.v2+json</code> — cleaner URLs, harder to test in browser</li>
               <li><strong>Expand-contract (internal)</strong> — add new fields alongside old ones (never remove immediately). Consumers ignore unknown fields. Old field removed only after all consumers migrate. This is the preferred pattern for internal service-to-service communication.</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Expand-contract pattern for Kafka events</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// v1 event: {orderId, customerId, totalAmount}</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Expand-contract pattern for Kafka events</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// v1 event: {orderId, customerId, totalAmount}</span>
 <span class="cmt">// v2 event: {orderId, customerId, totalAmount, currency, discountCode}</span>
 <span class="cmt">// Strategy: publish v2 format; consumers that know v1 ignore unknown fields</span>
 <span class="cmt">// Never remove customerId until NO consumer reads it</span>
@@ -864,7 +835,7 @@ Month 9: Monolith now handles only core orders → becomes OrderService</code></
               <li><strong>Sensitive config (secrets)</strong>: Kubernetes Secrets (base64 encoded, or better: backed by HashiCorp Vault via External Secrets Operator)</li>
               <li><strong>Spring Cloud Config Server</strong>: central Git-backed config server; services pull config at startup and on refresh. Useful for non-K8s or multi-cloud environments</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — External Secrets Operator pulling from Vault</span><button class="copy-btn">Copy</button></div><pre><code">apiVersion: external-secrets.io/v1beta1
+            <div class="code-block"><div class="code-header"><span class="code-lang">YAML — External Secrets Operator pulling from Vault</span><button class="copy-btn">Copy</button></div><pre><code>apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: order-service-secrets
@@ -911,6 +882,7 @@ spec:
     </div><!-- /content -->
   </div><!-- /main -->
 </div>
-<script src="js/app.js?v=9"></script>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
 </body>
 </html>

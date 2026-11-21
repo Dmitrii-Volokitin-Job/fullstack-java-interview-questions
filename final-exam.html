@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-dumbbell"></i> Practice <span>All topics</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <div class="hero">
+        <div class="hero-badge"><i class="fa-solid fa-dumbbell"></i> Practice</div>
+        <h1>Practice</h1>
+        <p>Spaced-repetition review across every topic.</p>
+      </div>
+      <div id="practiceApp"></div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
+</body>
+</html>

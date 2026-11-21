@@ -6,7 +6,7 @@
   <title>Kafka Deep Dive — Interview Prep</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <style>
     .kafka-banner {
@@ -39,41 +39,12 @@
 <body>
 <div class="layout">
 
-  <aside class="sidebar">
-    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">
-        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
-        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
-        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
-        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
-        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
-        <a class="nav-link active" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
-        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="#architecture"><i class="fa-solid fa-landmark icon-fw"></i> Architecture</a>
-        <a class="nav-link" href="#producers"><i class="fa-solid fa-upload icon-fw"></i> Producers</a>
-        <a class="nav-link" href="#consumers"><i class="fa-solid fa-download icon-fw"></i> Consumers</a>
-        <a class="nav-link" href="#delivery"><i class="fa-solid fa-check icon-fw"></i> Delivery Guarantees</a>
-        <a class="nav-link" href="#streams"><i class="fa-solid fa-water icon-fw"></i> Kafka Streams</a>
-        <a class="nav-link" href="#operations"><i class="fa-solid fa-gear icon-fw"></i> Ops &amp; Tuning</a>
-        <a class="nav-link" href="#spring-kafka"><i class="fa-solid fa-seedling icon-fw"></i> Spring Kafka</a>
-        <a class="nav-link" href="#mq-patterns"><i class="fa-solid fa-arrows-split-up-and-left icon-fw"></i> MQ Patterns</a>      </div>
-      <div class="nav-section">
-        <div class="nav-section-title">Exam</div>
-        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
-      </div>
-    </nav>
-  </aside>
+  <aside class="sidebar"></aside>
 
   <div class="main">
     <div class="topbar">
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-      <div class="topbar-title"><i class="fa-solid fa-envelope-open-text"></i> Kafka Deep Dive <span>30 Interview Questions</span></div>
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-envelope-open-text"></i> Kafka Deep Dive <span><span data-qcount></span> Interview Questions</span></div>
       <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
     </div>
@@ -85,14 +56,14 @@
         <h1>Kafka Interview Deep Dive</h1>
         <p>Architecture, producer/consumer internals, delivery guarantees, Kafka Streams, operations tuning, and Spring Kafka patterns — the questions that separate senior engineers.</p>
         <div>
-          <span class="kafka-stat"><span class="n">30</span><span class="l">Questions</span></span>
-          <span class="kafka-stat"><span class="n">7</span><span class="l">Topic Areas</span></span>
+          <span class="kafka-stat"><span class="n" data-qcount></span><span class="l">Questions</span></span>
+          <span class="kafka-stat"><span class="n" data-scount></span><span class="l">Topic Areas</span></span>
           <span class="kafka-stat"><span class="n">20+</span><span class="l">Code Examples</span></span>
         </div>
       </div>
 
       <div class="progress-wrap">
-        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 30 reviewed</span></div>
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel"></span></div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
 
@@ -272,7 +243,7 @@ buffer.memory=67108864      # 64MB producer buffer</code></pre></div>
           <div class="qa-question"><div class="qa-num">7</div><div class="qa-question-text">How does Kafka producer batching and compression work? How do you maximise throughput?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>The producer accumulates messages in a per-partition buffer (RecordAccumulator). A batch is sent when either <code>batch.size</code> is reached OR <code>linger.ms</code> elapses (whichever first). Compression is applied per batch — larger batches compress better.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// High-throughput producer with Spring Kafka</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// High-throughput producer with Spring Kafka</span>
 <span class="ann">@Bean</span>
 <span class="kw">public</span> <span class="typ">ProducerFactory</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; <span class="fn">producerFactory</span>() {
     <span class="typ">Map</span>&lt;<span class="typ">String</span>, <span class="typ">Object</span>&gt; props = <span class="kw">new</span> <span class="typ">HashMap</span>&lt;&gt;();
@@ -293,7 +264,7 @@ buffer.memory=67108864      # 64MB producer buffer</code></pre></div>
           <div class="qa-question"><div class="qa-num">8</div><div class="qa-question-text">What is the Kafka Transactional API? How do you implement exactly-once across multiple topics?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>Kafka transactions allow atomically writing to multiple partitions (and marking consumer offsets). Either all writes commit or all abort — prevents partial writes on failure.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Producer config for transactions</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Producer config for transactions</span>
 props.put(<span class="typ">ProducerConfig</span>.TRANSACTIONAL_ID_CONFIG, <span class="str">"order-processor-1"</span>); <span class="cmt">// unique per producer instance</span>
 props.put(<span class="typ">ProducerConfig</span>.ENABLE_IDEMPOTENCE_CONFIG, <span class="kw">true</span>);
 
@@ -334,7 +305,7 @@ producer.initTransactions();
               <li>A hot key problem: one user sends 80% of traffic → all goes to 1 partition; route to random partition for that key</li>
               <li>Business priority routing: VIP orders → dedicated partition consumed by faster consumer</li>
             </ul>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="kw">public class</span> <span class="typ">RegionPartitioner</span> <span class="kw">implements</span> <span class="typ">Partitioner</span> {
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="kw">public class</span> <span class="typ">RegionPartitioner</span> <span class="kw">implements</span> <span class="typ">Partitioner</span> {
     <span class="ann">@Override</span>
     <span class="kw">public int</span> <span class="fn">partition</span>(<span class="typ">String</span> topic, <span class="typ">Object</span> key, <span class="kw">byte</span>[] keyBytes,
                          <span class="typ">Object</span> value, <span class="kw">byte</span>[] valueBytes, <span class="typ">Cluster</span> cluster) {
@@ -364,7 +335,7 @@ producer.initTransactions();
           <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">How does the Kafka consumer poll loop work? What is max.poll.records and max.poll.interval.ms?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>The consumer's <code>poll()</code> call does two things: (1) fetches records from the broker, (2) sends a heartbeat to the group coordinator to stay in the group.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Manual poll loop (Spring Kafka hides this — shown for understanding)</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Manual poll loop (Spring Kafka hides this — shown for understanding)</span>
 <span class="kw">while</span> (<span class="kw">true</span>) {
     <span class="typ">ConsumerRecords</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; records = consumer.poll(<span class="typ">Duration</span>.ofMillis(<span class="num">100</span>));
     <span class="kw">for</span> (<span class="typ">ConsumerRecord</span>&lt;?, ?&gt; record : records) {
@@ -389,7 +360,7 @@ producer.initTransactions();
             <p><strong>Triggers:</strong> consumer joins, consumer leaves (gracefully or timeout), partition count changes, subscription changes.</p>
             <p><strong>Legacy (Eager) rebalance:</strong> all consumers release all partitions, then re-assign from scratch. Processing stops for the entire group during this.</p>
             <p><strong>Cooperative/Incremental rebalance (Kafka 2.4+):</strong> only revoked partitions move; consumers processing unaffected partitions continue without stopping.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Properties</span><button class="copy-btn">Copy</button></div><pre><code"># Enable cooperative rebalancing (Spring Kafka 2.7+ / Kafka 2.4+)
+            <div class="code-block"><div class="code-header"><span class="code-lang">Properties</span><button class="copy-btn">Copy</button></div><pre><code># Enable cooperative rebalancing (Spring Kafka 2.7+ / Kafka 2.4+)
 partition.assignment.strategy=org.apache.kafka.clients.consumer.CooperativeStickyAssignor
 
 # group.instance.id — static membership: avoids rebalance on consumer restart
@@ -403,7 +374,7 @@ group.instance.id=order-consumer-pod-1</code></pre></div>
           <div class="qa-question"><div class="qa-num">12</div><div class="qa-question-text">What is consumer lag and how do you monitor and reduce it?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>Consumer lag = difference between the latest offset produced and the consumer's current committed offset. High lag = consumer falling behind producers.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code"># Check lag for a consumer group
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code># Check lag for a consumer group
 kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
   --describe --group order-processors
 
@@ -437,7 +408,7 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
                 <tr><td>Per-record commit</td><td>Commit after each record</td><td>Very slow; only for exactly-once sensitive scenarios</td></tr>
               </tbody>
             </table></div>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Kafka manual commit</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// application.yml</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Spring Kafka manual commit</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// application.yml</span>
 <span class="cmt">// spring.kafka.listener.ack-mode: MANUAL_IMMEDIATE</span>
 <span class="cmt">// spring.kafka.consumer.enable-auto-commit: false</span>
 
@@ -471,7 +442,7 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
           <div class="qa-question"><div class="qa-num">14</div><div class="qa-question-text">How do you implement a Dead Letter Topic (DLT) pattern with Spring Kafka?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>When a consumer fails to process a message after N retries, the message is sent to a Dead Letter Topic (e.g. <code>orders.DLT</code>) for later inspection and manual remediation.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// DefaultErrorHandler with exponential backoff + DLT (Spring Kafka 2.8+)</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// DefaultErrorHandler with exponential backoff + DLT (Spring Kafka 2.8+)</span>
 <span class="ann">@Bean</span>
 <span class="kw">public</span> <span class="typ">DefaultErrorHandler</span> <span class="fn">errorHandler</span>(<span class="typ">KafkaTemplate</span>&lt;<span class="typ">Object</span>, <span class="typ">Object</span>&gt; template) {
     <span class="typ">DeadLetterPublishingRecoverer</span> recoverer = <span class="kw">new</span> <span class="typ">DeadLetterPublishingRecoverer</span>(template,
@@ -538,7 +509,7 @@ kafka-consumer-groups.sh --bootstrap-server kafka:9092 \
                 <tr><td>Deployment</td><td>Any JVM app</td><td>Any JVM app — scales by partition count</td></tr>
               </tbody>
             </table></div>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Kafka Streams order aggregation</span><button class="copy-btn">Copy</button></div><pre><code"><span class="typ">StreamsBuilder</span> builder = <span class="kw">new</span> <span class="typ">StreamsBuilder</span>();
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Kafka Streams order aggregation</span><button class="copy-btn">Copy</button></div><pre><code><span class="typ">StreamsBuilder</span> builder = <span class="kw">new</span> <span class="typ">StreamsBuilder</span>();
 
 <span class="cmt">// Read from orders topic</span>
 <span class="typ">KStream</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; orders = builder.stream(<span class="str">"orders"</span>);
@@ -638,7 +609,7 @@ orders
         <div class="qa-card" data-pillar="ops">
           <div class="qa-question"><div class="qa-num">21</div><div class="qa-question-text">How do you safely increase the number of partitions on a live production topic?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code"># Increase partitions — safe to do live (no data loss)
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code># Increase partitions — safe to do live (no data loss)
 # WARNING: breaks key-to-partition mapping for existing keys
 kafka-topics.sh --bootstrap-server kafka:9092 \
   --alter --topic orders --partitions 12
@@ -658,7 +629,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
           <div class="qa-question"><div class="qa-num">22</div><div class="qa-question-text">What is Kafka Connect? How do you use it to build a CDC pipeline from PostgreSQL?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>Kafka Connect is a framework for scalable, fault-tolerant connectors between Kafka and external systems. Source connectors pull data into Kafka; Sink connectors push from Kafka to external systems.</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">JSON — Debezium PostgreSQL Source Connector</span><button class="copy-btn">Copy</button></div><pre><code">{
+            <div class="code-block"><div class="code-header"><span class="code-lang">JSON — Debezium PostgreSQL Source Connector</span><button class="copy-btn">Copy</button></div><pre><code>{
   "name": "postgres-cdc-connector",
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
@@ -699,7 +670,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
         <div class="qa-card" data-pillar="spring">
           <div class="qa-question"><div class="qa-num">23</div><div class="qa-question-text">How do you configure concurrency in Spring Kafka listeners? What is ConcurrentKafkaListenerContainerFactory?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="ann">@Bean</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="ann">@Bean</span>
 <span class="kw">public</span> <span class="typ">ConcurrentKafkaListenerContainerFactory</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; <span class="fn">kafkaListenerContainerFactory</span>(
         <span class="typ">ConsumerFactory</span>&lt;<span class="typ">String</span>, <span class="typ">OrderEvent</span>&gt; cf, <span class="typ">DefaultErrorHandler</span> errorHandler) {
 
@@ -733,7 +704,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
         <div class="qa-card" data-pillar="spring">
           <div class="qa-question"><div class="qa-num">24</div><div class="qa-question-text">How do you test Kafka consumers and producers in Spring Boot without a real Kafka cluster?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Option 1: EmbeddedKafka (fast, in-process)</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Option 1: EmbeddedKafka (fast, in-process)</span>
 <span class="ann">@SpringBootTest</span>
 <span class="ann">@EmbeddedKafka</span>(partitions = 3, topics = {<span class="str">"orders"</span>, <span class="str">"orders.DLT"</span>})
 <span class="kw">class</span> <span class="typ">OrderConsumerIntegrationTest</span> {
@@ -768,7 +739,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
         <div class="qa-card" data-pillar="spring">
           <div class="qa-question"><div class="qa-num">25</div><div class="qa-question-text">How does the Outbox Pattern integrate with Kafka in a Spring Boot application?</div><span class="qa-difficulty diff-hard">Hard</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// 1. Outbox entity</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// 1. Outbox entity</span>
 <span class="ann">@Entity @Table</span>(name = <span class="str">"outbox_events"</span>)
 <span class="ann">@Data</span>
 <span class="kw">public class</span> <span class="typ">OutboxEvent</span> {
@@ -805,7 +776,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
       </div>
 
       <!-- Additional rapid-fire -->
-      <div class="section-header">
+      <div class="section-header" id="rapid-fire">
         <div class="section-icon kafka-icon"><i class="fa-solid fa-bolt"></i></div>
         <div><h2>Rapid-Fire Kafka Questions</h2><p>Common follow-ups in interviews</p></div>
       </div>
@@ -840,7 +811,7 @@ kafka-topics.sh --bootstrap-server kafka:9092 \
         <div class="qa-card" data-pillar="delivery">
           <div class="qa-question"><div class="qa-num">28</div><div class="qa-question-text">A message keeps failing and going to DLT. How do you reprocess DLT messages?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
-            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code"># Option 1: kafka-console-producer — re-send from DLT manually
+            <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div><pre><code># Option 1: kafka-console-producer — re-send from DLT manually
 kafka-console-consumer.sh --bootstrap-server kafka:9092 \
   --topic orders.DLT --from-beginning | \
 kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
@@ -848,7 +819,7 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
 # Option 2: Spring Kafka RetryTopicConfiguration — built-in retry topics
 # Creates: orders-retry-0, orders-retry-1, orders-retry-2, orders.DLT
 # Each retry topic has increasing delay (exponential backoff between topics)</code></pre></div>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Spring Kafka 2.7+ non-blocking retry (retry topics)</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Spring Kafka 2.7+ non-blocking retry (retry topics)</span>
 <span class="ann">@Bean</span>
 <span class="kw">public</span> <span class="typ">RetryTopicConfiguration</span> <span class="fn">retryTopicConfig</span>(<span class="typ">KafkaTemplate</span>&lt;?, ?&gt; t) {
     <span class="kw">return</span> <span class="typ">RetryTopicConfigurationBuilder</span>
@@ -895,7 +866,7 @@ kafka-console-producer.sh --bootstrap-server kafka:9092 --topic orders
 
       <!-- ════ MESSAGE QUEUE PATTERNS ════ -->
       <div class="section-header" id="mq-patterns">
-        <div class="section-icon" class="chip-purple"><i class="fa-solid fa-arrows-split-up-and-left"></i></div>
+        <div class="section-icon chip-purple"><i class="fa-solid fa-arrows-split-up-and-left"></i></div>
         <div><h2>Message Queue vs Event Bus vs Broker</h2><p>RabbitMQ vs Kafka, DLQ, delivery guarantees, pub/sub patterns</p></div>
       </div>
 
@@ -1099,6 +1070,7 @@ spring:
     </div><!-- /content -->
   </div><!-- /main -->
 </div>
-<script src="js/app.js?v=9"></script>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
 </body>
 </html>

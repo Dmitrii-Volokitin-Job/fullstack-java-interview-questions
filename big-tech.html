@@ -6,7 +6,7 @@
   <title>Amazon &amp; Google Interview — Interview Prep</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <style>
     .company-badge {
@@ -70,40 +70,12 @@
 <body>
 <div class="layout">
 
-  <aside class="sidebar">
-    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">
-        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot</a>
-        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
-        <a class="nav-link" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular</a>
-        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps</a>
-        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design</a>
-        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive</a>
-        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices</a>
-        <a class="nav-link active" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="#amazon-lp"><i class="fa-solid fa-box icon-fw"></i> Amazon LP</a>
-        <a class="nav-link" href="#amazon-behavioral"><i class="fa-solid fa-comment icon-fw"></i> Amazon Behavioral</a>
-        <a class="nav-link" href="#amazon-technical"><i class="fa-solid fa-wrench icon-fw"></i> Amazon Technical</a>
-        <a class="nav-link" href="#google-culture"><i class="fa-solid fa-rainbow icon-fw"></i> Google Culture</a>
-        <a class="nav-link" href="#google-behavioral"><i class="fa-solid fa-comment icon-fw"></i> Google Behavioral</a>
-        <a class="nav-link" href="#google-technical"><i class="fa-solid fa-wrench icon-fw"></i> Google Technical</a>      </div>
-      <div class="nav-section">
-        <div class="nav-section-title">Exam</div>
-        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
-      </div>
-    </nav>
-  </aside>
+  <aside class="sidebar"></aside>
 
   <div class="main">
     <div class="topbar">
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-      <div class="topbar-title"><i class="fa-solid fa-building"></i> Amazon &amp; Google <span>40 Interview Questions + Full LP Guide</span></div>
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-building"></i> Amazon &amp; Google <span><span data-qcount></span> Interview Questions + Full LP Guide</span></div>
       <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
     </div>
@@ -111,23 +83,23 @@
     <div class="content">
 
       <!-- Hero -->
-      <div class="hero" class="mb-28">
+      <div class="hero mb-28">
         <div class="mb-12">
           <span class="company-badge amazon">📦 Amazon</span>
           <span class="company-badge google">🔍 Google</span>
         </div>
         <h1 style="font-size:28px">Big Tech Interview Playbook</h1>
         <p>Amazon Leadership Principles deep-dive with STAR answers, Google Googleyness guide, and the technical questions these companies ask Java/backend engineers.</p>
-        <div class="hero-stats" class="mt-20">
+        <div class="hero-stats mt-20">
           <div class="hero-stat"><div class="num" style="color:#ff9900">16</div><div class="lbl">Amazon LPs</div></div>
           <div class="hero-stat"><div class="num" style="color:#ff9900">20</div><div class="lbl">Amazon Q&amp;As</div></div>
           <div class="hero-stat"><div class="num" style="color:#4285f4">20</div><div class="lbl">Google Q&amp;As</div></div>
-          <div class="hero-stat"><div class="num">40</div><div class="lbl">Total Questions</div></div>
+          <div class="hero-stat"><div class="num" data-qcount></div><div class="lbl">Total Questions</div></div>
         </div>
       </div>
 
       <div class="progress-wrap">
-        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 40 reviewed</span></div>
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel"></span></div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
 
@@ -135,11 +107,11 @@
            AMAZON — LEADERSHIP PRINCIPLES
       ═══════════════════════════════════ -->
       <div class="section-header" id="amazon-lp">
-        <div class="section-icon" class="chip-aws"><i class="fa-solid fa-box"></i></div>
+        <div class="section-icon chip-aws"><i class="fa-solid fa-box"></i></div>
         <div><h2>Amazon — 16 Leadership Principles</h2><p>Know every LP with an example story ready — interviewers pick 2-4 per round</p></div>
       </div>
 
-      <div class="callout info" class="mb-20">
+      <div class="callout info mb-20">
         <span class="callout-icon">ℹ️</span>
         <div>
           <span class="callout-title">How Amazon interviews work</span>
@@ -284,7 +256,7 @@
 
       <!-- ════ AMAZON BEHAVIORAL ════ -->
       <div class="section-header" id="amazon-behavioral">
-        <div class="section-icon" class="chip-aws"><i class="fa-solid fa-comment"></i></div>
+        <div class="section-icon chip-aws"><i class="fa-solid fa-comment"></i></div>
         <div><h2>Amazon — Behavioral Q&amp;A</h2><p>Common questions with full STAR answer frameworks</p></div>
       </div>
 
@@ -367,7 +339,7 @@
 
       <!-- ════ AMAZON TECHNICAL ════ -->
       <div class="section-header" id="amazon-technical">
-        <div class="section-icon" class="chip-aws"><i class="fa-solid fa-wrench"></i></div>
+        <div class="section-icon chip-aws"><i class="fa-solid fa-wrench"></i></div>
         <div><h2>Amazon — Technical Questions</h2><p>Java/backend-focused questions Amazon asks senior engineers</p></div>
       </div>
 
@@ -437,7 +409,7 @@
           <div class="qa-question"><div class="qa-num">10</div><div class="qa-question-text">How do you design for idempotency in a REST API? Why does it matter?</div><span class="qa-difficulty diff-medium">Medium</span><span class="qa-chevron">▼</span></div>
           <div class="qa-answer">
             <p>Idempotency ensures that repeating the same request produces the same result — critical for retries (network errors, timeouts, client retries).</p>
-            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Idempotency key pattern</span><button class="copy-btn">Copy</button></div><pre><code"><span class="cmt">// Client sends Idempotency-Key header on POST</span>
+            <div class="code-block"><div class="code-header"><span class="code-lang">Java — Idempotency key pattern</span><button class="copy-btn">Copy</button></div><pre><code><span class="cmt">// Client sends Idempotency-Key header on POST</span>
 <span class="cmt">// POST /api/payments  Idempotency-Key: client-generated-uuid</span>
 
 <span class="ann">@PostMapping</span>(<span class="str">"/payments"</span>)
@@ -465,7 +437,7 @@
            GOOGLE
       ═══════════════════════════════════ -->
       <div class="section-header" id="google-culture">
-        <div class="section-icon" class="chip-gcp"><i class="fa-solid fa-rainbow"></i></div>
+        <div class="section-icon chip-gcp"><i class="fa-solid fa-rainbow"></i></div>
         <div><h2>Google — Culture &amp; What They Evaluate</h2><p>Googleyness, cognitive ability, leadership, role-related knowledge</p></div>
       </div>
 
@@ -490,7 +462,7 @@
 
       <!-- ════ GOOGLE BEHAVIORAL ════ -->
       <div class="section-header" id="google-behavioral">
-        <div class="section-icon" class="chip-gcp"><i class="fa-solid fa-comment"></i></div>
+        <div class="section-icon chip-gcp"><i class="fa-solid fa-comment"></i></div>
         <div><h2>Google — Behavioral Q&amp;A</h2><p>Googleyness and leadership questions with answer frameworks</p></div>
       </div>
 
@@ -567,7 +539,7 @@
 
       <!-- ════ GOOGLE TECHNICAL ════ -->
       <div class="section-header" id="google-technical">
-        <div class="section-icon" class="chip-gcp"><i class="fa-solid fa-wrench"></i></div>
+        <div class="section-icon chip-gcp"><i class="fa-solid fa-wrench"></i></div>
         <div><h2>Google — Technical Questions</h2><p>System design and Java questions Google asks senior backend engineers</p></div>
       </div>
 
@@ -670,6 +642,7 @@
     </div><!-- /content -->
   </div><!-- /main -->
 </div>
-<script src="js/app.js?v=9"></script>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
 </body>
 </html>

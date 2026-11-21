@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL &amp; Databases — Interview Prep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-solid fa-database"></i> SQL &amp; Databases <span><span data-qcount></span> Interview Questions</span></div>
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+
+    <div class="content">
+
+      <div class="hero">
+        <div class="hero-badge"><i class="fa-solid fa-database"></i> SQL &amp; Databases</div>
+        <h1>SQL &amp; Databases</h1>
+        <p>Queries, indexes, transactions and locking, and running a relational database from a Java service.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num" data-qcount></div><div class="lbl">Questions</div></div>
+          <div class="hero-stat"><div class="num" data-scount></div><div class="lbl">Topic Areas</div></div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel"></span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="pillar-row">
+        <button class="pillar-chip active" data-pillar="">All</button>
+      </div>
+
+      <!-- Sections go here (Package B) -->
+
+      <div class="related-pages">
+        <span class="related-pages-label"><i class="fa-solid fa-link"></i> Related topics</span>
+        <a href="java-spring.html">Java &amp; Spring Boot</a>
+        <a href="system-design.html">System Design</a>
+        <a href="microservices.html">Microservices</a>
+      </div>
+      <div class="page-end"></div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
+</body>
+</html>

@@ -6,77 +6,19 @@
   <title>Interview Prep — Full Stack Java · Angular · K8s</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 <div class="layout">
 
   <!-- ── Sidebar ──────────────────────────────────────────── -->
-  <aside class="sidebar">
-    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">
-        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="java-spring.html">
-          <i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot
-          <span class="nav-badge">35</span>
-        </a>
-        <a class="nav-link" href="angular.html">
-          <i class="fa-brands fa-angular icon-fw"></i> Angular
-          <span class="nav-badge">28</span>
-        </a>
-        <a class="nav-link" href="kubernetes-devops.html">
-          <i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps
-          <span class="nav-badge">30</span>
-        </a>
-        <a class="nav-link" href="system-design.html">
-          <i class="fa-solid fa-diagram-project icon-fw"></i> System Design
-          <span class="nav-badge">20</span>
-        </a>
-        <a class="nav-link" href="kafka.html">
-          <i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive
-          <span class="nav-badge">30</span>
-        </a>
-        <a class="nav-link" href="microservices.html">
-          <i class="fa-solid fa-link icon-fw"></i> Microservices
-          <span class="nav-badge">28</span>
-        </a>
-        <a class="nav-link" href="big-tech.html">
-          <i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google
-          <span class="nav-badge">40</span>
-        </a>
-        <a class="nav-link" href="general.html">
-          <i class="fa-solid fa-brain icon-fw"></i> General &amp; Soft Skills
-          <span class="nav-badge">32</span>
-        </a>
-        <a class="nav-link" href="java-refresher.html">
-          <i class="fa-solid fa-book-open icon-fw"></i> Java 8–16 Refresher
-        </a>
-        <a class="nav-link" href="patterns.html">
-          <i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">32</span>
-        </a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="#"><span class="icon" style="color:#10b981">●</span> Easy</a>
-        <a class="nav-link" href="#"><span class="icon" style="color:#f59e0b">●</span> Medium</a>
-        <a class="nav-link" href="#"><span class="icon" style="color:#ef4444">●</span> Hard</a>      </div>
-      <div class="nav-section">
-        <div class="nav-section-title">Exam</div>
-        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
-      </div>
-    </nav>
-    <div class="sidebar-footer">
-      <p class="text-muted">113 questions across 4 topics</p>
-    </div>
-  </aside>
+  <aside class="sidebar"></aside>
 
   <!-- ── Main ─────────────────────────────────────────────── -->
   <div class="main">
     <div class="topbar">
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
       <div class="topbar-title">Dashboard <span>Interview Preparation Course</span></div>
       <div class="search-box">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -164,9 +106,9 @@
           <h3>Kafka Deep Dive</h3>
           <p>Brokers, partitions, producers, consumers, Kafka Streams, Schema Registry, Debezium CDC, Spring Kafka, testing patterns.</p>
           <div class="topic-card-meta">
-            <span class="tag" class="chip-cyan">Kafka</span>
-            <span class="tag" class="chip-cyan">Streams</span>
-            <span class="tag" class="chip-cyan">30 Q</span>
+            <span class="tag chip-cyan">Kafka</span>
+            <span class="tag chip-cyan">Streams</span>
+            <span class="tag chip-cyan">30 Q</span>
             <span class="topic-card-arrow">→</span>
           </div>
         </a>
@@ -176,9 +118,9 @@
           <h3>Microservices</h3>
           <p>DDD, Bounded Contexts, Saga pattern, CQRS, Event Sourcing, Circuit Breaker, Strangler Fig migration, observability, security.</p>
           <div class="topic-card-meta">
-            <span class="tag" class="chip-success">DDD</span>
-            <span class="tag" class="chip-success">Resilience4j</span>
-            <span class="tag" class="chip-success">28 Q</span>
+            <span class="tag chip-success">DDD</span>
+            <span class="tag chip-success">Resilience4j</span>
+            <span class="tag chip-success">28 Q</span>
             <span class="topic-card-arrow">→</span>
           </div>
         </a>
@@ -188,8 +130,8 @@
           <h3>Amazon &amp; Google</h3>
           <p>All 16 Amazon Leadership Principles with STAR frameworks. Google Googleyness, cognitive ability, behavioral and technical questions.</p>
           <div class="topic-card-meta">
-            <span class="tag" class="chip-aws">Amazon LPs</span>
-            <span class="tag" class="chip-gcp">Google</span>
+            <span class="tag chip-aws">Amazon LPs</span>
+            <span class="tag chip-gcp">Google</span>
             <span class="tag">40 Q</span>
             <span class="topic-card-arrow">→</span>
           </div>
@@ -593,19 +535,19 @@
               <td><strong>ISR</strong></td>
               <td>In-Sync Replicas</td>
               <td>The set of Kafka broker replicas that are fully caught up with the partition leader. When a producer writes with acks=all, Kafka waits until all ISR replicas acknowledge the message — guaranteeing no message loss even if the leader crashes immediately after.</td>
-              <td><span class="tag" class="chip-cyan">Kafka</span></td>
+              <td><span class="tag chip-cyan">Kafka</span></td>
             </tr>
             <tr data-g="DLT Dead Letter Topic">
               <td><strong>DLT</strong></td>
               <td>Dead Letter Topic</td>
               <td>A Kafka topic where messages that failed processing (after all retries) are sent instead of being discarded. Allows you to inspect, fix, and replay failed messages later without losing them or blocking the main topic.</td>
-              <td><span class="tag" class="chip-cyan">Kafka</span></td>
+              <td><span class="tag chip-cyan">Kafka</span></td>
             </tr>
             <tr data-g="CDC Change Data Capture Debezium">
               <td><strong>Avro</strong></td>
               <td>Apache Avro</td>
               <td>A binary data serialisation format used with Kafka. Schema is defined in a JSON file and compiled to Java classes. Much smaller and faster than JSON. Used with Confluent Schema Registry to enforce schema compatibility — you can't publish a message that would break existing consumers.</td>
-              <td><span class="tag" class="chip-cyan">Kafka</span></td>
+              <td><span class="tag chip-cyan">Kafka</span></td>
             </tr>
 
             <!-- ── OBSERVABILITY ── -->
@@ -658,6 +600,7 @@
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<script src="js/app.js?v=9"></script>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
 </body>
 </html>

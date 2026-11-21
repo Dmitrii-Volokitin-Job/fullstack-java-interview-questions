@@ -6,46 +6,18 @@
   <title>Angular — Interview Prep</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 <div class="layout">
 
-  <aside class="sidebar">
-    <div class="sidebar-logo"><div class="sidebar-logo-icon"><i class="fa-solid fa-bullseye"></i></div><div class="sidebar-logo-text"><h2>Interview Prep</h2><p>Full Stack &middot; Java &middot; Angular &middot; K8s</p></div></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">
-        <a class="nav-link" href="index.html"><i class="fa-solid fa-house icon-fw"></i> Dashboard</a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="java-spring.html"><i class="fa-solid fa-mug-hot icon-fw"></i> Java &amp; Spring Boot<span class="nav-badge">44</span></a>
-        <a class="nav-link" href="patterns.html"><i class="fa-solid fa-shapes icon-fw"></i> Design &amp; Architecture Patterns<span class="nav-badge">31</span></a>
-        <a class="nav-link active" href="angular.html"><i class="fa-brands fa-angular icon-fw"></i> Angular<span class="nav-badge">28</span></a>
-        <a class="nav-link" href="kubernetes-devops.html"><i class="fa-solid fa-dharmachakra icon-fw"></i> Kubernetes &amp; DevOps<span class="nav-badge">30</span></a>
-        <a class="nav-link" href="system-design.html"><i class="fa-solid fa-diagram-project icon-fw"></i> System Design<span class="nav-badge">20</span></a>
-        <a class="nav-link" href="kafka.html"><i class="fa-solid fa-envelope-open-text icon-fw"></i> Kafka Deep Dive<span class="nav-badge">30</span></a>
-        <a class="nav-link" href="microservices.html"><i class="fa-solid fa-link icon-fw"></i> Microservices<span class="nav-badge">28</span></a>
-        <a class="nav-link" href="big-tech.html"><i class="fa-solid fa-building icon-fw"></i> Amazon &amp; Google<span class="nav-badge">40</span></a>
-      </div>
-      <div class="nav-section">
-        <a class="nav-link" href="#components"><i class="fa-solid fa-puzzle-piece icon-fw"></i> Components</a>
-        <a class="nav-link" href="#rxjs"><i class="fa-solid fa-rotate icon-fw"></i> RxJS</a>
-        <a class="nav-link" href="#change-detection"><i class="fa-solid fa-bolt icon-fw"></i> Change Detection</a>
-        <a class="nav-link" href="#routing"><i class="fa-solid fa-map icon-fw"></i> Routing</a>
-        <a class="nav-link" href="#forms"><i class="fa-solid fa-file-lines icon-fw"></i> Forms</a>
-        <a class="nav-link" href="#performance"><i class="fa-solid fa-rocket icon-fw"></i> Performance</a>      </div>
-      <div class="nav-section">
-        <div class="nav-section-title">Exam</div>
-        <a class="nav-link" href="final-exam.html"><i class="fa-solid fa-trophy icon-fw"></i> Final Exam</a>
-      </div>
-    </nav>
-  </aside>
+  <aside class="sidebar"></aside>
 
   <div class="main">
     <div class="topbar">
-      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-      <div class="topbar-title"><i class="fa-brands fa-angular"></i> Angular <span>28 Interview Questions</span></div>
+      <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title"><i class="fa-brands fa-angular"></i> Angular <span><span data-qcount></span> Interview Questions</span></div>
       <div class="search-box"><i class="fa-solid fa-magnifying-glass search-icon"></i><input id="searchInput" type="text" placeholder="Search questions…"></div>
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
     </div>
@@ -53,7 +25,7 @@
     <div class="content">
 
       <div class="progress-wrap">
-        <div class="progress-label"><strong>Progress</strong><span id="progressLabel">0 / 28 reviewed</span></div>
+        <div class="progress-label"><strong>Progress</strong><span id="progressLabel"></span></div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       </div>
 
@@ -311,7 +283,7 @@ ngOnDestroy() { <span class="kw">this</span>.destroy$.next(); <span class="kw">t
 
       <!-- ════ CHANGE DETECTION ════ -->
       <div class="section-header" id="change-detection">
-        <div class="section-icon" class="chip-warning"><i class="fa-solid fa-bolt"></i></div>
+        <div class="section-icon chip-warning"><i class="fa-solid fa-bolt"></i></div>
         <div><h2>Change Detection</h2><p>Zone.js, OnPush, Signals</p></div>
       </div>
 
@@ -376,7 +348,7 @@ users = <span class="fn">toSignal</span>(<span class="kw">this</span>.userServic
 
       <!-- ════ ROUTING ════ -->
       <div class="section-header" id="routing">
-        <div class="section-icon" class="chip-info"><i class="fa-solid fa-map"></i></div>
+        <div class="section-icon chip-info"><i class="fa-solid fa-map"></i></div>
         <div><h2>Routing</h2><p>Lazy loading, guards, resolvers</p></div>
       </div>
 
@@ -446,7 +418,7 @@ users = <span class="fn">toSignal</span>(<span class="kw">this</span>.userServic
 
       <!-- ════ FORMS ════ -->
       <div class="section-header" id="forms">
-        <div class="section-icon" class="chip-success"><i class="fa-solid fa-file-lines"></i></div>
+        <div class="section-icon chip-success"><i class="fa-solid fa-file-lines"></i></div>
         <div><h2>Forms</h2><p>Reactive forms vs template-driven, validation, dynamic forms</p></div>
       </div>
 
@@ -522,7 +494,7 @@ email: [<span class="str">''</span>,
 
       <!-- ════ PERFORMANCE ════ -->
       <div class="section-header" id="performance">
-        <div class="section-icon" class="chip-accent"><i class="fa-solid fa-rocket"></i></div>
+        <div class="section-icon chip-accent"><i class="fa-solid fa-rocket"></i></div>
         <div><h2>Performance &amp; Best Practices</h2><p>Bundle size, lazy loading, trackBy, SSR</p></div>
       </div>
 
@@ -677,6 +649,7 @@ describe(<span class="str">'UserCardComponent'</span>, () => {
     </div><!-- /content -->
   </div><!-- /main -->
 </div>
-<script src="js/app.js?v=9"></script>
+<script src="js/app.js?v=10"></script>
+<script src="js/quiz.js?v=1"></script>
 </body>
 </html>

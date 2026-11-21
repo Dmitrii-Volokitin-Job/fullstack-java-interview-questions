@@ -1027,3 +1027,74 @@ abbr[data-abbr]:first-child::after { left: 0; transform: none; }
 }
 .related-pages a:hover { background: rgba(99,102,241,.2); border-color: var(--accent); }
 
+
+/* ─── Diagrams (shared by every page) ────────────────────────────────── */
+/* SVGs are drawn in a dark palette, so the frame stays dark in both themes. */
+.pat-svg, .uml-svg {
+  display: block; width: 100%; overflow-x: auto;
+  margin: 14px 0; padding: 16px;
+  background: #0d1117; border-radius: 10px;
+}
+.pat-svg svg, .uml-svg svg { min-width: 420px; display: block; }
+.uml-box {
+  margin: 20px 0;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.uml-box .uml-svg { margin: 0; border-radius: 0; }
+.uml-title {
+  padding: 8px 16px;
+  background: rgba(99,102,241,.15);
+  font-size: 11px; font-weight: 600; letter-spacing: .1em;
+  color: var(--accent); text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.uml-body {
+  padding: 16px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; line-height: 1.6;
+  color: #a5d6ff; white-space: pre; overflow-x: auto;
+}
+.cls, .met { color: #82aaff; }
+
+/* ─── Before / after comparison ──────────────────────────────────────── */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+@media (max-width: 700px) { .compare-grid { grid-template-columns: 1fr; } }
+.compare-block { border-radius: 10px; overflow: hidden; min-width: 0; }
+.compare-block .code-block { margin: 0; border-radius: 0; }
+.compare-label { padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: .07em; }
+.compare-label.before { background: rgba(239,68,68,.2); color: #fca5a5; }
+.compare-label.after  { background: rgba(16,185,129,.2); color: #6ee7b7; }
+[data-theme="light"] .compare-label.before { color: #b91c1c; }
+[data-theme="light"] .compare-label.after  { color: #047857; }
+
+/* ─── Pattern tags, tables, hero (patterns page) ─────────────────────── */
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.ptag { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; background: rgba(99,102,241,.12); color: var(--accent); border: 1px solid rgba(99,102,241,.2); }
+.ptag.creational { background: rgba(16,185,129,.12); color: var(--success); border-color: rgba(16,185,129,.2); }
+.ptag.structural { background: rgba(59,130,246,.12); color: var(--info); border-color: rgba(59,130,246,.2); }
+.ptag.behavioral { background: rgba(245,158,11,.12); color: var(--warning); border-color: rgba(245,158,11,.2); }
+.ptag.arch       { background: rgba(139,92,246,.12); color: var(--accent-2); border-color: rgba(139,92,246,.2); }
+.ptag.solid      { background: rgba(239,68,68,.12);  color: var(--danger); border-color: rgba(239,68,68,.2); }
+.use-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+.use-table th { text-align: left; padding: 7px 12px; background: rgba(99,102,241,.12); font-size: 11px; font-weight: 600; color: var(--accent); border-bottom: 1px solid var(--border); }
+.use-table td { padding: 7px 12px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; color: var(--text-secondary); }
+.use-table tr:last-child td { border-bottom: none; }
+.use-table td:first-child { font-weight: 600; color: var(--text-primary); }
+.page-hero {
+  padding: 32px; margin-bottom: 20px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(139,92,246,.08));
+  border: 1px solid var(--border-subtle);
+}
+.page-hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+.page-hero p  { color: var(--text-secondary); max-width: 660px; font-size: 14px; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.hero-chip { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); }
+.page-end { height: 80px; }
+.section-group.filtered-out { display: none; }
+.section-group.collapsed.force-open .section-collapse-body {
+  max-height: 100000px; padding: 16px 20px 20px; border-top-width: 1px;
+}
+a.sidebar-logo, a.sidebar-logo:hover { color: inherit; text-decoration: none; }

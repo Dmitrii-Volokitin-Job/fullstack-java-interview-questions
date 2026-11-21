@@ -24,6 +24,99 @@ function toggleTheme() {
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
+// ─── Navigation: single source of truth, ordered as the study path ───────
+// `count` must equal the page's .qa-card count — scripts/check-site.py enforces it.
+const NAV = [
+  { href: 'java-refresher.html',    label: 'Java 8–21 Refresher',            icon: 'fa-solid fa-book-open',            count: 0 },
+  { href: 'java-spring.html',       label: 'Java & Spring Boot',             icon: 'fa-solid fa-mug-hot',              count: 57 },
+  { href: 'sql-databases.html',     label: 'SQL & Databases',                icon: 'fa-solid fa-database',             count: 0 },
+  { href: 'patterns.html',          label: 'Design Patterns',                icon: 'fa-solid fa-shapes',               count: 31 },
+  { href: 'microservices.html',     label: 'Microservices',                  icon: 'fa-solid fa-link',                 count: 28 },
+  { href: 'kafka.html',             label: 'Kafka Deep Dive',                icon: 'fa-solid fa-envelope-open-text',   count: 35 },
+  { href: 'system-design.html',     label: 'System Design',                  icon: 'fa-solid fa-diagram-project',      count: 20 },
+  { href: 'kubernetes-devops.html', label: 'Kubernetes & DevOps',            icon: 'fa-solid fa-dharmachakra',         count: 23 },
+  { href: 'angular.html',           label: 'Angular',                        icon: 'fa-brands fa-angular',             count: 20 },
+  { href: 'soft-skills.html',       label: 'Soft Skills',                    icon: 'fa-solid fa-brain',                count: 50 },
+  { href: 'general.html',           label: 'General (merging)',              icon: 'fa-solid fa-comments',             count: 27 },
+  { href: 'big-tech.html',          label: 'Amazon & Google',                icon: 'fa-solid fa-building',             count: 20 },
+];
+const NAV_HOME = [
+  { href: 'index.html',      label: 'Dashboard', icon: 'fa-solid fa-house' },
+  { href: 'final-exam.html', label: 'Practice',  icon: 'fa-solid fa-dumbbell' },
+];
+
+function navLink(href, label, icon, badge) {
+  const a = document.createElement('a');
+  a.className = 'nav-link';
+  a.href = href;
+  const i = document.createElement('i');
+  i.className = icon + ' icon-fw';
+  a.appendChild(i);
+  a.appendChild(document.createTextNode(' ' + label));
+  if (badge) {
+    const b = document.createElement('span');
+    b.className = 'nav-badge';
+    b.textContent = badge;
+    a.appendChild(b);
+  }
+  return a;
+}
+
+function navSection(title, links) {
+  const sec = document.createElement('div');
+  sec.className = 'nav-section';
+  if (title) {
+    const t = document.createElement('div');
+    t.className = 'nav-section-title';
+    t.textContent = title;
+    sec.appendChild(t);
+  }
+  links.forEach(l => sec.appendChild(l));
+  return sec;
+}
+
+// Sections of the current page; an optional data-nav attribute gives a shorter label.
+function pageSections() {
+  return [...document.querySelectorAll('.section-header[id], .version-header[id]')].map(h => {
+    const title = h.querySelector('h2, .version-badge');
+    const icon  = h.querySelector('.section-icon i');
+    return navLink('#' + h.id, (h.dataset.nav || (title ? title.textContent : h.id)).trim(),
+                   icon ? icon.className : 'fa-solid fa-hashtag');
+  });
+}
+
+function sidebarLogo() {
+  const logo = document.createElement('a');
+  logo.className = 'sidebar-logo';
+  logo.href = 'index.html';
+  const box = document.createElement('div');
+  box.className = 'sidebar-logo-icon';
+  const icon = document.createElement('i');
+  icon.className = 'fa-solid fa-bullseye';
+  box.appendChild(icon);
+  const text = document.createElement('div');
+  text.className = 'sidebar-logo-text';
+  const h = document.createElement('h2');
+  h.textContent = 'Interview Prep';
+  const p = document.createElement('p');
+  p.textContent = 'Full Stack · Java · Angular · K8s';
+  text.append(h, p);
+  logo.append(box, text);
+  return logo;
+}
+
+function renderSidebar() {
+  const sb = document.querySelector('.sidebar');
+  if (!sb || sb.querySelector('.sidebar-nav')) return;
+  const nav = document.createElement('nav');
+  nav.className = 'sidebar-nav';
+  nav.appendChild(navSection('', NAV_HOME.map(n => navLink(n.href, n.label, n.icon))));
+  nav.appendChild(navSection('Study path', NAV.map(n => navLink(n.href, n.label, n.icon, n.count))));
+  const sections = pageSections();
+  if (sections.length) nav.appendChild(navSection('On this page', sections));
+  sb.append(sidebarLogo(), nav);
+}
+
 // ─── Sidebar toggle (mobile: slide-in; desktop: collapse) ─────────────────
 const SIDEBAR_KEY = 'interview-prep-sidebar';
 
@@ -51,16 +144,19 @@ function initSidebarState() {
 function injectSidebarCollapseBtn() {
   // Hamburger in topbar
   const topbar = document.querySelector('.topbar');
-  if (topbar && !topbar.querySelector('.menu-toggle')) {
-    const btn = document.createElement('button');
-    btn.className = 'menu-toggle';
-    btn.title = 'Toggle sidebar';
-    btn.setAttribute('aria-label', 'Toggle sidebar');
-    btn.onclick = toggleSidebar;
+  let menuBtn = topbar && topbar.querySelector('.menu-toggle');
+  if (topbar && !menuBtn) {
+    menuBtn = document.createElement('button');
+    menuBtn.className = 'menu-toggle';
     const icon = document.createElement('i');
     icon.className = 'fa-solid fa-bars';
-    btn.appendChild(icon);
-    topbar.insertBefore(btn, topbar.firstChild);
+    menuBtn.appendChild(icon);
+    topbar.insertBefore(menuBtn, topbar.firstChild);
+  }
+  if (menuBtn) {
+    menuBtn.title = 'Toggle sidebar';
+    menuBtn.setAttribute('aria-label', 'Toggle sidebar');
+    menuBtn.onclick = toggleSidebar;
   }
 
   // Sticky tab on sidebar right edge — always visible even when sidebar is collapsed
@@ -101,6 +197,52 @@ const MASTERY_PREFIX = 'interview-mastery-';
 const PAGE_KEY = (location.pathname.split('/').pop() || 'index').replace('.html', '');
 let masteredSet = new Set();
 
+// FNV-1a 32-bit: a stable short hash so a card's key survives reordering.
+function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
+
+function questionText(card) {
+  const t = card.querySelector('.qa-question-text');
+  return t ? t.textContent.replace(/\s+/g, ' ').trim() : '';
+}
+
+function cardKey(card, page = PAGE_KEY) {
+  return page + ':' + fnv1a(questionText(card));
+}
+
+// Must run before anything rewrites question text (abbreviations).
+function assignCardKeys() {
+  document.querySelectorAll('.qa-card').forEach(card => { card.dataset.cardKey = cardKey(card); });
+}
+
+// Before keys were hashes they were "<page>-<index>". Cards marked data-new did not exist then,
+// so the remaining cards in document order are exactly the old index space.
+function migrateLegacyState() {
+  const legacyRe = new RegExp('^' + PAGE_KEY + '-(\\d+)$');
+  const legacy = [...document.querySelectorAll('.qa-card:not([data-new])')].map(c => c.dataset.cardKey);
+  let changed = false;
+  masteredSet = new Set([...masteredSet].map(k => {
+    const m = legacyRe.exec(k);
+    if (!m) return k;
+    changed = true;
+    return legacy[+m[1]];
+  }).filter(Boolean));
+  if (changed) saveMastery();
+  legacy.forEach((key, idx) => {
+    const oldKey = NOTES_PREFIX + PAGE_KEY + '-' + idx;
+    const note = localStorage.getItem(oldKey);
+    if (note === null) return;
+    if (!localStorage.getItem(NOTES_PREFIX + key)) localStorage.setItem(NOTES_PREFIX + key, note);
+    localStorage.removeItem(oldKey);
+  });
+}
+
 function loadMastery() {
   try {
     const raw = localStorage.getItem(MASTERY_PREFIX + PAGE_KEY);
@@ -115,14 +257,19 @@ function saveMastery() {
 function updateProgress() {
   const total    = document.querySelectorAll('.qa-card').length;
   const mastered = document.querySelectorAll('.qa-card.mastered').length;
+  document.querySelectorAll('[data-qcount]').forEach(el => { el.textContent = total; });
+  document.querySelectorAll('[data-scount]').forEach(el => {
+    el.textContent = [...document.querySelectorAll('.section-group')].filter(g => g.querySelector('.qa-card')).length;
+  });
   const bar      = document.getElementById('progressFill');
   const label    = document.getElementById('progressLabel');
-  if (!bar || total === 0) return;
-  const pct = Math.round((mastered / total) * 100);
-  bar.style.width = pct + '%';
-  bar.style.background = pct >= 80 ? 'linear-gradient(90deg,#10b981,#34d399)'
-                       : pct >= 40 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)'
-                       : 'linear-gradient(90deg,var(--accent),var(--accent-2))';
+  const pct = total ? Math.round((mastered / total) * 100) : 0;
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = pct >= 80 ? 'linear-gradient(90deg,#10b981,#34d399)'
+                         : pct >= 40 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)'
+                         : 'linear-gradient(90deg,var(--accent),var(--accent-2))';
+  }
   if (label) label.textContent = `${mastered} / ${total} mastered`;
   const topbarNum   = document.getElementById('topbarMasteredNum');
   const topbarTotal = document.getElementById('topbarMasteredTotal');
@@ -218,12 +365,10 @@ function markCardMastered(card) {
 
 function initMastery() {
   loadMastery();
+  migrateLegacyState();
 
-  // Assign stable keys and inject mastery buttons
-  document.querySelectorAll('.qa-card').forEach((card, idx) => {
-    const key = PAGE_KEY + '-' + idx;
-    card.dataset.cardKey = key;
-    if (masteredSet.has(key)) card.classList.add('mastered');
+  document.querySelectorAll('.qa-card').forEach(card => {
+    if (masteredSet.has(card.dataset.cardKey)) card.classList.add('mastered');
 
     const btn = document.createElement('button');
     btn.className = 'mastery-btn';
@@ -278,29 +423,42 @@ function initMastery() {
 }
 
 // ─── Search ───────────────────────────────────────────────────────────────
+// Search and pillar filter combine; a section with no visible card is hidden,
+// and a collapsed section is forced open while a search matches inside it.
+const filterState = { pillar: '', query: '' };
+
+function applyFilters() {
+  document.querySelectorAll('.qa-card').forEach(card => {
+    const pillarOk = !filterState.pillar || card.dataset.pillar === filterState.pillar;
+    const queryOk  = !filterState.query || card.textContent.toLowerCase().includes(filterState.query);
+    card.style.display = pillarOk && queryOk ? '' : 'none';
+  });
+  document.querySelectorAll('.section-group').forEach(group => {
+    const cards = [...group.querySelectorAll('.qa-card')];
+    if (!cards.length) return;
+    const anyVisible = cards.some(c => c.style.display !== 'none');
+    group.classList.toggle('filtered-out', !anyVisible);
+    group.classList.toggle('force-open', anyVisible && !!filterState.query);
+  });
+}
+
 function initSearch() {
   const input = document.getElementById('searchInput');
   if (!input) return;
   input.addEventListener('input', () => {
-    const q = input.value.toLowerCase().trim();
-    document.querySelectorAll('.qa-card').forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = (!q || text.includes(q)) ? '' : 'none';
-    });
+    filterState.query = input.value.toLowerCase().trim();
+    applyFilters();
   });
 }
 
-// ─── Filter by pillar ─────────────────────────────────────────────────────
 function initPillarFilter() {
   document.querySelectorAll('.pillar-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      const pillar = chip.dataset.pillar;
+      const pillar = chip.dataset.pillar || '';
+      filterState.pillar = pillar === 'all' ? '' : pillar;
       document.querySelectorAll('.pillar-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
-      document.querySelectorAll('.qa-card').forEach(card => {
-        const match = !pillar || card.dataset.pillar === pillar;
-        card.style.display = match ? '' : 'none';
-      });
+      applyFilters();
     });
   });
 }
@@ -438,7 +596,7 @@ function replaceInTextNode(textNode, pattern, seen) {
     el.title = full;
     el.dataset.abbr  = abbr;
     el.dataset.first = first ? '1' : '0';
-    el.textContent   = first ? `${abbr} (${abbr})` : abbr; // will be corrected by applyAbbrMode
+    el.textContent   = abbr;
     frag.appendChild(el);
 
     last = match.index + match[0].length;
@@ -543,8 +701,8 @@ function initScrollSpy() {
 const NOTES_PREFIX = 'interview-notes-';
 
 function initNotes() {
-  document.querySelectorAll('.qa-card').forEach((card, idx) => {
-    const noteKey = NOTES_PREFIX + PAGE_KEY + '-' + idx;
+  document.querySelectorAll('.qa-card').forEach(card => {
+    const noteKey = NOTES_PREFIX + card.dataset.cardKey;
     const saved   = localStorage.getItem(noteKey) || '';
 
     const wrap = document.createElement('div');
@@ -695,6 +853,8 @@ function updateSectionCounters() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  renderSidebar();
+  assignCardKeys();
   initTheme();
   initSectionCollapse();
   initAccordion();
